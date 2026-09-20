@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Der Regelkern. Zwei harte Regeln:
+      1. Keine Unity-Abhaengigkeit. Der Kern laeuft in Tests, in der
+         Balancing-Simulation und spaeter notfalls auf einem Server.
+      2. Keine NuGet-Abhaengigkeit. Unity zieht diese Quellen direkt ein,
+         und jedes Paket waere dort ein eigenes Integrationsproblem.
+
+    netstandard2.1 ist die API-Ebene, die Unity 2022.3 LTS versteht.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Tartot.Core</AssemblyName>
+    <RootNamespace>Tartot.Core</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors></WarningsNotAsErrors>
+  </PropertyGroup>
+
+</Project>

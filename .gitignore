@@ -1,9 +1,21 @@
-# Godot
-.godot/
-android/
-build/
-export_presets.cfg
-*.translation
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Unity
+unity/Library/
+unity/Temp/
+unity/Obj/
+unity/Build/
+unity/Logs/
+unity/UserSettings/
+unity/[Mm]emoryCaptures/
+*.csproj.user
+
+# Godot-Referenz
+reference/godot/.godot/
 
 # Werkzeuge
 __pycache__/
