@@ -64,7 +64,7 @@ Benötigt **Godot 4.4** (kein Editor nötig für Tests und Simulation).
 # Einmalig und nach jeder neuen class_name-Datei: Klassencache aufbauen
 godot --headless --path . --import
 
-# Testlauf — 176 Prüfungen
+# Testlauf — 193 Prüfungen
 godot --headless --path . --script tests/lauf.gd
 
 # Balancing: 200 komplette Runs spielen und auswerten
@@ -91,7 +91,7 @@ python3 tools/gen_gegner.py           # 24 Gegner inklusive 7 Bossen
 
 ## Stand
 
-Der Regelkern ist vollständig und gemessen: 176 Tests, 21,5 % Siegquote für
+Der Regelkern ist vollständig und gemessen: 193 Tests, 21,5 % Siegquote für
 einen Autopiloten, der die Regeln kennt, aber nicht rechnet. Die UI ist
 spielbar, aber ohne Animation und ohne Kunst. Details in
 [`docs/05_ROADMAP.md`](docs/05_ROADMAP.md).

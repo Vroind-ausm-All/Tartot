@@ -108,7 +108,7 @@ automatisch simulierbar.
 # Klassencache und Import aufbauen (einmalig und nach neuen class_name-Dateien)
 godot --headless --path . --import
 
-# Testlauf (176 Prüfungen, kein Framework nötig)
+# Testlauf (193 Prüfungen, kein Framework nötig)
 godot --headless --path . --script tests/lauf.gd
 
 # Balancing: 200 komplette Runs

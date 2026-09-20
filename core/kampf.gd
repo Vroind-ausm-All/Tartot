@@ -204,6 +204,11 @@ func _zug_vorbereiten() -> void:
 			spieler.gib(Konst.St.SCHILD, rest)
 			protokoll("Siegel: %d Schild bleibt bestehen." % rest)
 
+	if muenze_rueckschlag_faellig > 0:
+		spieler.gib(Konst.St.SCHILD, muenze_rueckschlag_faellig)
+		protokoll("Die Muenze kehrt zurueck: +%d Schild." % muenze_rueckschlag_faellig)
+		muenze_rueckschlag_faellig = 0
+
 	_zukunft_erfuellen()
 	_bossregeln_pruefen()
 	_markierungen_ticken()
@@ -512,7 +517,6 @@ func _modifikator(k: Karte, pos: int, muster_b: int) -> Dictionary:
 	if pos == Konst.Pos.ZUKUNFT:
 		modi += bonus_zukunft
 		modi += int(run_regeln.get("zukunft_prozent", 0)) * 10
-		modi += charms.regelwert("henkerkette_dummy")  # Platzhalter, Charm laeuft ueber mod
 	if k.ist_umgekehrt():
 		modi += bonus_umgekehrt
 		# Verderbnis macht umgekehrte Karten staerker - die Verdunkelung zahlt sich aus.
@@ -529,10 +533,10 @@ func _modifikator(k: Karte, pos: int, muster_b: int) -> Dictionary:
 		naechste_angriffe_anzahl -= 1
 		if naechste_angriffe_anzahl == 0:
 			naechste_angriffe_bonus = 0
-	modi += int(run_regeln.get("schaden_prozent", 0)) * 10 if _ist_angriff(k) else 0
+	if _ist_angriff(k):
+		modi += int(run_regeln.get("schaden_prozent", 0)) * 10
+	# Weltenfaden: je 5 verschiedene Charms +2 % pro Stack.
 	modi += charms.regelwert("weltenfaden") * 10 * int(charms.verschiedene() / 5)
-	if charms.hat_regel("glasherz"):
-		pass  # Heilungsbonus wird in heilen() angewandt
 
 	var kontext := {
 		"karte": k, "position": pos, "ops": _karten_ops(k),
@@ -890,6 +894,10 @@ func _absicht_weiter(i: int) -> void:
 
 # ============================================================= Gegnerzug
 func _gegner_handeln() -> void:
+	if gegner_zug_ueberspringen:
+		gegner_zug_ueberspringen = false
+		protokoll("Der Strick haelt: der Gegner kommt diese Runde nicht dazu.")
+		return
 	for i in gegner.size():
 		var g: Kaempfer = gegner[i]
 		if g.tot:
@@ -942,6 +950,12 @@ func _gegner_schaden(g: Kaempfer, wert: int) -> void:
 	var schild_vorher: int = spieler.stapel(Konst.St.SCHILD)
 	var verloren: int = spieler.schaden_nehmen(w)
 	var geblockt: int = schild_vorher - spieler.stapel(Konst.St.SCHILD)
+	# Die umgekehrte Muenze zahlt zurueck, sobald das Schild vollstaendig faellt.
+	if muenze_rueckschlag > 0 and schild_vorher > 0 and not spieler.hat(Konst.St.SCHILD):
+		muenze_rueckschlag_faellig += muenze_rueckschlag
+		muenze_rueckschlag = 0
+		protokoll("Die Muenze zerbricht - naechste Runde %d Schild."
+			% muenze_rueckschlag_faellig)
 	protokoll("%s greift an: %d Schaden (%d geblockt), HP %d/%d."
 		% [g.name, verloren, geblockt, spieler.hp, spieler.hp_max])
 	ereignis("spieler_getroffen", {"wert": verloren, "geblockt": geblockt})
@@ -1204,7 +1218,9 @@ func zustand() -> Dictionary:
 
 # ------------------------------------------------- Nachtraege fuer Spezialops
 ## Die umgekehrte Muenze zahlt zurueck, wenn dein Schild vollstaendig faellt.
+## muenze_rueckschlag ist der vorgemerkte Betrag, _faellig der ausgeloeste.
 var muenze_rueckschlag: int = 0
+var muenze_rueckschlag_faellig: int = 0
 var gegner_zug_ueberspringen: bool = false
 
 ## II Die Hohepriesterin (umgekehrt): drei Karten ansehen, die beste behalten.

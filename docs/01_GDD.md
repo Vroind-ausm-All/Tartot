@@ -448,5 +448,5 @@ So spürt man Luck, ohne dass im Kampf permanent Zufall passiert.
 | UI (Hochformat, spielbar) | Prototyp ohne Animation und Kunst |
 | Animation, Ton, Kunst | offen — siehe `docs/05_ROADMAP.md` |
 
-**176 automatisierte Tests**, `tools/sim.gd` spielt komplette Runs für
+**193 automatisierte Tests**, `tools/sim.gd` spielt komplette Runs für
 Balancing. Details in `docs/04_BALANCING.md`.

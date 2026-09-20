@@ -34,6 +34,8 @@ func _initialize() -> void:
 	_test_kampf_laeuft_durch(kat)
 	_test_run_speichern_laden(kat)
 	_test_determinismus_ganzer_kampf(kat)
+	_test_endlosmodus(kat)
+	_test_verderbnis_verdunkelt(kat)
 
 	print("\n=== Ergebnis: %d bestanden, %d fehlgeschlagen ===" % [bestanden, fehlgeschlagen])
 	for f in fehlerliste:
@@ -471,6 +473,81 @@ func _test_determinismus_ganzer_kampf(kat: Katalog) -> void:
 	var log_c: Array = _kampf_protokoll(kat, 778)
 	gleich(log_a, log_b, "gleicher Seed erzeugt identischen Kampfverlauf")
 	pruefe(log_a != log_c, "anderer Seed erzeugt anderen Verlauf")
+
+func _test_endlosmodus(kat: Katalog) -> void:
+	t("Endlosmodus")
+	var run := Run.neu(kat, "wahrsagerin", 31337)
+	run.endlos_beginnen()
+	pruefe(run.endlos, "die Spirale ist offen")
+	gleich(run.verderbte_arkana.size(), 0, "zu Beginn noch kein verderbtes Arkanum")
+
+	# 15 Raeume durchlaufen: alle 5 Raeume muss ein Arkanum dazukommen.
+	var verderbnis_vorher: int = run.verderbnis
+	for _i in 15:
+		run.wegkarten_ziehen()
+		run.weg_waehlen(0)
+	gleich(run.verderbte_arkana.size(), 3, "alle 5 Raeume kommt ein Arkanum dazu")
+	pruefe(run.run_regeln.size() > 0, "die Regeln der Arkana sind uebernommen")
+	pruefe(run.verderbnis > verderbnis_vorher, "die Spirale erhoeht die Verderbnis")
+
+	# Keine Dubletten - jedes Arkanum hoechstens einmal.
+	var gesehen := {}
+	for id in run.verderbte_arkana:
+		pruefe(not gesehen.has(id), "Arkanum %s kommt nur einmal" % id)
+		gesehen[id] = true
+
+	# Die Gegner wachsen superexponentiell mit der Tiefe.
+	var f0: float = run._gegner_hp_faktor()
+	run.endlos_tiefe = 5
+	var f5: float = run._gegner_hp_faktor()
+	run.endlos_tiefe = 15
+	var f15: float = run._gegner_hp_faktor()
+	pruefe(f5 > f0 * 2.0, "Tiefe 5 verdoppelt die Gegner mindestens (%.2f)" % f5)
+	pruefe(f15 > f5 * 4.0, "Tiefe 15 waechst ueberproportional (%.2f)" % f15)
+	print("    Gegner-HP-Faktor: Tiefe 0 = %.2f, Tiefe 5 = %.2f, Tiefe 15 = %.2f"
+		% [f0, f5, f15])
+
+func _test_verderbnis_verdunkelt(kat: Katalog) -> void:
+	t("Verderbnis")
+	# Aufwerten verdunkelt immer mit - Macht hat einen sichtbaren Preis.
+	var k := kat.karte("schwerter_05")
+	gleich(k.tinte, 0, "neue Karte ist blass")
+	k.aufwerten(1)
+	k.aufwerten(1)
+	gleich(k.stufe, 2, "zweimal aufgewertet")
+	gleich(k.tinte, 2, "Tinte steigt mit jeder Aufwertung")
+	gleich(k.tintenname(), "Russ", "Tintenstufe hat einen Namen")
+
+	# Umgekehrte Karten profitieren von hoher Verderbnis.
+	var schwach := _kampf(kat, ["schwerter_05"], "lachender_henker", {"verderbnis": 0})
+	var kk := _hand_karte(schwach, "schwerter_05")
+	kk.drehen()
+	var hp_a: int = schwach.gegner[0].hp
+	schwach.legen(kk, Konst.Pos.GEGENWART)
+	schwach.ausfuehren()
+	var s_ohne: int = hp_a - schwach.gegner[0].hp
+
+	var stark := _kampf(kat, ["schwerter_05"], "lachender_henker", {"verderbnis": 100})
+	var kk2 := _hand_karte(stark, "schwerter_05")
+	kk2.drehen()
+	var hp_b: int = stark.gegner[0].hp
+	stark.legen(kk2, Konst.Pos.GEGENWART)
+	stark.ausfuehren()
+	var s_mit: int = hp_b - stark.gegner[0].hp
+	pruefe(s_mit > s_ohne,
+		"volle Verderbnis verstaerkt umgekehrte Karten (%d statt %d)" % [s_mit, s_ohne])
+
+	# Beute "traenken" wertet auf und verdunkelt.
+	var run := Run.neu(kat, "wahrsagerin", 99)
+	var stufen_vorher: int = 0
+	for karte in run.deck:
+		stufen_vorher += karte.stufe
+	run.beute_waehlen("traenken")
+	var stufen_nachher: int = 0
+	for karte in run.deck:
+		stufen_nachher += karte.stufe
+	pruefe(stufen_nachher > stufen_vorher, "Traenken wertet Karten auf")
+	pruefe(run.verderbnis > 0, "Traenken erhoeht die Verderbnis")
 
 func _kampf_protokoll(kat: Katalog, seed: int) -> Array:
 	var rng := TRng.new(seed)

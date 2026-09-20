@@ -82,8 +82,10 @@ Zielwert: **rund 20 Drops pro vollem Run.** Gemessen: 25,6 Stacks im Schnitt.
 Gegner-HP-Faktor(t) = 1,19^t × (1 + 0,012·t²)
 ```
 
+Gemessen: Tiefe 0 = 1,08 · Tiefe 5 = **3,35** · Tiefe 15 = **54,30**.
 Superexponentiell, damit auch absurde Builds irgendwann scheitern. Alle 5
-Räume kommt ein Verderbtes Arkanum dauerhaft dazu.
+Räume kommt ein Verderbtes Arkanum dauerhaft dazu — geprüft: keine
+Dubletten, die Regeln sammeln sich im Run, die Verderbnis steigt mit.
 
 ---
 
@@ -171,13 +173,13 @@ zwei Elites hintereinander. Der Spieler darf sie weiter ignorieren.
 | **Deck wird nicht klein genug** | 13,4 statt der angepeilten 8–10 | Zum Teil Schwäche des Autopiloten. Gegenprobe nötig: Läufe mit erzwungener Löschstrategie. |
 | **Umgekehrte Karten unterrepräsentiert** | Der Autopilot dreht fast nie | Braucht eine bessere Heuristik, bevor man daraus Balancing-Schlüsse zieht. |
 | **Nur ein Deuter gemessen** | Die anderen 5 sind ungetestet | `--deuter=verbrannte` usw. durchlaufen lassen; besonders *Das leere Blatt* (4 Legungen, 6 Karten) ist verdächtig. |
-| **Endlosmodus** | Läuft, aber Kurve ungeprüft | Braucht lange Läufe; ein Run kann 200 Räume dauern. |
+| **Endlosmodus** | Mechanik geprüft, Spielgefühl nicht | Die Arkana-Stapelung und die HP-Kurve sind getestet. Was fehlt, ist eine lange Messreihe — ein Endlos-Run kann 200 Räume dauern und der Autopilot braucht dafür Minuten. Nächster Schritt: Raumgrenze im Simulator konfigurierbar machen und über Nacht laufen lassen. |
 
 ---
 
 ## 5. Regressionsschutz
 
-`tests/lauf.gd` prüft 176 Zusicherungen ohne Framework, darunter:
+`tests/lauf.gd` prüft 193 Zusicherungen ohne Framework, darunter:
 
 - **Determinismus:** gleicher Seed ⇒ identisches Kampfprotokoll; benannte
   Ströme sind unabhängig und reproduzierbar
@@ -194,3 +196,7 @@ zwei Elites hintereinander. Der Spieler darf sie weiter ignorieren.
   und Charm-Stacks überstehen eine JSON-Rundreise
 - **Katalogintegrität:** 56 + 22 + 50 + 22 Einträge, jede Zahlenkarte hat
   beide Orientierungen, jedes Arkanum alle drei Gesichter
+- **Endlosmodus:** alle 5 Räume genau ein neues verderbtes Arkanum, keine
+  Dubletten, Regeln sammeln sich, HP-Faktor wächst überproportional
+- **Verderbnis:** Aufwerten erhöht immer auch die Tinte; volle Verderbnis
+  verstärkt umgekehrte Karten messbar; *Tränken* wertet auf und verdunkelt
