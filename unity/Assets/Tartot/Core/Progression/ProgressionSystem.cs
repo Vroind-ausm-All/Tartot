@@ -183,7 +183,8 @@ namespace Tartot.Core
         {
             var discount = CharmStacks(run, CharmEffectType.RemoveDiscount) * .15f;
             fateCost = Math.Max(20, (int)Math.Round(fateCost * Math.Max(.35f, 1f - discount)));
-            if (run.Fate < fateCost || run.Deck.Count <= 5 || !run.Deck.Contains(card)) return false;
+            if (run.Fate < fateCost || run.Deck.Count <= GameCatalog.MinimumDeckSize
+                || !run.Deck.Contains(card)) return false;
             run.Fate -= fateCost;
             run.Deck.Remove(card);
             run.RemovedCards.Add(card);

@@ -160,6 +160,13 @@ namespace Tartot.Core
             };
         }
 
+        private static JsonValue WriteCounts(IReadOnlyDictionary<string, int> counts)
+        {
+            var node = JsonValue.Object();
+            foreach (var pair in counts) node.Set(pair.Key, pair.Value);
+            return node;
+        }
+
         private static JsonValue WriteCardRefs(IEnumerable<CardInstance> cards)
         {
             var array = JsonValue.Array();
@@ -204,7 +211,9 @@ namespace Tartot.Core
                 .Set("startShieldBuff", run.StartShieldBuff)
                 .Set("freeShop", run.FreeNextShopPurchase)
                 .Set("fateTotal", run.FateScoreTotal)
-                .Set("prophecy", run.Prophecy ?? string.Empty);
+                .Set("prophecy", run.Prophecy ?? string.Empty)
+                .Set("shopRemovals", run.ShopRemovals)
+                .Set("interpretations", WriteCounts(run.Interpretations));
         }
 
         private static RunState ReadRun(JsonValue node, IReadOnlyDictionary<string, CardInstance> pool)
@@ -226,8 +235,14 @@ namespace Tartot.Core
                 StartShieldBuff = node.GetInt("startShieldBuff"),
                 FreeNextShopPurchase = node.GetBool("freeShop"),
                 FateScoreTotal = node.GetInt("fateTotal"),
-                Prophecy = node.GetString("prophecy")
+                Prophecy = node.GetString("prophecy"),
+                ShopRemovals = node.GetInt("shopRemovals")
             };
+
+            var interpretations = node.Get("interpretations");
+            if (interpretations != null && interpretations.Kind == JsonKind.Object)
+                foreach (var pair in interpretations.Members)
+                    run.Interpretations[pair.Key] = (int)Math.Round(pair.Value.NumberValue);
 
             run.Deck.AddRange(ReadCardRefs(node, "deck", pool));
             run.RemovedCards.AddRange(ReadCardRefs(node, "removed", pool));

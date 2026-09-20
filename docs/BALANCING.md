@@ -150,6 +150,95 @@ zusätzlich beschleunigt.
 
 ---
 
+## 3b. Drei gezielte Eingriffe, gemessen
+
+### Umgekehrte Karten sind jetzt eine Wahl
+
+Vorher: `Rang / 5` HP — bei einer 9 also **1 HP** gegen ×1,18 Kraft und
++0,10 Multiplikator. Umgekehrt war strikt besser, es gab keine Entscheidung.
+Große Arkana zahlten den Preis **gar nicht**, weil ihr Zweig vor der
+Preisberechnung zurückkehrte.
+
+Jetzt hängt der Preis an der tatsächlichen Wirkung der Karte
+(`CombatSystem.ReversedCostFraction`). Messreihe, gleiches Startdeck einmal
+komplett aufrecht und einmal komplett umgekehrt, je 150 Runs:
+
+| Anteil | Kämpfe umgekehrt | gegen aufrecht 10,1 |
+|---|---|---|
+| 0,06 | 9,7 | knapp darunter |
+| **0,08** | **9,7** | **gewählt** |
+| 0,10 | 9,0 | spürbar schwächer |
+| 0,14 | 8,3 | |
+| 0,18 | 7,4 | |
+| 0,22 | 6,4 | unspielbar |
+
+Bei 250 Runs je Seite mit dem gewählten Wert:
+
+| | Ø Kämpfe | Maximum |
+|---|---|---|
+| aufrecht | 10,2 | 15 |
+| umgekehrt | 9,7 | **20** |
+
+Das ist die Form, die ein Risiko-Build haben soll: **schlechterer Schnitt,
+deutlich höhere Decke.** Mit den unterstützenden Charms (*Blutmondsplitter*
++15 % auf Karten mit Selbstschaden, *Mondbrosche*) kippt die Rechnung — ohne
+sie bleibt Umkehren ein Verlustgeschäft.
+
+**Grenze der Skalierung, ehrlich benannt:** Basiskarten haben Wirkung 4–13.
+Bei 0,08 rundet der Preis dort auf 1 HP, egal ob Rang 2 oder Rang 10 — die
+Staffelung greift erst bei gewachsenen Karten, in der Zukunftsposition und bei
+Großen Arkana. Der Nebeneffekt ist brauchbar: eine schwache Karte umzudrehen
+ist schlechtes Geschäft (1 HP auf Wirkung 4), eine starke gutes.
+
+Der Schaden kann **nicht töten**. An der eigenen Karte zu sterben fühlt sich
+nach Willkür an; der Druck entsteht aus der Zehrung über den Run, weil
+zwischen den Kämpfen nicht geheilt wird.
+
+### Gold ist keine tote Ressource mehr
+
+Vergessen gibt es jetzt auch beim Händler, gegen Gold, mit steigendem Preis
+(45, dann +25 je Löschung, Händlerrabatte greifen).
+
+| | ungenutztes Gold am Rundenende |
+|---|---|
+| vorher | 80 |
+| nachher | **48** |
+
+**Der größere Teil dieses Gewinns kam allerdings nicht vom neuen Dienst,
+sondern vom Messinstrument:** der Autopilot ging erst ab 120 Gold zum
+Händler — einer Schwelle, die ein Run im Schnitt nie erreichte. Mit 60 wird
+der Händler überhaupt besucht.
+
+Den Löschdienst selbst nutzt der Autopilot fast nie (0,0–0,1 pro Run), weil
+seine Belohnungspolitik das Deck ohnehin bei der Zielgröße deckelt und
+Ritualräume kostenlos ausdünnen. Für einen Menschen, der früh gierig Karten
+mitnimmt, ist er die Korrektur — belegt ist das aber nicht. Die Funktion
+selbst ist durch neun Tests abgedeckt.
+
+### Lesarten wirken
+
+Freigeschaltete Lesarten werden beim Run-Start aus dem Meta-Fortschritt
+**kopiert** — ein laufender Run ändert sich dadurch nicht mehr, sonst liefe
+ein Speicherstand anders weiter und der Seed wäre wertlos. Jede Lesart gibt
+ihrem Arkanum +15 % Wirkung; wer alle drei kennt, legt es ohne Umkehrpreis.
+
+| | Ø Kämpfe (400 Runs) |
+|---|---|
+| ohne Lesarten | 9,9 |
+| alle Lesarten | **10,1** |
+
+Ein kleiner Effekt — und das ist richtig so. Das Startdeck enthält nur zwei
+Große Arkana; wer gezielt auf sie baut, holt mehr heraus. Meta-Progression
+soll hier Verständnis belohnen, nicht einen pauschalen Schadensbonus geben.
+
+**Ein Hinweis zur Methode:** der erste Test dieser Aussage lief über 20 Runs
+und schlug fehl (9,35 gegen 9,70) — bei einem Effekt von 2 % und einem
+Rauschen von ±4 % war das Zufall. Solche Aussagen gehören in eine Messreihe,
+nicht in die Testsuite. Der Test wurde entfernt und durch einen Verweis auf
+den Simulationsaufruf ersetzt.
+
+---
+
 ## 4. Offene Punkte
 
 | Punkt | Beobachtung | Vorschlag |
@@ -157,15 +246,14 @@ zusätzlich beschleunigt.
 | **Inhaltsmenge** | 8 gebaute Gegner, davon nur einer gefährlich | Akt-Struktur mit eigenen Gegnersätzen und Bossen |
 | **Resonanz-Gewicht** | 0,06/Stufe ist kosmetisch | Deckgrößen-Anteil von den übrigen Faktoren trennen und getrennt gewichten |
 | **Ausdünn-Gelegenheiten** | Nur Ritualräume entfernen Karten | Entfernen auch beim Händler anbieten |
-| **Ungenutztes Gold** | 81 im Schnitt am Ende | Goldsenken fehlen, sobald das Deck voll ist |
-| **Umgekehrte Karten** | +18 % Kraft, +10 % Multiplikator, Selbstschaden kann nie töten | Derzeit strikt besser statt riskanter. Der Preis muss spürbar werden, bevor Reverse-Builds ein echter Pfad sind |
-| **Lesarten** | werden gesammelt, wirken aber noch nicht | in die Kartenwirkung einspeisen |
+| **Löschdienst ungenutzt** | Der Autopilot löscht 0,0–0,1 Karten pro Run beim Händler | Seine Politik deckelt das Deck ohnehin. Ob der Dienst für Menschen trägt, zeigt erst Spielerfahrung |
+| **Umkehrpreis rundet grob** | Basiskarten kosten alle 1 HP, unabhängig vom Rang | Erst relevant, wenn Kartenwirkungen insgesamt größer werden |
 
 ---
 
 ## 5. Regressionsschutz
 
-**101 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
+**127 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
 Defekt ein eigener Test:
 
 - **Determinismus**: gleicher Seed → identischer Run; goldene RNG-Folge

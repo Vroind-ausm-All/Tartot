@@ -29,6 +29,24 @@ namespace Tartot.Core
         /// </summary>
         public const float DeckResonancePerStep = 0.06f;
 
+        /// <summary>
+        /// Anteil der Kartenwirkung, den eine umgekehrte Karte als Selbstschaden
+        /// kostet. Der Preis haengt bewusst an der tatsaechlichen Wirkung und
+        /// nicht am nackten Rang: vorher kostete eine 9 genau 1 HP gegen +18 %
+        /// Kraft und +0,10 Multiplikator - umgekehrt war damit strikt besser
+        /// statt riskanter, und es gab keine Entscheidung mehr.
+        /// Siehe docs/BALANCING.md fuer die Messreihe hinter diesem Wert.
+        /// </summary>
+        public const float ReversedCostFraction = 0.08f;
+
+        /// <summary>
+        /// Wirkungszuwachs eines Grossen Arkanums je freigeschalteter Lesart.
+        /// Meta-Fortschritt ist hier kein "+5 % Schaden" auf alles, sondern:
+        /// du verstehst eine bestimmte Karte besser und holst mehr aus ihr
+        /// heraus. Wer nie mit dem Tod gespielt hat, kann ihn nicht deuten.
+        /// </summary>
+        public const float InterpretationPowerPerReading = 0.15f;
+
         private readonly DeterministicRandom _rng;
 
         /// <summary>
@@ -364,14 +382,17 @@ namespace Tartot.Core
             var rageFactor = card.Rage >= 3 ? 1.5f : 1f;
             if (card.Rage >= 3) card.Rage = 0;
             var factor = slotFactor * card.PowerMultiplier * charmFactor * rageFactor;
+            var power = Math.Max(1, (int)Math.Round(card.Definition.BasePower * factor));
 
             if (card.Definition.IsMajor)
             {
                 ApplyMajor(run, combat, card, slot, factor, result);
+                // Grosse Arkana zahlten den Umkehrpreis bisher gar nicht, weil
+                // dieser Zweig vorher zurueckkehrte.
+                PayReversedCost(run, card, power, result);
                 return;
             }
 
-            var power = Math.Max(1, (int)Math.Round(card.Definition.BasePower * factor));
             switch (card.Definition.Suit)
             {
                 case Suit.Swords:
@@ -410,18 +431,45 @@ namespace Tartot.Core
                 }
             }
 
-            if (card.Orientation == Orientation.Reversed)
+            PayReversedCost(run, card, power, result);
+            ApplyGenericCharmTriggers(run, combat, card, result);
+        }
+
+        /// <summary>
+        /// Der Umkehrpreis: Selbstschaden, der Schild ignoriert.
+        /// </summary>
+        /// <remarks>
+        /// Der Schaden kann nicht toeten. An der eigenen Karte zu sterben
+        /// faehlt sich nach Willkuer an, nicht nach Risiko - der Druck
+        /// entsteht aus der Zehrung ueber den ganzen Run, denn zwischen den
+        /// Kaempfen wird nicht geheilt.
+        ///
+        /// Wer alle drei Lesarten eines Grossen Arkanums kennt, versteht es gut
+        /// genug, um es ohne Preis umgekehrt zu legen.
+        /// </remarks>
+        private void PayReversedCost(RunState run, CardInstance card, int power, TurnResult result)
+        {
+            if (card.Orientation != Orientation.Reversed) return;
+            if (card.Definition.IsMajor && run.InterpretationCount(card.Definition.Id) >= 3)
             {
-                var selfDamage = Math.Max(1, card.Definition.Rank / 5);
-                run.Hp = Math.Max(1, run.Hp - selfDamage);
-                result.Log.Add($"Umkehrpreis: -{selfDamage} HP.");
+                result.Log.Add($"{card.Definition.Name}: die verkehrte Lesart kostet dich nichts mehr.");
+                return;
             }
 
-            ApplyGenericCharmTriggers(run, combat, card, result);
+            var selfDamage = Math.Max(1, (int)Math.Round(power * ReversedCostFraction));
+            run.Hp = Math.Max(1, run.Hp - selfDamage);
+            result.Log.Add($"Umkehrpreis: -{selfDamage} HP.");
         }
 
         private void ApplyMajor(RunState run, CombatState combat, CardInstance card, SlotPosition slot, float factor, TurnResult result)
         {
+            var readings = run.InterpretationCount(card.Definition.Id);
+            if (readings > 0)
+            {
+                factor *= 1f + readings * InterpretationPowerPerReading;
+                result.Log.Add($"{card.Definition.Name}: {readings} Lesart(en) vertieft die Deutung.");
+            }
+
             var major = card.Definition.Major.Value;
             var p = Math.Max(1, (int)Math.Round((card.Definition.BasePower + card.Level) * factor));
             switch (major)

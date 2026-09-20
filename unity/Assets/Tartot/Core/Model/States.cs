@@ -116,6 +116,8 @@ namespace Tartot.Core
         public bool FreeNextShopPurchase;
         public int FateScoreTotal;
         public string Prophecy = string.Empty;
+        /// <summary>Wie oft beim Haendler gegen Gold geloescht wurde - der Preis steigt.</summary>
+        public int ShopRemovals;
 
         public int CharmStacks(string charmId)
         {
@@ -140,6 +142,21 @@ namespace Tartot.Core
             Items[itemId] = count - 1;
             return true;
         }
+
+        /// <summary>
+        /// Freigeschaltete Lesarten je Grossem Arkanum, als Abzug aus dem
+        /// Meta-Fortschritt beim Run-Start.
+        /// </summary>
+        /// <remarks>
+        /// Bewusst eine Kopie und kein Verweis auf MetaProgress: ein Run muss
+        /// in sich geschlossen und reproduzierbar sein. Sonst wuerde ein
+        /// Speicherstand anders weiterlaufen, nur weil zwischendurch eine
+        /// Lesart dazukam.
+        /// </remarks>
+        public readonly Dictionary<string, int> Interpretations = new Dictionary<string, int>();
+
+        public int InterpretationCount(string cardId) =>
+            cardId != null && Interpretations.TryGetValue(cardId, out var count) ? count : 0;
 
         public int DistinctSuitCount()
         {

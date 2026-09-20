@@ -47,7 +47,7 @@ unity/Assets/Tartot/
   Scripts/         Bootstrap
 src/
   Tartot.Core/     csproj, das dieselben Core-Quellen verlinkt (eine Kopie!)
-  Tartot.Tests/    xunit — 101 Tests
+  Tartot.Tests/    xunit — 127 Tests
   Tartot.Sim/      Balancing-Simulation
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
@@ -68,7 +68,7 @@ auseinanderlaufen.
 # Alles bauen
 dotnet build
 
-# Tests (101)
+# Tests (127)
 dotnet test src/Tartot.Tests
 
 # Balancing: 200 komplette Runs spielen und auswerten
@@ -101,7 +101,7 @@ inklusive Weg von Hand und was ungeprüft ist, in
 
 ## Stand
 
-Der Regelkern ist geprüft: **101 Tests**, 200 Runs ohne Absturz, Speichern
+Der Regelkern ist geprüft: **127 Tests**, 200 Runs ohne Absturz, Speichern
 und Laden mitten im Kampf, reproduzierbare Seeds. Was fehlt, ist überwiegend
 Inhalt und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).

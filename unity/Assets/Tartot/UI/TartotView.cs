@@ -118,7 +118,10 @@ namespace Tartot.Unity
         private void NewRun()
         {
             var seed = Seed != 0 ? Seed : DateTime.UtcNow.Ticks;
-            _game = new GameController(seed);
+            // Der Meta-Fortschritt geht in den Run: freigeschaltete Lesarten
+            // vertiefen die Wirkung der Grossen Arkana, die man oft genug
+            // gespielt hat.
+            _game = new GameController(seed, _meta);
             PlayerPrefs.DeleteKey(SaveKey);
         }
 
@@ -178,6 +181,11 @@ namespace Tartot.Unity
             if (_game.Phase == GamePhase.GameOver)
                 _meta.RegisterRun(_game, won: false,
                     killedBy: _game.Combat?.Enemy?.Definition?.Name ?? string.Empty);
+            else if (_game.Run.FightIndex > wasFight)
+                // Jeder ueberstandene Kampf zaehlt als Begegnung mit den
+                // Grossen Arkana im Deck - so wachsen die Lesarten.
+                foreach (var card in _game.Run.Deck)
+                    if (card.Definition.IsMajor) _meta.EncounterArcanum(card.Definition.Id);
 
             Save();
             Refresh();
@@ -382,6 +390,29 @@ namespace Tartot.Unity
                     () => _game.BuyShopOffer(index), secondary: true);
                 button.SetEnabled(!offer.Sold && _game.Run.Gold >= offer.Price);
             }
+
+            // Vergessen: die Goldsenke. Karte antippen, um sie dauerhaft aus
+            // dem Deck zu nehmen. Der Preis steigt mit jeder Loeschung.
+            var removalPrice = _game.RemovalPrice;
+            var headline = new Label($"VERGESSEN — {removalPrice} Gold je Karte");
+            headline.AddToClassList("overlay__untertitel");
+            _overlayRow.Add(headline);
+
+            var deckRow = new VisualElement();
+            deckRow.AddToClassList("overlay__reihe");
+            foreach (var card in _game.Run.Deck)
+            {
+                var element = new CardElement(card, clicked =>
+                {
+                    _game.RemoveCardAtShop(clicked.Card);
+                    Save();
+                    Refresh();
+                });
+                element.SetEnabled(_game.CanRemoveAtShop(card));
+                deckRow.Add(element);
+            }
+            _overlayRow.Add(deckRow);
+
             OverlayButton("WEITERGEHEN", () => _game.ContinueFromOffgame());
         }
 

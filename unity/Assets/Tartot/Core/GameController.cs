@@ -20,6 +20,8 @@ namespace Tartot.Core
         /// <summary>Der Seed dieses Runs. Teilbar, reproduzierbar.</summary>
         public long Seed { get; }
 
+        private readonly MetaProgress _meta;
+
         public RunState Run { get; private set; }
         public CombatState Combat { get; private set; }
         public GamePhase Phase { get; private set; }
@@ -30,9 +32,15 @@ namespace Tartot.Core
         public TurnResult LastTurn { get; private set; }
         public string Message { get; private set; } = string.Empty;
 
-        public GameController(long seed = 1337)
+        /// <param name="meta">
+        /// Optionaler Meta-Fortschritt. Die freigeschalteten Lesarten werden
+        /// beim Start in den Run kopiert - danach ist der Run in sich
+        /// geschlossen und reproduzierbar.
+        /// </param>
+        public GameController(long seed = 1337, MetaProgress meta = null)
         {
             Seed = seed;
+            _meta = meta;
             // Getrennte Stroeme: ein Reroll im Laden darf die Kartenzuege im
             // naechsten Kampf nicht verschieben, sonst ist der Seed wertlos.
             var root = new DeterministicRandom(seed);
@@ -107,6 +115,7 @@ namespace Tartot.Core
         public void NewRun()
         {
             Run = GameCatalog.CreateStarterRun();
+            ApplyInterpretations(Run, _meta);
             Combat = null;
             LastVictory = null;
             LastTurn = null;
@@ -218,6 +227,49 @@ namespace Tartot.Core
             Message = "Der Händler öffnet seinen Mantel.";
         }
 
+        /// <summary>Grundpreis fuers Vergessen beim Haendler, vor Rabatten.</summary>
+        public const int RemovalBasePrice = 45;
+        public const int RemovalPriceStep = 25;
+
+        /// <summary>
+        /// Was das naechste Vergessen beim Haendler kostet.
+        /// </summary>
+        /// <remarks>
+        /// Gold war bisher ab der Deckmitte eine tote Ressource - im Schnitt
+        /// blieben 81 ungenutzt liegen. Vergessen ist die passende Senke: es
+        /// kostet dauerhaft, staerkt den Ausduenn-Hebel und konkurriert mit
+        /// dem Kauf neuer Karten um dasselbe Gold.
+        /// </remarks>
+        public int RemovalPrice =>
+            Progression.ShopPrice(Run, RemovalBasePrice + Run.ShopRemovals * RemovalPriceStep);
+
+        public bool CanRemoveAtShop(CardInstance card) =>
+            Phase == GamePhase.Shop
+            && card != null
+            && Run.Deck.Contains(card)
+            && Run.Deck.Count > GameCatalog.MinimumDeckSize
+            && Run.Gold >= RemovalPrice;
+
+        /// <summary>Loescht eine Karte beim Haendler gegen Gold.</summary>
+        public bool RemoveCardAtShop(CardInstance card)
+        {
+            if (!CanRemoveAtShop(card))
+            {
+                Message = Run.Deck.Count <= GameCatalog.MinimumDeckSize
+                    ? "Duenner geht es nicht."
+                    : "Nicht genug Gold.";
+                return false;
+            }
+
+            Run.Gold -= RemovalPrice;
+            Run.ShopRemovals++;
+            Run.Deck.Remove(card);
+            Run.RemovedCards.Add(card);
+            Progression.UpdateDeckResonance(Run);
+            Message = $"{card.Definition.Name} wurde vergessen.";
+            return true;
+        }
+
         public bool BuyShopOffer(int index)
         {
             if (Phase != GamePhase.Shop || index < 0 || index >= ShopOffers.Count) return false;
@@ -286,6 +338,15 @@ namespace Tartot.Core
         public ScoreBreakdown PreviewScore()
         {
             return Phase == GamePhase.Combat ? CombatSystem.PreviewScore(Run, Combat) : null;
+        }
+
+        /// <summary>Kopiert die freigeschalteten Lesarten in den Run.</summary>
+        private static void ApplyInterpretations(RunState run, MetaProgress meta)
+        {
+            if (meta == null) return;
+            foreach (var pair in meta.Interpretations)
+                if (pair.Value != null && pair.Value.Count > 0)
+                    run.Interpretations[pair.Key] = pair.Value.Count;
         }
 
         private void GeneratePaths()

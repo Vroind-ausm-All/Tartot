@@ -15,6 +15,8 @@ namespace Tartot.Core.Simulation
         public int CharmStacks;
         public int TurnsPlayed;
         public int DeckResonance;
+        public int ShopRemovals;
+        public int GoldSpent;
         public string DiedAgainst = "-";
         public bool ReachedLimit;
 
@@ -44,9 +46,21 @@ namespace Tartot.Core.Simulation
         public int DeckTarget = 14;
         public int MaxTurnsPerFight = 120;
 
+        /// <summary>
+        /// Dreht das Startdeck komplett auf die umgekehrte Seite. Nur fuer
+        /// Messreihen: so laesst sich der Handel "mehr Kraft gegen
+        /// Selbstschaden" isoliert gegen dasselbe Deck aufrecht vergleichen.
+        /// </summary>
+        public bool ReverseStartingDeck;
+
+        /// <summary>Meta-Fortschritt, aus dem die Lesarten uebernommen werden.</summary>
+        public MetaProgress Meta;
+
         public RunOutcome PlayRun(long seed, int maxFights = 30)
         {
-            var game = new GameController(seed);
+            var game = new GameController(seed, Meta);
+            if (ReverseStartingDeck)
+                foreach (var card in game.Run.Deck) card.Orientation = Orientation.Reversed;
             var outcome = new RunOutcome();
             var guard = 0;
 
@@ -85,6 +99,7 @@ namespace Tartot.Core.Simulation
             outcome.Hp = game.Run.Hp;
             outcome.CharmStacks = game.Run.Charms.Values.Sum();
             outcome.DeckResonance = game.Run.DeckResonance;
+            outcome.ShopRemovals = game.Run.ShopRemovals;
             outcome.ReachedLimit = game.Run.FightIndex >= maxFights;
             return outcome;
         }
@@ -219,12 +234,19 @@ namespace Tartot.Core.Simulation
             }
         }
 
+        /// <summary>Ab so viel Gold lohnt der Weg zum Haendler ueberhaupt.</summary>
+        private const int WorthShoppingGold = 60;
+
         private PathType ChoosePath(GameController game)
         {
             // Ausduennen hat Vorrang, solange das Deck ueber dem Ziel liegt.
             if (game.Paths.Contains(PathType.Ritual) && game.Run.Deck.Count > DeckTarget)
                 return PathType.Ritual;
-            if (game.Paths.Contains(PathType.Shop) && game.Run.Gold > 120) return PathType.Shop;
+            // Frueher lag die Schwelle bei 120 Gold - die ein Run im Schnitt nie
+            // erreichte. Der Haendler wurde dadurch faktisch nie besucht, und
+            // die Goldsenke sah wirkungslos aus, obwohl sie nur nie drankam.
+            if (game.Paths.Contains(PathType.Shop) && game.Run.Gold >= WorthShoppingGold)
+                return PathType.Shop;
             return game.Paths[0];
         }
 
@@ -233,6 +255,17 @@ namespace Tartot.Core.Simulation
 
         private void Shop(GameController game)
         {
+            // Erst aufraeumen, dann kaufen. Ein aufgeblaehtes Deck zu verduennen
+            // ist messbar wertvoller als eine weitere Karte hineinzulegen
+            // (siehe docs/BALANCING.md), und nach dem Kaufblock waere ohnehin
+            // kein Gold mehr uebrig.
+            while (game.Run.Deck.Count > DeckTarget)
+            {
+                var worst = game.Run.Deck.OrderBy(Strength).FirstOrDefault();
+                if (worst == null || !game.CanRemoveAtShop(worst)) break;
+                if (!game.RemoveCardAtShop(worst)) break;
+            }
+
             for (var i = 0; i < game.ShopOffers.Count; i++)
             {
                 // Karten nur kaufen, solange Platz im Deck ist. Sonst arbeitet
@@ -241,6 +274,7 @@ namespace Tartot.Core.Simulation
                 if (offer.Reward.Type == RewardType.Card && game.Run.Deck.Count >= DeckTarget) continue;
                 game.BuyShopOffer(i);
             }
+
             game.ContinueFromOffgame();
         }
 

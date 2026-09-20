@@ -20,10 +20,22 @@ public static class Program
         var maxFights = ArgValue(args, "fights", 30);
         var seedBase = ArgValue(args, "seed", 1000);
         var deckTarget = ArgValue(args, "deck", 14);
+        var reversed = ArgValue(args, "reversed", 0) != 0;
+        var allReadings = ArgValue(args, "readings", 0) != 0;
 
         Console.WriteLine($"=== Tartot Balancing: {runs} Runs, Kampflimit {maxFights} ===\n");
 
-        var pilot = new Autopilot { DeckTarget = deckTarget };
+        var pilot = new Autopilot { DeckTarget = deckTarget, ReverseStartingDeck = reversed };
+        if (reversed) Console.WriteLine("Messreihe: Startdeck vollstaendig umgekehrt.\n");
+        if (allReadings)
+        {
+            var meta = new MetaProgress();
+            foreach (var card in GameCatalog.Cards)
+                if (card.IsMajor)
+                    for (var i = 0; i < 12; i++) meta.EncounterArcanum(card.Id);
+            pilot.Meta = meta;
+            Console.WriteLine("Messreihe: alle Lesarten freigeschaltet.\n");
+        }
         var outcomes = new List<RunOutcome>();
         var crashes = new List<string>();
 
@@ -57,6 +69,7 @@ public static class Program
         Console.WriteLine($"Charm-Stacks am Ende       : {outcomes.Average(o => o.CharmStacks):0.0}");
         Console.WriteLine($"Deck-Resonanz am Ende      : {outcomes.Average(o => o.DeckResonance):0.0} von 10");
         Console.WriteLine($"Ungenutztes Gold           : {outcomes.Average(o => o.Gold):0}");
+        Console.WriteLine($"Vergessen beim Haendler    : {outcomes.Average(o => o.ShopRemovals):0.0} Karten pro Run");
         Console.WriteLine($"Fate gesamt                : {outcomes.Average(o => o.Fate):0}");
 
         Console.WriteLine("\nRun endet nach Kampf:");

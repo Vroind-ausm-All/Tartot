@@ -6,6 +6,13 @@ namespace Tartot.Core
 {
     public static class GameCatalog
     {
+        /// <summary>
+        /// Unter diese Groesse kann ein Deck nicht schrumpfen. Ein noch
+        /// duenneres Deck zieht dieselben Karten so verlaesslich, dass jede
+        /// Entscheidung im Kampf entfaellt.
+        /// </summary>
+        public const int MinimumDeckSize = 5;
+
         public static readonly List<CardDefinition> Cards = BuildCards();
         public static readonly List<CharmDefinition> Charms = BuildCharms();
         public static readonly List<ItemDefinition> Items = BuildItems();
