@@ -42,6 +42,68 @@ namespace Tartot.Core
             NewRun();
         }
 
+        /// <summary>Konstruktor fuer das Laden: baut nichts auf, uebernimmt alles.</summary>
+        private GameController(long seed, DeterministicRandom world,
+            DeterministicRandom combat, DeterministicRandom progression)
+        {
+            Seed = seed;
+            _rng = world;
+            CombatSystem = new CombatSystem(combat);
+            Progression = new ProgressionSystem(progression);
+        }
+
+        public RandomSnapshot WorldRandomSnapshot => _rng.Snapshot();
+        public RandomSnapshot CombatRandomSnapshot => CombatSystem.RandomSnapshot();
+        public RandomSnapshot ProgressionRandomSnapshot => Progression.RandomSnapshot();
+
+        /// <summary>
+        /// Stellt einen gespeicherten Run wieder her - einschliesslich eines
+        /// laufenden Kampfes, denn auf dem Handy wird die App jederzeit
+        /// weggeraeumt.
+        /// </summary>
+        public static GameController Restore(SaveData save)
+        {
+            if (save == null) throw new ArgumentNullException(nameof(save));
+            if (save.Run == null) throw new ArgumentException("Speicherstand ohne Run.", nameof(save));
+
+            var game = new GameController(
+                save.Seed,
+                DeterministicRandom.Restore(save.WorldRandom),
+                DeterministicRandom.Restore(save.CombatRandom),
+                DeterministicRandom.Restore(save.ProgressionRandom))
+            {
+                Run = save.Run,
+                Combat = save.Combat,
+                Phase = save.Phase
+            };
+
+            // Phasen, deren Angebot nicht mitgespeichert wird, werden neu
+            // aufgebaut. Das ist bewusst: ein Speicherstand soll den Fortschritt
+            // sichern, nicht eine halb offene Auswahlliste.
+            switch (game.Phase)
+            {
+                case GamePhase.Reward:
+                    game.Rewards = game.Progression.GenerateRewards(game.Run);
+                    break;
+                case GamePhase.PathChoice:
+                    game.GeneratePaths();
+                    break;
+                case GamePhase.Shop:
+                    game.OpenShop();
+                    break;
+                case GamePhase.Combat when game.Combat == null:
+                    // Kampfphase ohne Kampfzustand: neuen Kampf beginnen.
+                    game.StartFight(false);
+                    break;
+            }
+
+            game.Message = "Fortgesetzt.";
+            return game;
+        }
+
+        /// <summary>Speichert den aktuellen Stand als JSON.</summary>
+        public string Save(bool indented = false) => SaveSystem.Serialize(this, indented);
+
         public void NewRun()
         {
             Run = GameCatalog.CreateStarterRun();

@@ -34,6 +34,9 @@ namespace Tartot.Core
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));
         }
 
+        /// <summary>Zustand des Kampfstroms fuer den Speicherstand.</summary>
+        public RandomSnapshot RandomSnapshot() => _rng.Snapshot();
+
         public CombatState StartCombat(RunState run, EnemyDefinition enemyDefinition)
         {
             var combat = new CombatState

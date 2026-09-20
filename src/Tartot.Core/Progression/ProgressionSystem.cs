@@ -22,6 +22,9 @@ namespace Tartot.Core
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));
         }
 
+        /// <summary>Zustand des Fortschrittsstroms fuer den Speicherstand.</summary>
+        public RandomSnapshot RandomSnapshot() => _rng.Snapshot();
+
         public VictorySummary ResolveVictory(RunState run, CombatState combat)
         {
             var summary = new VictorySummary();
