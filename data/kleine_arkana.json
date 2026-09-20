@@ -1,0 +1,1547 @@
+{
+ "_hinweis": "Generiert von tools/gen_kleine_arkana.py - nicht per Hand aendern.",
+ "karten": [
+  {
+   "id": "schwerter_01",
+   "farbe": "SCHWERTER",
+   "rang": 1,
+   "name": "Ass der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 1
+    },
+    {
+     "op": "status",
+     "st": "BLUTUNG",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 2
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "schwerter_02",
+   "farbe": "SCHWERTER",
+   "rang": 2,
+   "name": "2 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 2
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 4
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "schwerter_03",
+   "farbe": "SCHWERTER",
+   "rang": 3,
+   "name": "3 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 3
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 6
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 2
+    }
+   ]
+  },
+  {
+   "id": "schwerter_04",
+   "farbe": "SCHWERTER",
+   "rang": 4,
+   "name": "4 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "VERWUNDBAR",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 8
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 2
+    }
+   ]
+  },
+  {
+   "id": "schwerter_05",
+   "farbe": "SCHWERTER",
+   "rang": 5,
+   "name": "5 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "VERWUNDBAR",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 10
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 3
+    }
+   ]
+  },
+  {
+   "id": "schwerter_06",
+   "farbe": "SCHWERTER",
+   "rang": 6,
+   "name": "6 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 6
+    },
+    {
+     "op": "status",
+     "st": "VERWUNDBAR",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 12
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 3
+    }
+   ]
+  },
+  {
+   "id": "schwerter_07",
+   "farbe": "SCHWERTER",
+   "rang": 7,
+   "name": "7 der Schwerter",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 7
+    },
+    {
+     "op": "status",
+     "st": "BLUTUNG",
+     "wert": 2,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 14
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 4
+    }
+   ]
+  },
+  {
+   "id": "schwerter_08",
+   "farbe": "SCHWERTER",
+   "rang": 8,
+   "name": "8 der Schwerter",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 8
+    },
+    {
+     "op": "status",
+     "st": "BLUTUNG",
+     "wert": 2,
+     "ziel": "gegner"
+    },
+    {
+     "op": "schaden",
+     "wert": 4,
+     "wenn": {
+      "ziel_status": "VERWUNDBAR"
+     }
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 16
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 4
+    }
+   ]
+  },
+  {
+   "id": "schwerter_09",
+   "farbe": "SCHWERTER",
+   "rang": 9,
+   "name": "9 der Schwerter",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 9
+    },
+    {
+     "op": "status",
+     "st": "BLUTUNG",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 18
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 5
+    }
+   ]
+  },
+  {
+   "id": "schwerter_10",
+   "farbe": "SCHWERTER",
+   "rang": 10,
+   "name": "10 der Schwerter",
+   "selten": "ARKAN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 10
+    },
+    {
+     "op": "status",
+     "st": "BLUTUNG",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 20
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 5
+    }
+   ]
+  },
+  {
+   "id": "schwerter_11",
+   "farbe": "SCHWERTER",
+   "rang": 11,
+   "name": "Bube der Schwerter",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Jede erste Schwertkarte pro Zug verursacht +3 Schaden.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "SCHWERTER",
+      "erste_der_farbe_im_zug": true
+     },
+     "flach": {
+      "schaden": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "schwerter_12",
+   "farbe": "SCHWERTER",
+   "rang": 12,
+   "name": "Ritter der Schwerter",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Deine Schwerter ignorieren 3 Schild.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "SCHWERTER"
+     },
+     "schild_durchdringung": 3
+    }
+   ]
+  },
+  {
+   "id": "schwerter_13",
+   "farbe": "SCHWERTER",
+   "rang": 13,
+   "name": "Koenigin der Schwerter",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Jeder dritte Schwertangriff trifft zweimal.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "farbe": "SCHWERTER",
+      "zaehler_modulo": 3
+     },
+     "ops": [
+      {
+       "op": "wiederholen_letzte",
+       "anteil": 1000
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "schwerter_14",
+   "farbe": "SCHWERTER",
+   "rang": 14,
+   "name": "Koenig der Schwerter",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Blutung, die du verursachst, sinkt nicht mehr von selbst.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "blutung_bleibt"
+  },
+  {
+   "id": "staebe_01",
+   "farbe": "STAEBE",
+   "rang": 1,
+   "name": "Ass der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 1
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 1
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_02",
+   "farbe": "STAEBE",
+   "rang": 2,
+   "name": "2 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 2
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 1
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 2,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_03",
+   "farbe": "STAEBE",
+   "rang": 3,
+   "name": "3 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 3
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 1,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 2
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_04",
+   "farbe": "STAEBE",
+   "rang": 4,
+   "name": "4 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 2,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 2
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 4,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_05",
+   "farbe": "STAEBE",
+   "rang": 5,
+   "name": "5 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 2,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 3
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 5,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_06",
+   "farbe": "STAEBE",
+   "rang": 6,
+   "name": "6 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 6
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 2,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 3
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 6,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_07",
+   "farbe": "STAEBE",
+   "rang": 7,
+   "name": "7 der Staebe",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 7
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 7,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_08",
+   "farbe": "STAEBE",
+   "rang": 8,
+   "name": "8 der Staebe",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 8
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 8,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_09",
+   "farbe": "STAEBE",
+   "rang": 9,
+   "name": "9 der Staebe",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 9
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 3,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 9,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_10",
+   "farbe": "STAEBE",
+   "rang": 10,
+   "name": "10 der Staebe",
+   "selten": "ARKAN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 10
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 4,
+     "ziel": "gegner"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "GLUT",
+     "wert": 10,
+     "ziel": "gegner"
+    }
+   ]
+  },
+  {
+   "id": "staebe_11",
+   "farbe": "STAEBE",
+   "rang": 11,
+   "name": "Bube der Staebe",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Die erste Stabkarte jedes Zuges gibt 2 Glut zusaetzlich.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "farbe": "STAEBE",
+      "erste_der_farbe_im_zug": true
+     },
+     "ops": [
+      {
+       "op": "status",
+       "st": "GLUT",
+       "wert": 2,
+       "ziel": "gegner"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "staebe_12",
+   "farbe": "STAEBE",
+   "rang": 12,
+   "name": "Ritter der Staebe",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Drei Stabkarten in einem Zug: 8 Schaden an allen Gegnern.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "zug_ende",
+     "wenn": {
+      "farbe_im_zug_min": [
+       "STAEBE",
+       3
+      ]
+     },
+     "ops": [
+      {
+       "op": "schaden",
+       "wert": 8,
+       "alle": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "staebe_13",
+   "farbe": "STAEBE",
+   "rang": 13,
+   "name": "Koenigin der Staebe",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Glut tickt zusaetzlich zu Zugbeginn.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "glut_doppelt"
+  },
+  {
+   "id": "staebe_14",
+   "farbe": "STAEBE",
+   "rang": 14,
+   "name": "Koenig der Staebe",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Deine Combo-Stufe steigt auch durch Nicht-Stabkarten.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "combo_universell"
+  },
+  {
+   "id": "kelche_01",
+   "farbe": "KELCHE",
+   "rang": 1,
+   "name": "Ass der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 2,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 1
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_02",
+   "farbe": "KELCHE",
+   "rang": 2,
+   "name": "2 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 3,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 2
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_03",
+   "farbe": "KELCHE",
+   "rang": 3,
+   "name": "3 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 4,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 3
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_04",
+   "farbe": "KELCHE",
+   "rang": 4,
+   "name": "4 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 5,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 4
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_05",
+   "farbe": "KELCHE",
+   "rang": 5,
+   "name": "5 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 6,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 5
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_06",
+   "farbe": "KELCHE",
+   "rang": 6,
+   "name": "6 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 7,
+     "ueberschuss": "traum"
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 6
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_07",
+   "farbe": "KELCHE",
+   "rang": 7,
+   "name": "7 der Kelche",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 8,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 7
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_08",
+   "farbe": "KELCHE",
+   "rang": 8,
+   "name": "8 der Kelche",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 9,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 8
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_09",
+   "farbe": "KELCHE",
+   "rang": 9,
+   "name": "9 der Kelche",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 10,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 9
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_10",
+   "farbe": "KELCHE",
+   "rang": 10,
+   "name": "10 der Kelche",
+   "selten": "ARKAN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 11,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "traum",
+     "wert": 10
+    },
+    {
+     "op": "debuff_weg",
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "kelche_11",
+   "farbe": "KELCHE",
+   "rang": 11,
+   "name": "Bube der Kelche",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Heilung gibt zusaetzlich 1 Schild.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "heilung",
+     "ops": [
+      {
+       "op": "schild",
+       "wert": 1,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kelche_12",
+   "farbe": "KELCHE",
+   "rang": 12,
+   "name": "Ritter der Kelche",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Spielst du einen Kelch nach einem Angriff, heilt er +3.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "KELCHE",
+      "nach_angriff": true
+     },
+     "flach": {
+      "heilung": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "kelche_13",
+   "farbe": "KELCHE",
+   "rang": 13,
+   "name": "Koenigin der Kelche",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Die Haelfte deiner Ueberheilung wird zu Schicksal.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "ueberheilung_zu_faden"
+  },
+  {
+   "id": "kelche_14",
+   "farbe": "KELCHE",
+   "rang": 14,
+   "name": "Koenig der Kelche",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Zu Zugbeginn: 1 Traum. Traum kann Karten verdoppeln.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "zug_start",
+     "ops": [
+      {
+       "op": "traum",
+       "wert": 1,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "muenzen_01",
+   "farbe": "MUENZEN",
+   "rang": 1,
+   "name": "Ass der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 3
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 1
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 4
+    }
+   ]
+  },
+  {
+   "id": "muenzen_02",
+   "farbe": "MUENZEN",
+   "rang": 2,
+   "name": "2 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 4
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 2
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 6
+    }
+   ]
+  },
+  {
+   "id": "muenzen_03",
+   "farbe": "MUENZEN",
+   "rang": 3,
+   "name": "3 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 5
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 2
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 8
+    }
+   ]
+  },
+  {
+   "id": "muenzen_04",
+   "farbe": "MUENZEN",
+   "rang": 4,
+   "name": "4 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 6
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 3
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 10
+    }
+   ]
+  },
+  {
+   "id": "muenzen_05",
+   "farbe": "MUENZEN",
+   "rang": 5,
+   "name": "5 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 7
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 3
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 12
+    }
+   ]
+  },
+  {
+   "id": "muenzen_06",
+   "farbe": "MUENZEN",
+   "rang": 6,
+   "name": "6 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 8
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 14
+    }
+   ]
+  },
+  {
+   "id": "muenzen_07",
+   "farbe": "MUENZEN",
+   "rang": 7,
+   "name": "7 der Muenzen",
+   "selten": "GEMEIN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 9
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 4
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 16
+    }
+   ]
+  },
+  {
+   "id": "muenzen_08",
+   "farbe": "MUENZEN",
+   "rang": 8,
+   "name": "8 der Muenzen",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 10
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 18
+    }
+   ]
+  },
+  {
+   "id": "muenzen_09",
+   "farbe": "MUENZEN",
+   "rang": 9,
+   "name": "9 der Muenzen",
+   "selten": "SELTEN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 11
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 5
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 20
+    }
+   ]
+  },
+  {
+   "id": "muenzen_10",
+   "farbe": "MUENZEN",
+   "rang": 10,
+   "name": "10 der Muenzen",
+   "selten": "ARKAN",
+   "figur": false,
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 12
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    }
+   ],
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 6
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    },
+    {
+     "op": "gold",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "muenze_rueckschlag",
+     "wert": 22
+    }
+   ]
+  },
+  {
+   "id": "muenzen_11",
+   "farbe": "MUENZEN",
+   "rang": 11,
+   "name": "Bube der Muenzen",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Beginne jeden Zug mit 3 Schild.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "haken": [
+    {
+     "bei": "zug_start",
+     "ops": [
+      {
+       "op": "schild",
+       "wert": 3,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "muenzen_12",
+   "farbe": "MUENZEN",
+   "rang": 12,
+   "name": "Ritter der Muenzen",
+   "selten": "SELTEN",
+   "figur": true,
+   "text": "Ueberschuessiges Schild am Zugende wird zu 1 Gold je 6 Schild.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "schild_zu_gold"
+  },
+  {
+   "id": "muenzen_13",
+   "farbe": "MUENZEN",
+   "rang": 13,
+   "name": "Koenigin der Muenzen",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Ein Viertel deines Schildes wird beim Verfallen zu Schaden.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "schild_zu_schaden"
+  },
+  {
+   "id": "muenzen_14",
+   "farbe": "MUENZEN",
+   "rang": 14,
+   "name": "Koenig der Muenzen",
+   "selten": "ARKAN",
+   "figur": true,
+   "text": "Am Kampfende: +30 % Gold.",
+   "aufrecht": [],
+   "umgekehrt": [],
+   "regel": "gold_plus_30"
+  }
+ ]
+}
