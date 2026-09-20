@@ -11,47 +11,94 @@ keine Unity-Installation. Geprüft ist:
   (`dotnet build tools/unity-syntax-check`)
 
 Nicht geprüft ist alles, was erst zur Laufzeit oder im Editor auffällt:
-UXML-Pfade, `PanelSettings`, Layoutverhalten auf einem echten Gerät, Touch-
-Bedienung, Schriftarten für die Suit-Symbole. Die Stub-Prüfung fängt
-Tippfehler, keine falschen Annahmen über Unity.
+das Einrichtungs-Menü, UXML-Pfade, `PanelSettings`, Layoutverhalten auf einem
+echten Gerät, Touch-Bedienung, Schriftarten für die Suit-Symbole. Die
+Stub-Prüfung fängt Tippfehler, keine falschen Annahmen über Unity.
 
-Rechne also damit, dass beim ersten Öffnen Kleinigkeiten zu richten sind.
+Rechne also damit, dass beim ersten Öffnen Kleinigkeiten zu richten sind. Für
+jeden automatisierten Schritt steht unten der Weg von Hand daneben.
 
 ---
 
-## Projekt öffnen
+## Ohne Unity testen — geht sofort
 
-1. Unity Hub → *Add project from disk* → den Ordner `unity/` wählen
-2. Unity **2022.3 LTS** oder neuer
-3. Beliebige leere Szene öffnen und **Play** drücken
+Der komplette Regelkern lässt sich ohne Unity prüfen und spielen lassen:
 
-`TartotBootstrap` baut das Spiel per `RuntimeInitializeOnLoadMethod` auf. Damit
-das funktioniert, müssen UXML und PanelSettings unter `Resources` liegen:
-
-```
-Assets/Resources/Tartot/Tartot.uxml            (Kopie oder Verschiebung von Assets/Tartot/UI/)
-Assets/Resources/Tartot/TartotPanelSettings.asset
+```bash
+dotnet test src/Tartot.Tests                                    # 101 Tests
+dotnet run --project src/Tartot.Sim -c Release -- --runs=50     # 50 Runs durchspielen
+dotnet build tools/unity-syntax-check                           # Unity-Code auf Syntax prüfen
 ```
 
-`PanelSettings` anlegen: *Assets → Create → UI Toolkit → Panel Settings
-Asset*. Empfohlene Werte für Hochformat:
+Das deckt alle Regeln ab. Unity brauchst du nur, um die Oberfläche zu sehen.
 
-| Feld | Wert |
+---
+
+## Projekt in Unity öffnen
+
+**Voraussetzung:** Unity **2022.3 LTS** oder neuer.
+
+1. Unity Hub → *Add* → *Add project from disk* → den Ordner **`unity/`** wählen
+   (nicht das Repo-Wurzelverzeichnis).
+2. Projekt öffnen. Unity legt beim ersten Start `Library/` und
+   `ProjectSettings/` an — das dauert einen Moment.
+3. **Ein Theme anlegen**, falls noch keines existiert:
+   *Assets → Create → UI Toolkit → TSS Theme File*, Name egal.
+   UI Toolkit zeichnet zur Laufzeit ohne Theme gar nichts — das ist der
+   häufigste Stolperstein.
+4. Im Menü **`Tartot → Projekt einrichten`** aufrufen.
+   Das legt die PanelSettings an (Hochformat, 1080 × 1920), baut die Szene
+   `Assets/Scenes/Tartot.unity` mit UIDocument und `TartotView` und stellt die
+   Player Settings auf Portrait.
+5. **Play** drücken.
+
+Wenn Schritt 4 fehlschlägt, steht unten, wie es von Hand geht.
+
+### Vorher kurz gegenprüfen
+
+**`Tartot → Regelkern prüfen (ohne Play)`** spielt einen kompletten Run im
+Editor durch und schreibt das Ergebnis in die Konsole. Kommt dort eine
+sinnvolle Zeile an, ist der Kern in Unity korrekt eingebunden — dann liegt ein
+Problem, falls eines auftritt, sicher an der Oberfläche und nicht am Kern.
+
+### Von Hand, falls das Menü nicht greift
+
+1. *Assets → Create → UI Toolkit → Panel Settings Asset*, ablegen unter
+   `Assets/Resources/Tartot/TartotPanelSettings.asset`
+   (der Name muss genau so lauten, der Bootstrap sucht danach).
+2. Im Inspector setzen:
+
+   | Feld | Wert |
+   |---|---|
+   | Theme Style Sheet | das Theme aus Schritt 3 oben |
+   | Scale Mode | Scale With Screen Size |
+   | Reference Resolution | 1080 × 1920 |
+   | Screen Match Mode | Match Width Or Height |
+   | Match | 1 (an der Höhe ausrichten) |
+
+3. Leere Szene, leeres GameObject anlegen, Komponente **UI Document**
+   hinzufügen, dort die PanelSettings und
+   `Assets/Resources/Tartot/Tartot.uxml` zuweisen.
+4. Am selben GameObject die Komponente **TartotView** hinzufügen.
+5. Play.
+
+### Was du im Inspector einstellen kannst
+
+`TartotView` hat zwei Felder:
+
+| Feld | Bedeutung |
 |---|---|
-| Scale Mode | Scale With Screen Size |
-| Reference Resolution | 1080 × 1920 |
-| Screen Match Mode | Match Width Or Height, Match = 1 (Höhe) |
+| **Seed** | 0 = zufällig. Ein fester Wert macht den Run reproduzierbar — praktisch zum Nachstellen eines Fehlers. |
+| **Auto Save** | Schreibt nach jedem Zug in die PlayerPrefs. Zum Testen ruhig ausschalten, sonst setzt der letzte Stand beim nächsten Play fort. |
 
-**Für den Produktionsbuild** ist der Bootstrap der falsche Weg: dann eine
-richtige Szene mit einem `UIDocument`-GameObject anlegen, dort
-`Tartot.uxml` und die PanelSettings zuweisen und `TartotView` daraufsetzen.
-Der Bootstrap kann danach weg.
+Gespeichert wird unter den PlayerPrefs-Schlüsseln `tartot.save` und
+`tartot.meta`. Zum Zurücksetzen: *Edit → Clear All PlayerPrefs*.
 
-### Player Settings für Mobile
+### Im Game-View aufs Hochformat stellen
 
-- **Orientation**: Portrait, Auto-Rotation aus
-- **Android**: AAB, `arm64-v8a` (+ `armeabi-v7a`), IL2CPP
-- **iOS**: Xcode-Projekt exportieren, auf einem Mac signieren
+Oben im Game-Tab die Auflösung auf ein Portrait-Format setzen, etwa
+`1080 × 1920` oder ein Handy-Preset. Im Landscape-Standard sieht das Layout
+falsch aus — das ist dann keine Fehlfunktion.
 
 ---
 

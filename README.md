@@ -81,8 +81,9 @@ dotnet run --project src/Tartot.Sim -c Release -- --runs=150 --deck=8
 dotnet build tools/unity-syntax-check
 ```
 
-In Unity: `unity/` als Projekt öffnen (2022.3 LTS oder neuer), eine leere
-Szene öffnen, **Play** drücken. Details und offene Punkte in
+**In Unity:** `unity/` als Projekt öffnen (2022.3 LTS oder neuer), ein
+TSS-Theme anlegen, dann `Tartot → Projekt einrichten` im Menü und **Play**.
+Schritt für Schritt — inklusive Weg von Hand und was ungeprüft ist — in
 [`docs/UNITY.md`](docs/UNITY.md).
 
 ---
@@ -94,7 +95,7 @@ Szene öffnen, **Play** drücken. Details und offene Punkte in
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Entscheidungen und warum |
 | [`docs/BALANCING.md`](docs/BALANCING.md) | Formeln, gemessene Zahlen, Befunde |
 | [`docs/UNITY.md`](docs/UNITY.md) | Unity-Einrichtung und was ungeprüft ist |
-| [`reference/godot/README.md`](reference/godot/README.md) | frühere Godot-Umsetzung |
+| [`reference/godot/README.md`](reference/godot/ README.md) | frühere Godot-Umsetzung |
 
 ## Stand
 

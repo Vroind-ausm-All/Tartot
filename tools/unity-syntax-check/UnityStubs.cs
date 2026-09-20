@@ -67,7 +67,14 @@ namespace UnityEngine
         public static T Load<T>(string path) where T : Object => null;
     }
 
-    public class PanelSettings : Object { }
+    public class PanelSettings : ScriptableObject
+    {
+        public UIElements.ThemeStyleSheet themeStyleSheet { get; set; }
+        public UIElements.PanelScaleMode scaleMode { get; set; }
+        public Vector2Int referenceResolution { get; set; }
+        public UIElements.PanelScreenMatchMode screenMatchMode { get; set; }
+        public float match { get; set; }
+    }
 }
 
 namespace UnityEngine.UIElements
@@ -136,5 +143,85 @@ namespace UnityEngine.UIElements
         public VisualElement rootVisualElement { get; } = new VisualElement();
         public PanelSettings panelSettings { get; set; }
         public VisualTreeAsset visualTreeAsset { get; set; }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Nachtrag: Typen fuer den Editor-Code (Assets/Tartot/Editor).
+// Gleiche Einschraenkung wie oben - Syntax- und Signaturpruefung, kein Beweis.
+// ---------------------------------------------------------------------------
+
+namespace UnityEngine
+{
+    public struct Vector2Int
+    {
+        public Vector2Int(int x, int y) { }
+    }
+
+    public class ScriptableObject : Object
+    {
+        public static T CreateInstance<T>() where T : ScriptableObject => null;
+    }
+}
+
+namespace UnityEngine.SceneManagement
+{
+    public struct Scene { }
+}
+
+namespace UnityEngine.UIElements
+{
+    public class ThemeStyleSheet : Object { }
+
+    public enum PanelScaleMode { ConstantPixelSize, ScaleWithScreenSize, ConstantPhysicalSize }
+    public enum PanelScreenMatchMode { MatchWidthOrHeight, Shrink, Expand }
+}
+
+namespace UnityEditor
+{
+    using System;
+
+    public sealed class MenuItem : Attribute
+    {
+        public MenuItem(string itemName) { }
+        public MenuItem(string itemName, bool isValidateFunction) { }
+        public MenuItem(string itemName, bool isValidateFunction, int priority) { }
+        public int priority;
+    }
+
+    public static class AssetDatabase
+    {
+        public static T LoadAssetAtPath<T>(string path) where T : UnityEngine.Object => null;
+        public static void CreateAsset(UnityEngine.Object asset, string path) { }
+        public static void SaveAssets() { }
+        public static string[] FindAssets(string filter) => new string[0];
+        public static string GUIDToAssetPath(string guid) => string.Empty;
+        public static bool IsValidFolder(string path) => false;
+        public static string CreateFolder(string parent, string newFolderName) => string.Empty;
+    }
+
+    public enum UIOrientation { Portrait, PortraitUpsideDown, LandscapeRight, LandscapeLeft, AutoRotation }
+
+    public static class PlayerSettings
+    {
+        public static UIOrientation defaultInterfaceOrientation { get; set; }
+        public static bool allowedAutorotateToPortrait { get; set; }
+        public static bool allowedAutorotateToPortraitUpsideDown { get; set; }
+        public static bool allowedAutorotateToLandscapeLeft { get; set; }
+        public static bool allowedAutorotateToLandscapeRight { get; set; }
+    }
+}
+
+namespace UnityEditor.SceneManagement
+{
+    using UnityEngine.SceneManagement;
+
+    public enum NewSceneSetup { EmptyScene, DefaultGameObjects }
+    public enum NewSceneMode { Single, Additive }
+
+    public static class EditorSceneManager
+    {
+        public static Scene NewScene(NewSceneSetup setup, NewSceneMode mode) => new Scene();
+        public static bool SaveScene(Scene scene, string path) => true;
     }
 }

@@ -21,6 +21,7 @@
     <Compile Include="UnityStubs.cs" />
     <Compile Include="../../unity/Assets/Tartot/UI/*.cs" />
     <Compile Include="../../unity/Assets/Tartot/Scripts/*.cs" />
+    <Compile Include="../../unity/Assets/Tartot/Editor/*.cs" />
   </ItemGroup>
 
   <ItemGroup>

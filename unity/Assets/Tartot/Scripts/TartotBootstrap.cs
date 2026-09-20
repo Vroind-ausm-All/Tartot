@@ -27,7 +27,8 @@ namespace Tartot.Unity
             {
                 Debug.LogWarning(
                     "Tartot: UXML oder PanelSettings nicht unter Assets/Resources/Tartot gefunden. " +
-                    "Lege stattdessen eine Szene mit einem UIDocument und TartotView an.");
+                    "Ruf im Editor einmal Tartot → Projekt einrichten auf, oder lege von Hand " +
+                    "eine Szene mit UIDocument und TartotView an (siehe docs/UNITY.md).");
                 return;
             }
 

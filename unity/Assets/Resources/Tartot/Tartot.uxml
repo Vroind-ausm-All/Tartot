@@ -7,7 +7,7 @@
   Die Inhalte werden in TartotView.cs gefuellt; hier steht nur das Geruest.
 -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-  <Style src="project://database/Assets/Tartot/UI/Tartot.uss" />
+  <Style src="project://database/Assets/Resources/Tartot/Tartot.uss" />
 
   <ui:VisualElement name="wurzel" class="wurzel">
 
