@@ -1,0 +1,290 @@
+/*
+ * Artdirection "Occult Clean": Schwarz und Elfenbein tragen alles, Indigo und
+ * Ocker sind die einzigen Akzente. Schwerter und Staebe ziehen nach Ocker
+ * beziehungsweise Blut, Kelche und Muenzen nach Indigo - so bleiben vier
+ * Farben unterscheidbar, ohne das Zweifarbensystem zu brechen.
+ *
+ * Alle Farben stehen nur hier. Im C#-Code steht kein einziger Farbwert.
+ */
+
+:root {
+    --schwarz: #161616;
+    --tief: #0e0e10;
+    --elfenbein: #f2ecdd;
+    --papier: #e4dcc6;
+    --grau: #6b6659;
+    --indigo: #2e3a67;
+    --indigo-hell: #4a5a96;
+    --ocker: #c89b3c;
+    --ocker-hell: #e3bc63;
+    --blut: #8e2b2b;
+}
+
+.wurzel {
+    flex-grow: 1;
+    background-color: var(--tief);
+    padding: 16px;
+}
+
+/* ------------------------------------------------------------- Gegner */
+.gegner {
+    align-items: center;
+    padding-bottom: 8px;
+}
+
+.gegner__silhouette {
+    width: 140px;
+    height: 140px;
+    background-color: var(--elfenbein);
+    /* Platzhalter fuer die animierte Cartoon-Silhouette. */
+}
+
+.gegner__name {
+    -unity-font-style: bold;
+    font-size: 26px;
+    color: var(--elfenbein);
+    margin-top: 6px;
+    -unity-text-align: middle-center;
+}
+
+.gegner__hp {
+    font-size: 22px;
+    color: var(--blut);
+}
+
+.gegner__absicht {
+    font-size: 20px;
+    color: var(--ocker);
+    margin-top: 2px;
+}
+
+.gegner__haltung {
+    font-size: 16px;
+    color: var(--indigo-hell);
+}
+
+.balken {
+    height: 6px;
+    width: 80%;
+    background-color: var(--schwarz);
+    margin-top: 4px;
+}
+
+.balken__fuellung {
+    height: 100%;
+    background-color: var(--blut);
+}
+
+.balken__fuellung--haltung {
+    background-color: var(--indigo-hell);
+}
+
+/* ------------------------------------------------------- Spielerleiste */
+.leiste {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: var(--grau);
+}
+
+.leiste__wert {
+    font-size: 18px;
+    color: var(--elfenbein);
+}
+
+.leiste__wert--schild { color: var(--indigo-hell); }
+.leiste__wert--fate { color: var(--ocker); }
+.leiste__wert--gedaempft { color: var(--grau); }
+
+.charmleiste {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 4px 0;
+    min-height: 24px;
+}
+
+.charm {
+    font-size: 14px;
+    color: var(--ocker);
+    margin-right: 10px;
+    padding: 2px 4px;
+    border-width: 1px;
+    border-color: var(--grau);
+}
+
+/* ------------------------------------------------------------ Legung */
+.legung {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+    flex-grow: 1;
+}
+
+.platz {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 4px;
+    border-width: 2px;
+    border-color: var(--grau);
+    align-items: center;
+    justify-content: flex-start;
+    padding: 6px 2px;
+    min-height: 150px;
+}
+
+.platz--belegt { border-color: var(--ocker); }
+
+.platz__titel {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.platz__hinweis {
+    font-size: 11px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ------------------------------------------------------------- Karten */
+.karte {
+    width: 92px;
+    height: 132px;
+    background-color: var(--papier);
+    border-width: 2px;
+    border-color: var(--grau);
+    margin: 2px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px;
+}
+
+.karte--gewaehlt { border-color: var(--elfenbein); border-width: 3px; }
+.karte--schwerter { border-color: var(--blut); }
+.karte--staebe { border-color: var(--ocker); }
+.karte--kelche { border-color: var(--indigo-hell); }
+.karte--muenzen { border-color: var(--indigo); }
+.karte--arkana { border-color: var(--ocker-hell); background-color: var(--schwarz); }
+
+/* Schimmer verdunkelt die Karte schrittweise - die Verdunkelung des eigenen
+   Decks ist damit unmittelbar sichtbar, ohne dass eine Zahl es sagt. */
+.karte--matt { background-color: var(--papier); }
+.karte--weiss { background-color: #d8d0ba; }
+.karte--indigoschimmer { background-color: #a8a493; }
+.karte--gold { background-color: #7c765f; }
+.karte--blut { background-color: #4a3230; }
+.karte--schwarz { background-color: #201c1c; }
+
+.karte__kopf {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--schwarz);
+}
+
+.karte__symbol {
+    font-size: 30px;
+    color: var(--schwarz);
+}
+
+.karte__text {
+    font-size: 9px;
+    color: var(--schwarz);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.karte--dunkel .karte__kopf,
+.karte--dunkel .karte__symbol,
+.karte--dunkel .karte__text { color: var(--elfenbein); }
+
+.karte__rage {
+    font-size: 9px;
+    color: var(--blut);
+    -unity-font-style: bold;
+}
+
+/* -------------------------------------------------------------- Hand */
+.hand {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.vorschau {
+    font-size: 16px;
+    color: var(--ocker-hell);
+    -unity-text-align: middle-center;
+    margin: 4px 0;
+    min-height: 20px;
+}
+
+.protokoll {
+    font-size: 12px;
+    color: var(--grau);
+    white-space: normal;
+    min-height: 34px;
+    -unity-text-align: middle-center;
+}
+
+/* ------------------------------------------------------------ Knoepfe */
+.knopf {
+    height: 52px;
+    background-color: var(--ocker);
+    color: var(--schwarz);
+    font-size: 20px;
+    -unity-font-style: bold;
+    border-width: 2px;
+    border-color: var(--ocker-hell);
+    border-radius: 3px;
+    margin-top: 6px;
+}
+
+.knopf:hover { background-color: var(--ocker-hell); }
+.knopf:disabled { background-color: var(--grau); border-color: var(--grau); }
+
+.knopf--zweitrangig {
+    background-color: var(--schwarz);
+    color: var(--elfenbein);
+    border-color: var(--ocker);
+    height: 44px;
+    font-size: 16px;
+}
+
+/* ----------------------------------------------------------- Overlay */
+.overlay {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background-color: rgba(14, 14, 16, 0.97);
+    padding: 24px;
+    justify-content: center;
+}
+
+.overlay__titel {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: var(--elfenbein);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.overlay__untertitel {
+    font-size: 15px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 14px;
+}
+
+.overlay__reihe {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}

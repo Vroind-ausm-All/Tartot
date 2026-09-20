@@ -1,18 +1,43 @@
 using UnityEngine;
-using Tartot.Core;
+using UnityEngine.UIElements;
 
 namespace Tartot.Unity
 {
+    /// <summary>
+    /// Baut das Spiel aus jeder beliebigen Szene auf, damit man zum
+    /// Ausprobieren nichts konfigurieren muss: Play druecken genuegt.
+    /// </summary>
+    /// <remarks>
+    /// Fuer den Produktionsbuild gehoert stattdessen eine richtige Szene mit
+    /// einem vorbereiteten UIDocument angelegt - dann kann dieses Skript weg.
+    /// </remarks>
     public static class TartotBootstrap
     {
+        private const string UxmlPath = "Tartot/Tartot";      // Assets/Resources/...
+        private const string PanelSettingsPath = "Tartot/TartotPanelSettings";
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Boot()
+        private static void Bootstrap()
         {
-            if (Object.FindObjectOfType<TartotGameUI>() != null) return;
-            var go = new GameObject("Tartot Runtime");
-            Object.DontDestroyOnLoad(go);
-            var ui = go.AddComponent<TartotGameUI>();
-            ui.Initialize(new GameController(System.Environment.TickCount));
+            if (Object.FindObjectOfType<TartotView>() != null) return;
+
+            var tree = Resources.Load<VisualTreeAsset>(UxmlPath);
+            var settings = Resources.Load<PanelSettings>(PanelSettingsPath);
+            if (tree == null || settings == null)
+            {
+                Debug.LogWarning(
+                    "Tartot: UXML oder PanelSettings nicht unter Assets/Resources/Tartot gefunden. " +
+                    "Lege stattdessen eine Szene mit einem UIDocument und TartotView an.");
+                return;
+            }
+
+            var host = new GameObject("Tartot");
+            Object.DontDestroyOnLoad(host);
+
+            var document = host.AddComponent<UIDocument>();
+            document.panelSettings = settings;
+            document.visualTreeAsset = tree;
+            host.AddComponent<TartotView>();
         }
     }
 }

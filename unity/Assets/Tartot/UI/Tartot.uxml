@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Der Kampfschirm im Hochformat. Vier Zonen von oben nach unten:
+  Gegner, Spielerleiste, Legung, Hand. Mehr zeigt der Kampf nicht -
+  Charmtexte und Details oeffnen sich erst auf Tipp.
+
+  Die Inhalte werden in TartotView.cs gefuellt; hier steht nur das Geruest.
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <Style src="project://database/Assets/Tartot/UI/Tartot.uss" />
+
+  <ui:VisualElement name="wurzel" class="wurzel">
+
+    <!-- 1. Gegner: mehr als HP und naechster Zug steht hier bewusst nicht. -->
+    <ui:VisualElement name="gegner" class="gegner">
+      <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />
+      <ui:Label name="gegner-name" class="gegner__name" text="—" />
+      <ui:Label name="gegner-hp" class="gegner__hp" text="— / —" />
+      <ui:VisualElement class="balken">
+        <ui:VisualElement name="gegner-hp-balken" class="balken__fuellung" />
+      </ui:VisualElement>
+      <ui:Label name="gegner-haltung" class="gegner__haltung" text="" />
+      <ui:VisualElement class="balken">
+        <ui:VisualElement name="gegner-haltung-balken" class="balken__fuellung balken__fuellung--haltung" />
+      </ui:VisualElement>
+      <ui:Label name="gegner-absicht" class="gegner__absicht" text="" />
+    </ui:VisualElement>
+
+    <!-- 2. Spielerleiste -->
+    <ui:VisualElement class="leiste">
+      <ui:Label name="spieler-hp" class="leiste__wert" text="—" />
+      <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
+      <ui:Label name="spieler-fate" class="leiste__wert leiste__wert--fate" text="0 Fate" />
+      <ui:Label name="spieler-luck" class="leiste__wert leiste__wert--gedaempft" text="Luck 0" />
+      <ui:Label name="spieler-runde" class="leiste__wert leiste__wert--gedaempft" text="Runde 1" />
+    </ui:VisualElement>
+
+    <ui:VisualElement name="charmleiste" class="charmleiste" />
+
+    <!-- 3. Die Legung -->
+    <ui:VisualElement name="legung" class="legung">
+      <ui:VisualElement name="platz-past" class="platz">
+        <ui:Label class="platz__titel" text="VERGANGENHEIT" />
+        <ui:VisualElement name="platz-past-inhalt" />
+        <ui:Label class="platz__hinweis" text="90 % — Vorbereitung" />
+      </ui:VisualElement>
+      <ui:VisualElement name="platz-present" class="platz">
+        <ui:Label class="platz__titel" text="GEGENWART" />
+        <ui:VisualElement name="platz-present-inhalt" />
+        <ui:Label class="platz__hinweis" text="100 % — sicher" />
+      </ui:VisualElement>
+      <ui:VisualElement name="platz-future" class="platz">
+        <ui:Label class="platz__titel" text="ZUKUNFT" />
+        <ui:VisualElement name="platz-future-inhalt" />
+        <ui:Label class="platz__hinweis" text="150 % — nach dem Gegner" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:Label name="vorschau" class="vorschau" text="" />
+    <ui:Label name="protokoll" class="protokoll" text="" />
+
+    <!-- 4. Hand und Aktion -->
+    <ui:VisualElement name="hand" class="hand" />
+    <ui:Button name="ausfuehren" class="knopf" text="SCHICKSAL AUSFÜHREN" />
+
+    <!-- Overlay fuer Belohnung, Weg, Haendler, Ritual, Orakel, Ende -->
+    <ui:VisualElement name="overlay" class="overlay" style="display: none;">
+      <ui:Label name="overlay-titel" class="overlay__titel" text="" />
+      <ui:Label name="overlay-untertitel" class="overlay__untertitel" text="" />
+      <ui:VisualElement name="overlay-reihe" class="overlay__reihe" />
+      <ui:VisualElement name="overlay-knoepfe" />
+    </ui:VisualElement>
+
+  </ui:VisualElement>
+</ui:UXML>

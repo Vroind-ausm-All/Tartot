@@ -4,8 +4,15 @@
     Der Regelkern. Zwei harte Regeln:
       1. Keine Unity-Abhaengigkeit. Der Kern laeuft in Tests, in der
          Balancing-Simulation und spaeter notfalls auf einem Server.
-      2. Keine NuGet-Abhaengigkeit. Unity zieht diese Quellen direkt ein,
-         und jedes Paket waere dort ein eigenes Integrationsproblem.
+         Die asmdef daneben setzt "noEngineReferences", damit das auch in
+         Unity erzwungen bleibt.
+      2. Keine NuGet-Abhaengigkeit. Jedes Paket waere in Unity ein eigenes
+         Integrationsproblem.
+
+    Die Quellen liegen unter unity/Assets, weil Unity nur dort kompiliert.
+    Dieses Projekt verlinkt genau dieselben Dateien - es gibt also eine
+    einzige Kopie, und Tests, Simulation und Spiel koennen nicht auseinander
+    laufen.
 
     netstandard2.1 ist die API-Ebene, die Unity 2022.3 LTS versteht.
   -->
@@ -15,9 +22,14 @@
     <Nullable>disable</Nullable>
     <AssemblyName>Tartot.Core</AssemblyName>
     <RootNamespace>Tartot.Core</RootNamespace>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors></WarningsNotAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../unity/Assets/Tartot/Core/**/*.cs">
+      <Link>Core/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
 
 </Project>
