@@ -81,9 +81,11 @@ dotnet run --project src/Tartot.Sim -c Release -- --runs=150 --deck=8
 dotnet build tools/unity-syntax-check
 ```
 
-**In Unity:** `unity/` als Projekt öffnen (2022.3 LTS oder neuer), ein
-TSS-Theme anlegen, dann `Tartot → Projekt einrichten` im Menü und **Play**.
-Schritt für Schritt — inklusive Weg von Hand und was ungeprüft ist — in
+**In Unity:** Repository klonen, in Unity Hub den Unterordner **`unity/`**
+öffnen (2022.3 LTS oder neuer), ein TSS-Theme anlegen, dann
+`Tartot → Projekt einrichten` im Menü und **Play**. Der Regelkern liegt
+bereits unter `unity/Assets` — es ist nichts zu kopieren. Schritt für Schritt,
+inklusive Weg von Hand und was ungeprüft ist, in
 [`docs/UNITY.md`](docs/UNITY.md).
 
 ---

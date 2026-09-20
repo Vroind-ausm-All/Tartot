@@ -20,6 +20,64 @@ jeden automatisierten Schritt steht unten der Weg von Hand daneben.
 
 ---
 
+## Den Code auf deinen Rechner holen
+
+Es ist **nichts zu übertragen**: der Regelkern liegt bereits unter
+`unity/Assets/Tartot/Core`, also dort, wo Unity ihn kompiliert. Du holst dir
+das Repository und öffnest den Ordner `unity/` — fertig.
+
+```bash
+git clone -b claude/compassionate-archimedes-ebvgo2 \
+  https://github.com/Vroind-ausm-All/Tartot.git
+cd Tartot
+```
+
+Ohne Git geht es auch: auf GitHub den Branch wählen → *Code → Download ZIP* →
+entpacken.
+
+In Unity Hub dann **`Add project from disk`** und den Unterordner **`Tartot/unity`**
+auswählen — nicht die Repo-Wurzel. Unity legt beim ersten Öffnen `Library/`,
+`ProjectSettings/` und `Packages/manifest.json` selbst an.
+
+### Nach dem ersten Import: .meta-Dateien committen
+
+Unity erzeugt beim Import zu jeder Datei eine `.meta`-Datei mit einer GUID.
+Diese GUIDs verbinden Szenen, Prefabs und Assets miteinander. Sie gehören ins
+Repository — sonst reißen die Verbindungen, sobald jemand anderes das Projekt
+öffnet oder du es auf einem zweiten Rechner klonst.
+
+```bash
+git add unity/Assets unity/ProjectSettings unity/Packages
+git commit -m "Unity-Import: meta-Dateien und Projekteinstellungen"
+```
+
+`unity/Library/` und `unity/Temp/` bleiben ausgeschlossen — die sind
+generiert und riesig. Das steht schon in der `.gitignore`.
+
+---
+
+## In ein bestehendes Unity-Projekt übernehmen
+
+Falls du den Code lieber in ein eigenes Projekt holst, kopierst du zwei
+Ordner in dessen `Assets`:
+
+```
+unity/Assets/Tartot/            → DeinProjekt/Assets/Tartot/
+unity/Assets/Resources/Tartot/  → DeinProjekt/Assets/Resources/Tartot/
+```
+
+Das genügt für Unity — die asmdef-Dateien kommen mit, der Kern bleibt
+gekapselt.
+
+**Ein Haken:** `src/Tartot.Core/Tartot.Core.csproj` verlinkt die Quellen über
+einen relativen Pfad (`../../unity/Assets/Tartot/Core/**`). Kopierst du den
+Kern woandershin, laufen Tests und Simulation gegen die *alte* Kopie weiter —
+und du bearbeitest fortan zwei Stände. Dann entweder den Pfad im csproj
+anpassen oder mit dem Repo als Projektwurzel arbeiten. Die zweite Variante ist
+der Grund, warum das Projekt so geschnitten ist.
+
+---
+
 ## Ohne Unity testen — geht sofort
 
 Der komplette Regelkern lässt sich ohne Unity prüfen und spielen lassen:
@@ -40,8 +98,11 @@ Das deckt alle Regeln ab. Unity brauchst du nur, um die Oberfläche zu sehen.
 
 1. Unity Hub → *Add* → *Add project from disk* → den Ordner **`unity/`** wählen
    (nicht das Repo-Wurzelverzeichnis).
-2. Projekt öffnen. Unity legt beim ersten Start `Library/` und
-   `ProjectSettings/` an — das dauert einen Moment.
+2. Projekt öffnen. Unity legt beim ersten Start `Library/`,
+   `ProjectSettings/` und `Packages/manifest.json` an — das dauert einen
+   Moment. Der Paketsatz kommt bewusst von Unity selbst: eine von Hand
+   geschriebene `manifest.json` hätte die IDE-Pakete weggelassen, und dann
+   erzeugt Unity keine `.csproj` für Rider oder Visual Studio.
 3. **Ein Theme anlegen**, falls noch keines existiert:
    *Assets → Create → UI Toolkit → TSS Theme File*, Name egal.
    UI Toolkit zeichnet zur Laufzeit ohne Theme gar nichts — das ist der
