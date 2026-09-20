@@ -22,6 +22,13 @@ namespace Tartot.Core
         /// <summary>Karten auf der Hand zu Beginn jedes Zuges.</summary>
         public const int HandSize = 5;
 
+        /// <summary>
+        /// Wie stark die Deck-Resonanz auf den Multiplikator wirkt, je Stufe
+        /// ueber 1. Bei Resonanz 10 sind das +0,54 - spuerbar, aber nicht
+        /// dominant. Siehe docs/BALANCING.md.
+        /// </summary>
+        public const float DeckResonancePerStep = 0.06f;
+
         private readonly DeterministicRandom _rng;
 
         /// <summary>
@@ -312,6 +319,12 @@ namespace Tartot.Core
             if (wands >= 2) score.Multiplier += wands * CharmStacks(run, CharmEffectType.WandCombo) * .08f;
             if (run.Hp <= run.MaxHp / 2) score.Multiplier += CharmStacks(run, CharmEffectType.SelfDamagePower) * .04f;
             score.Multiplier += Math.Max(0, run.Charms.Count - 1) / 5 * CharmStacks(run, CharmEffectType.WorldThread) * .02f;
+
+            // Deck-Resonanz: ein kleines, entwickeltes, stimmiges Deck schlaegt
+            // haerter. Der Wert wurde bisher gepflegt, aber nirgends gelesen -
+            // dadurch war das Ausduennen des Decks mechanisch wirkungslos,
+            // obwohl das Design es als zentralen Hebel beschreibt.
+            score.Multiplier += Math.Max(0, run.DeckResonance - 1) * DeckResonancePerStep;
 
             if (!string.IsNullOrEmpty(run.Prophecy) && run.Prophecy == "XXI" && run.Deck.Count <= 10)
                 score.Multiplier += .30f;

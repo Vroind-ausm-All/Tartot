@@ -55,6 +55,7 @@ public static class Program
         Console.WriteLine($"Zuege pro Kampf            : {outcomes.Average(o => (double)o.TurnsPlayed / Math.Max(1, o.FightsCleared)):0.0}");
         Console.WriteLine($"Deckgroesse am Ende        : {outcomes.Average(o => o.DeckSize):0.0}");
         Console.WriteLine($"Charm-Stacks am Ende       : {outcomes.Average(o => o.CharmStacks):0.0}");
+        Console.WriteLine($"Deck-Resonanz am Ende      : {outcomes.Average(o => o.DeckResonance):0.0} von 10");
         Console.WriteLine($"Ungenutztes Gold           : {outcomes.Average(o => o.Gold):0}");
         Console.WriteLine($"Fate gesamt                : {outcomes.Average(o => o.Fate):0}");
 

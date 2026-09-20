@@ -233,11 +233,23 @@ namespace Tartot.Core
             return Math.Max(1, (int)Math.Round(basePrice * Math.Max(.50f, 1f - discount)));
         }
 
+        /// <summary>Ab dieser Deckgroesse gibt es keine Groessenpunkte mehr.</summary>
+        public const int DeckSizeCeiling = 16;
+
+        /// <summary>
+        /// Wie stimmig der Build ist: kleines Deck, entwickelte Karten, viele
+        /// Charms, Fortschritt. Geht als Multiplikator in jede Legung ein.
+        /// </summary>
         public void UpdateDeckResonance(RunState run)
         {
             var score = 1;
-            if (run.Deck.Count <= 12) score++;
-            if (run.Deck.Count <= 9) score++;
+
+            // Deckgroesse als Gradient statt zweier Sprungmarken: jede entfernte
+            // Karte zahlt ein wenig. Vorher gab es nur bei 12 und bei 9 einen
+            // Punkt - und weil ein Run praktisch nie unter 12 kam, war der
+            // zentrale Hebel des Designs faktisch wirkungslos.
+            score += Math.Max(0, DeckSizeCeiling - run.Deck.Count) / 2;
+
             if (run.Deck.Any(c => c.Shimmer >= Shimmer.Indigo)) score++;
             if (run.Deck.Count(c => c.Shimmer >= Shimmer.Gold) >= 2) score++;
             if (run.Charms.Values.Sum() >= 6) score++;

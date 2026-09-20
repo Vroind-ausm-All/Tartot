@@ -122,6 +122,9 @@ namespace Tartot.Core
         public void StartFight(bool advance)
         {
             if (advance) Run.FightIndex++;
+            // Die Resonanz vor dem Kampf auffrischen: sie haengt an Deckgroesse,
+            // Schimmer, Charms und Fortschritt und geht in den Multiplikator ein.
+            Progression.UpdateDeckResonance(Run);
             var enemy = BuildEnemyForFight(Run.FightIndex);
             Combat = CombatSystem.StartCombat(Run, enemy);
             Phase = GamePhase.Combat;

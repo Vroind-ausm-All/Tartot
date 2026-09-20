@@ -14,6 +14,7 @@ namespace Tartot.Core.Simulation
         public int Hp;
         public int CharmStacks;
         public int TurnsPlayed;
+        public int DeckResonance;
         public string DiedAgainst = "-";
         public bool ReachedLimit;
 
@@ -83,6 +84,7 @@ namespace Tartot.Core.Simulation
             outcome.Fate = game.Run.FateScoreTotal;
             outcome.Hp = game.Run.Hp;
             outcome.CharmStacks = game.Run.Charms.Values.Sum();
+            outcome.DeckResonance = game.Run.DeckResonance;
             outcome.ReachedLimit = game.Run.FightIndex >= maxFights;
             return outcome;
         }
@@ -217,24 +219,34 @@ namespace Tartot.Core.Simulation
             }
         }
 
-        private static PathType ChoosePath(GameController game)
+        private PathType ChoosePath(GameController game)
         {
+            // Ausduennen hat Vorrang, solange das Deck ueber dem Ziel liegt.
+            if (game.Paths.Contains(PathType.Ritual) && game.Run.Deck.Count > DeckTarget)
+                return PathType.Ritual;
             if (game.Paths.Contains(PathType.Shop) && game.Run.Gold > 120) return PathType.Shop;
-            if (game.Paths.Contains(PathType.Ritual) && game.Run.Deck.Count > DeckThinThreshold) return PathType.Ritual;
             return game.Paths[0];
         }
 
-        private const int DeckThinThreshold = 12;
+        /// <summary>Unter diese Groesse duennt der Autopilot nicht weiter aus.</summary>
+        private const int MinimumDeck = 8;
 
-        private static void Shop(GameController game)
+        private void Shop(GameController game)
         {
-            for (var i = 0; i < game.ShopOffers.Count; i++) game.BuyShopOffer(i);
+            for (var i = 0; i < game.ShopOffers.Count; i++)
+            {
+                // Karten nur kaufen, solange Platz im Deck ist. Sonst arbeitet
+                // der Autopilot gegen sein eigenes Ausduennen.
+                var offer = game.ShopOffers[i];
+                if (offer.Reward.Type == RewardType.Card && game.Run.Deck.Count >= DeckTarget) continue;
+                game.BuyShopOffer(i);
+            }
             game.ContinueFromOffgame();
         }
 
-        private static void Ritual(GameController game)
+        private void Ritual(GameController game)
         {
-            if (game.Run.Deck.Count > 8)
+            if (game.Run.Deck.Count > MinimumDeck)
             {
                 var worst = game.Run.Deck.OrderBy(Strength).First();
                 game.RitualRemove(worst);
