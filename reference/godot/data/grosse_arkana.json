@@ -1,0 +1,774 @@
+{
+ "_hinweis": "Generiert von tools/gen_grosse_arkana.py.",
+ "arkana": [
+  {
+   "id": "arkana_00",
+   "nr": 0,
+   "name": "Der Narr",
+   "schlagwort": "Chaos, Neubeginn, Risiko",
+   "selten": "ARKAN",
+   "aufrecht_text": "Ziehe 2 Karten. Du darfst diesen Zug eine vierte Karte legen.",
+   "aufrecht": [
+    {
+     "op": "ziehen",
+     "wert": 2
+    },
+    {
+     "op": "extra_legung",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "Ziehe 3 Karten, wirf danach zufaellig 1 Karte ab. +1 Luck fuer den Kampf.",
+   "umgekehrt": [
+    {
+     "op": "ziehen",
+     "wert": 3
+    },
+    {
+     "op": "ablegen_zufaellig",
+     "wert": 1
+    },
+    {
+     "op": "luck",
+     "wert": 1
+    }
+   ],
+   "verderbt_text": "Deine Starthand ist jeden Kampf um 1 Karte groesser, aber eine zufaellige Karte ist umgekehrt.",
+   "verderbt": {
+    "hand_bonus": 1,
+    "zufall_umgekehrt": 1
+   }
+  },
+  {
+   "id": "arkana_01",
+   "nr": 1,
+   "name": "Der Magier",
+   "schlagwort": "Macht, Kombination, Manipulation",
+   "selten": "ARKAN",
+   "aufrecht_text": "Erzeuge ein Echo der zuletzt gelegten Karte und loese es mit 100 % erneut aus.",
+   "aufrecht": [
+    {
+     "op": "wiederholen_letzte",
+     "anteil": 1000
+    }
+   ],
+   "umgekehrt_text": "Kopiere eine Handkarte. Die Kopie verschwindet nach dem Kampf.",
+   "umgekehrt": [
+    {
+     "op": "kopie_hand",
+     "wert": 1
+    }
+   ],
+   "verderbt_text": "Die erste Karte jedes Kampfes loest zweimal aus - auch beim Gegner.",
+   "verderbt": {
+    "erste_karte_doppelt": true,
+    "gilt_auch_fuer_gegner": true
+   }
+  },
+  {
+   "id": "arkana_02",
+   "nr": 2,
+   "name": "Die Hohepriesterin",
+   "schlagwort": "Wissen, Geheimnisse, Vorahnung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Sieh die naechsten 3 Karten deines Decks und ordne sie neu. Zeigt 2 Gegneraktionen.",
+   "aufrecht": [
+    {
+     "op": "spaehen",
+     "wert": 3
+    },
+    {
+     "op": "absicht_zeigen",
+     "wert": 2
+    }
+   ],
+   "umgekehrt_text": "Ziehe die beste von 3 zufaelligen Karten. Die naechste Gegnerabsicht wird verborgen.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "priesterin_beste_von_drei",
+     "wert": 3
+    },
+    {
+     "op": "absicht_verbergen",
+     "wert": 1
+    }
+   ],
+   "verderbt_text": "Du siehst zwei Gegnerabsichten - dafuer kennst du deine oberste Deckkarte nie.",
+   "verderbt": {
+    "sicht_absichten": 2,
+    "deck_blind": true
+   }
+  },
+  {
+   "id": "arkana_03",
+   "nr": 3,
+   "name": "Die Herrscherin",
+   "schlagwort": "Wachstum, Heilung, Erschaffung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Heile 6. Deine naechsten zwei Kelch- oder Muenzkarten erhalten +50 %.",
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 6,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 2,
+     "prozent": 50,
+     "farben": [
+      "KELCHE",
+      "MUENZEN"
+     ]
+    }
+   ],
+   "umgekehrt_text": "Opfere 4 HP. Deine naechsten drei Karten erhalten +40 %.",
+   "umgekehrt": [
+    {
+     "op": "selbstschaden",
+     "wert": 4
+    },
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 3,
+     "prozent": 40
+    }
+   ],
+   "verderbt_text": "Nach jedem Kampf +4 HP, aber Gegner haben +8 % maximale HP.",
+   "verderbt": {
+    "hp_nach_kampf": 4,
+    "gegner_hp_prozent": 8
+   }
+  },
+  {
+   "id": "arkana_04",
+   "nr": 4,
+   "name": "Der Herrscher",
+   "schlagwort": "Kontrolle, Schutz, Ordnung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Erhalte 12 Schild. Dein Schild verfaellt naechste Runde nicht.",
+   "aufrecht": [
+    {
+     "op": "schild",
+     "wert": 12
+    },
+    {
+     "op": "status",
+     "st": "VERANKERT",
+     "wert": 1,
+     "ziel": "selbst"
+    }
+   ],
+   "umgekehrt_text": "Erhalte 18 Schild, aber naechste Runde darfst du nur 2 Karten legen.",
+   "umgekehrt": [
+    {
+     "op": "schild",
+     "wert": 18
+    },
+    {
+     "op": "legungen_naechster_zug",
+     "wert": 2
+    }
+   ],
+   "verderbt_text": "Beginne jeden Kampf mit 10 Schild, aber du kannst nie mehr als 3 Karten legen.",
+   "verderbt": {
+    "schild_start": 10,
+    "legungen_deckel": 3
+   }
+  },
+  {
+   "id": "arkana_05",
+   "nr": 5,
+   "name": "Der Hierophant",
+   "schlagwort": "Regeln, Tradition, Opfer",
+   "selten": "ARKAN",
+   "aufrecht_text": "Verbessere eine Handkarte fuer diesen Kampf um eine Stufe.",
+   "aufrecht": [
+    {
+     "op": "aufwerten_kampf",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "Verdopple den Basiswert einer Handkarte; danach ist sie fuer diesen Kampf erschoepft.",
+   "umgekehrt": [
+    {
+     "op": "basiswert_verdoppeln",
+     "wert": 1
+    },
+    {
+     "op": "spezial",
+     "id": "hierophant_erschoepfen"
+    }
+   ],
+   "verderbt_text": "Aufwerten kostet die Haelfte, aber du darfst pro Abschnitt nur eine Karte loeschen.",
+   "verderbt": {
+    "aufwerten_rabatt": 50,
+    "loeschen_pro_abschnitt": 1
+   }
+  },
+  {
+   "id": "arkana_06",
+   "nr": 6,
+   "name": "Die Liebenden",
+   "schlagwort": "Verbindung, Entscheidung, Synergie",
+   "selten": "ARKAN",
+   "aufrecht_text": "Verbinde zwei Handkarten. Wird eine gelegt, loest die andere mit 50 % mit aus.",
+   "aufrecht": [
+    {
+     "op": "binden",
+     "anteil": 500
+    }
+   ],
+   "umgekehrt_text": "Verbinde zwei Handkarten zu 100 %. Danach werden beide abgeworfen.",
+   "umgekehrt": [
+    {
+     "op": "binden",
+     "anteil": 1000,
+     "danach_ablegen": true
+    }
+   ],
+   "verderbt_text": "Zu Kampfbeginn werden zwei Karten verbunden - aber der Gegner waehlt welche.",
+   "verderbt": {
+    "binden_start": true,
+    "gegner_waehlt": true
+   }
+  },
+  {
+   "id": "arkana_07",
+   "nr": 7,
+   "name": "Der Wagen",
+   "schlagwort": "Geschwindigkeit, Angriff, Momentum",
+   "selten": "ARKAN",
+   "aufrecht_text": "8 Schaden. Ist dies deine dritte Karte im Zug, loest sie erneut aus.",
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 8
+    },
+    {
+     "op": "wiederholen_letzte",
+     "anteil": 1000,
+     "wenn": {
+      "karte_nr_im_zug": 3
+     }
+    }
+   ],
+   "umgekehrt_text": "12 Schaden. Danach endet dein Zug sofort.",
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 12
+    },
+    {
+     "op": "zug_beenden"
+    }
+   ],
+   "verderbt_text": "Du legst zuerst - aber Gegner handeln zweimal pro Runde, wenn du weniger als 3 Karten legst.",
+   "verderbt": {
+    "initiative": true,
+    "strafe_unter_drei": true
+   }
+  },
+  {
+   "id": "arkana_08",
+   "nr": 8,
+   "name": "Kraft",
+   "schlagwort": "Staerke, Selbstbeherrschung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Die naechste Angriffskarte verursacht doppelten Basisschaden. +4 Schild.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "kraft_naechster_angriff",
+     "prozent": 100,
+     "wert": 1
+    },
+    {
+     "op": "schild",
+     "wert": 4
+    }
+   ],
+   "umgekehrt_text": "Die naechsten zwei Angriffe +75 %. Danach erhaeltst du 5 Schaden.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "kraft_naechster_angriff",
+     "prozent": 75,
+     "wert": 2
+    },
+    {
+     "op": "selbstschaden",
+     "wert": 5
+    }
+   ],
+   "verderbt_text": "Deine Angriffe +20 %, aber Heilung wirkt nur zur Haelfte.",
+   "verderbt": {
+    "schaden_prozent": 20,
+    "heilung_prozent": -50
+   }
+  },
+  {
+   "id": "arkana_09",
+   "nr": 9,
+   "name": "Der Eremit",
+   "schlagwort": "Isolation, Suche, Wissen",
+   "selten": "ARKAN",
+   "aufrecht_text": "Entferne eine Handkarte fuer diesen Kampf und ziehe 2 neue Karten.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "eremit_tausch",
+     "entfernen": 1,
+     "ziehen": 2
+    }
+   ],
+   "umgekehrt_text": "Entferne zwei Handkarten fuer diesen Kampf und ziehe 3.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "eremit_tausch",
+     "entfernen": 2,
+     "ziehen": 3
+    }
+   ],
+   "verderbt_text": "Legst du nur eine Karte pro Zug, wirkt sie doppelt.",
+   "verderbt": {
+    "einzelkarte_doppelt": true
+   }
+  },
+  {
+   "id": "arkana_10",
+   "nr": 10,
+   "name": "Rad des Schicksals",
+   "schlagwort": "Zufall, Veraenderung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Ziehe 3 Karten und behalte eine. Die anderen kommen zurueck ins Deck.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "rad_waehlen",
+     "wert": 3
+    }
+   ],
+   "umgekehrt_text": "Ersetze deine gesamte Hand. Jede neue Karte hat +25 % Wirkung.",
+   "umgekehrt": [
+    {
+     "op": "hand_ersetzen",
+     "prozent": 25
+    }
+   ],
+   "verderbt_text": "Belohnungen werden zufaellig ersetzt - manchmal besser, manchmal schlechter.",
+   "verderbt": {
+    "belohnung_chaos": true
+   }
+  },
+  {
+   "id": "arkana_11",
+   "nr": 11,
+   "name": "Gerechtigkeit",
+   "schlagwort": "Ausgleich, Konsequenz",
+   "selten": "ARKAN",
+   "aufrecht_text": "Entferne 2 eigene Debuffs. Verursache 4 Schaden pro entferntem Debuff.",
+   "aufrecht": [
+    {
+     "op": "debuff_weg",
+     "wert": 2
+    },
+    {
+     "op": "spezial",
+     "id": "gerechtigkeit_schaden",
+     "wert": 4
+    }
+   ],
+   "umgekehrt_text": "Uebertrage einen deiner Debuffs auf den Gegner.",
+   "umgekehrt": [
+    {
+     "op": "debuff_uebertragen",
+     "wert": 1
+    }
+   ],
+   "verderbt_text": "Jeder Status, den du erhaeltst, trifft auch den Gegner - und umgekehrt.",
+   "verderbt": {
+    "status_spiegel": true
+   }
+  },
+  {
+   "id": "arkana_12",
+   "nr": 12,
+   "name": "Der Gehaengte",
+   "schlagwort": "Opfer, Perspektivwechsel",
+   "selten": "ARKAN",
+   "aufrecht_text": "Verzichte auf diesen Zug. Naechste Runde darfst du 5 Karten legen.",
+   "aufrecht": [
+    {
+     "op": "legungen_naechster_zug",
+     "wert": 5
+    },
+    {
+     "op": "zug_beenden"
+    }
+   ],
+   "umgekehrt_text": "Opfere eine Handkarte fuer diesen Kampf. Alle verbleibenden erhalten +30 %.",
+   "umgekehrt": [
+    {
+     "op": "vernichten_hand",
+     "wert": 1
+    },
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 5,
+     "prozent": 30
+    }
+   ],
+   "verderbt_text": "Die Legung ist gespiegelt: Zukunft liegt links, Vergangenheit rechts.",
+   "verderbt": {
+    "legung_gespiegelt": true
+   }
+  },
+  {
+   "id": "arkana_13",
+   "nr": 13,
+   "name": "Der Tod",
+   "schlagwort": "Ende, Transformation",
+   "selten": "MYTHOS",
+   "aufrecht_text": "Vernichte eine Handkarte fuer diesen Kampf. Ziehe 2. Nach dem Sieg darfst du sie loeschen.",
+   "aufrecht": [
+    {
+     "op": "vernichten_hand",
+     "wert": 1
+    },
+    {
+     "op": "ziehen",
+     "wert": 2
+    },
+    {
+     "op": "karte_loeschen_permanent",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "Loesche eine Karte permanent und verbessere dafuer zwei zufaellige andere.",
+   "umgekehrt": [
+    {
+     "op": "karte_loeschen_permanent",
+     "wert": 1
+    },
+    {
+     "op": "karte_aufwerten_permanent",
+     "wert": 2,
+     "zufall": true
+    }
+   ],
+   "verderbt_text": "Jeder Boss vernichtet dauerhaft eine deiner Karten - aber jede geloeschte Karte staerkt eine andere.",
+   "verderbt": {
+    "boss_zerstoert_karte": 1,
+    "loeschen_staerkt": true
+   }
+  },
+  {
+   "id": "arkana_14",
+   "nr": 14,
+   "name": "Maessigkeit",
+   "schlagwort": "Balance, Mischung",
+   "selten": "ARKAN",
+   "aufrecht_text": "Mische die Effekte zweier Handkarten zu einer gemeinsamen Aktion.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "maessigkeit_mischen",
+     "anteil": 1000,
+     "ausloesungen": 1
+    }
+   ],
+   "umgekehrt_text": "Beide Effekte werden um 25 % reduziert, loesen dafuer zweimal aus.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "maessigkeit_mischen",
+     "anteil": 750,
+     "ausloesungen": 2
+    }
+   ],
+   "verderbt_text": "Alle Werte werden gemittelt: keine Spitzen, keine Ausfaelle.",
+   "verderbt": {
+    "werte_mitteln": true
+   }
+  },
+  {
+   "id": "arkana_15",
+   "nr": 15,
+   "name": "Der Teufel",
+   "schlagwort": "Versuchung, Macht gegen Preis",
+   "selten": "MYTHOS",
+   "aufrecht_text": "Die naechste Karte wirkt mit +100 %. Danach erhaeltst du einen Fluch.",
+   "aufrecht": [
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 1,
+     "prozent": 100
+    },
+    {
+     "op": "spezial",
+     "id": "teufel_fluch",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "Alle umgekehrten Karten wirken 3 Runden lang mit +50 %.",
+   "umgekehrt": [
+    {
+     "op": "umgekehrt_bonus",
+     "wert": 3,
+     "prozent": 50
+    }
+   ],
+   "verderbt_text": "Du verursachst +50 % Schaden. Jede Heilung erzeugt 1 Verderbnis.",
+   "verderbt": {
+    "schaden_prozent": 50,
+    "heilung_verderbnis": 1
+   }
+  },
+  {
+   "id": "arkana_16",
+   "nr": 16,
+   "name": "Der Turm",
+   "schlagwort": "Zerstoerung, ploetzlicher Wandel",
+   "selten": "MYTHOS",
+   "aufrecht_text": "18 Schaden an allen Gegnern. Dein Schild faellt auf 0.",
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 18,
+     "alle": true
+    },
+    {
+     "op": "spezial",
+     "id": "turm_schild_null"
+    }
+   ],
+   "umgekehrt_text": "Zerstoere allen gegnerischen Schild und verursache dessen Wert als Schaden.",
+   "umgekehrt": [
+    {
+     "op": "schild_brechen",
+     "als_schaden": true
+    }
+   ],
+   "verderbt_text": "Alle Gegner verursachen +30 % Schaden. Alle drei Kaempfe verlieren alle 20 % ihrer HP.",
+   "verderbt": {
+    "gegner_schaden_prozent": 30,
+    "aderlass_intervall": 3,
+    "aderlass_prozent": 20
+   }
+  },
+  {
+   "id": "arkana_17",
+   "nr": 17,
+   "name": "Der Stern",
+   "schlagwort": "Hoffnung, Regeneration",
+   "selten": "ARKAN",
+   "aufrecht_text": "Heile 8, ziehe 1 Karte, +1 Luck fuer diesen Kampf.",
+   "aufrecht": [
+    {
+     "op": "heilung",
+     "wert": 8,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "ziehen",
+     "wert": 1
+    },
+    {
+     "op": "luck",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "Heile nur 4, dafuer bleibt +1 Luck bis zum Ende des Abschnitts.",
+   "umgekehrt": [
+    {
+     "op": "heilung",
+     "wert": 4,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "luck",
+     "wert": 1,
+     "dauerhaft": true
+    }
+   ],
+   "verderbt_text": "+2 Luck dauerhaft, aber du kannst nie mehr als 60 % deiner HP heilen.",
+   "verderbt": {
+    "luck": 2,
+    "heilung_deckel_prozent": 60
+   }
+  },
+  {
+   "id": "arkana_18",
+   "nr": 18,
+   "name": "Der Mond",
+   "schlagwort": "Illusion, Unsicherheit",
+   "selten": "MYTHOS",
+   "aufrecht_text": "Deine naechsten zwei umgekehrten Karten wirken mit +50 %.",
+   "aufrecht": [
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 2,
+     "prozent": 50,
+     "nur_umgekehrt": true
+    }
+   ],
+   "umgekehrt_text": "Gegnerabsichten sind 2 Runden verborgen. Deine Karten wirken mit +35 %.",
+   "umgekehrt": [
+    {
+     "op": "absicht_verbergen",
+     "wert": 2
+    },
+    {
+     "op": "naechste_karten_bonus",
+     "wert": 6,
+     "prozent": 35
+    }
+   ],
+   "verderbt_text": "Gegnerabsichten bleiben verborgen. Deine Zukunftskarten wirken mit +40 %.",
+   "verderbt": {
+    "absichten_verborgen": true,
+    "zukunft_prozent": 40
+   }
+  },
+  {
+   "id": "arkana_19",
+   "nr": 19,
+   "name": "Die Sonne",
+   "schlagwort": "Staerke, Erfolg, Energie",
+   "selten": "ARKAN",
+   "aufrecht_text": "10 Schaden, 6 Heilung, ziehe 1 Karte.",
+   "aufrecht": [
+    {
+     "op": "schaden",
+     "wert": 10
+    },
+    {
+     "op": "heilung",
+     "wert": 6,
+     "ueberschuss": "traum"
+    },
+    {
+     "op": "ziehen",
+     "wert": 1
+    }
+   ],
+   "umgekehrt_text": "16 Schaden. Ueberheilung wird zu Schild.",
+   "umgekehrt": [
+    {
+     "op": "schaden",
+     "wert": 16
+    },
+    {
+     "op": "spezial",
+     "id": "ueberheilung_zu_schild"
+    }
+   ],
+   "verderbt_text": "Nach jedem Kampf +3 HP. Du kannst nicht mehr normal heilen; Ueberheilung wird maximales Leben.",
+   "verderbt": {
+    "hp_nach_kampf": 3,
+    "ueberheilung_zu_maxhp": true
+   }
+  },
+  {
+   "id": "arkana_20",
+   "nr": 20,
+   "name": "Das Gericht",
+   "schlagwort": "Wiedergeburt, Konsequenz",
+   "selten": "ARKAN",
+   "aufrecht_text": "Hole zwei bereits gelegte Karten zurueck auf die Hand.",
+   "aufrecht": [
+    {
+     "op": "zurueckholen",
+     "wert": 2
+    }
+   ],
+   "umgekehrt_text": "Hole eine vernichtete Karte zurueck und loese sie sofort aus.",
+   "umgekehrt": [
+    {
+     "op": "zurueckholen",
+     "wert": 1,
+     "aus_vernichtet": true
+    },
+    {
+     "op": "spezial",
+     "id": "gericht_wiederholen",
+     "wert": 1
+    }
+   ],
+   "verderbt_text": "Stirbst du, kehrst du einmal pro Abschnitt mit 30 % HP zurueck - dafuer +1 Verderbnis pro Kampf.",
+   "verderbt": {
+    "wiederbelebung_prozent": 30,
+    "verderbnis_pro_kampf": 1
+   }
+  },
+  {
+   "id": "arkana_21",
+   "nr": 21,
+   "name": "Die Welt",
+   "schlagwort": "Vollendung, Ganzheit",
+   "selten": "MYTHOS",
+   "aufrecht_text": "Hast du in diesem Kampf alle vier Farben gelegt: 20 Schaden, 10 Schild, ziehe 2.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "welt_vier_farben",
+     "dann": [
+      {
+       "op": "schaden",
+       "wert": 20
+      },
+      {
+       "op": "schild",
+       "wert": 10
+      },
+      {
+       "op": "ziehen",
+       "wert": 2
+      }
+     ]
+    }
+   ],
+   "umgekehrt_text": "Setze dein Deck neu zusammen und ziehe eine perfekte Hand aus vier Farben.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "welt_perfekte_hand"
+    }
+   ],
+   "verderbt_text": "Jede Farbe gibt einen Bonus. Hast du alle vier im Deck, verdoppeln sie sich.",
+   "verderbt": {
+    "farbboni": true,
+    "verdoppelt_bei_vier": true
+   }
+  },
+  {
+   "id": "arkana_22",
+   "nr": 22,
+   "name": "Das Schicksal",
+   "schlagwort": "Die verbotene Karte",
+   "selten": "MYTHOS",
+   "aufrecht_text": "Existiert im Tarot nicht. Loese jede Karte dieses Zuges ein weiteres Mal aus.",
+   "aufrecht": [
+    {
+     "op": "spezial",
+     "id": "schicksal_alles_nochmal"
+    }
+   ],
+   "umgekehrt_text": "Der Preis: setze deine HP auf die Haelfte. Dein Deck wird fuer diesen Kampf perfekt.",
+   "umgekehrt": [
+    {
+     "op": "spezial",
+     "id": "schicksal_preis"
+    }
+   ],
+   "verderbt_text": "Der Endlosmodus beginnt. Alle 5 Raeume kommt ein Verderbtes Arkanum dauerhaft dazu.",
+   "verderbt": {
+    "endlos": true,
+    "arkanum_intervall": 5
+   }
+  }
+ ]
+}
