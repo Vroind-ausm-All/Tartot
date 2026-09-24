@@ -16,27 +16,50 @@ namespace Tartot.Core
         public static readonly List<CardDefinition> Cards = BuildCards();
         public static readonly List<CharmDefinition> Charms = BuildCharms();
         public static readonly List<ItemDefinition> Items = BuildItems();
-        public static readonly List<EnemyDefinition> Enemies = BuildEnemies();
+        /// <summary>Alle Gegner aller Akte, Bosse, Finale und Spirale.</summary>
+        public static readonly List<EnemyDefinition> Enemies = ActCatalog.All.ToList();
 
         public static CardDefinition Card(string id) => Cards.First(c => c.Id == id);
         public static CharmDefinition Charm(string id) => Charms.First(c => c.Id == id);
         public static ItemDefinition Item(string id) => Items.First(c => c.Id == id);
 
-        public static RunState CreateStarterRun()
+        /// <summary>Der Standard-Run: Die Wahrsagerin ohne Schleier.</summary>
+        public static RunState CreateStarterRun() => CreateRun(DeuterCatalog.Default);
+
+        /// <summary>Baut den Startzustand fuer einen Deuter.</summary>
+        public static RunState CreateRun(DeuterDefinition deuter)
         {
-            var run = new RunState();
-            var starterIds = new[]
+            deuter = deuter ?? DeuterCatalog.Default;
+            var run = new RunState
             {
-                "pentacles_4", "swords_7", "wands_10", "cups_6",
-                "swords_3", "pentacles_6", "wands_4", "cups_8",
-                "major_1", "major_0"
+                DeuterId = deuter.Id,
+                DeuterRule = deuter.Rule,
+                MaxHp = deuter.MaxHp,
+                Hp = deuter.MaxHp,
+                Gold = deuter.Gold,
+                Luck = deuter.Luck
             };
-            foreach (var id in starterIds) run.Deck.Add(new CardInstance(Card(id)));
-            run.AddCharm(Charm("white_thread"));
-            run.AddCharm(Charm("lucky_clover"));
-            run.AddItem(Item("mirror_shard"));
+
+            var reversed = new List<string>(deuter.ReversedCards);
+            foreach (var id in deuter.Deck)
+            {
+                var card = new CardInstance(Card(id));
+                // Jede Nennung dreht genau eine Karte - doppelte Ids bleiben unabhaengig.
+                if (reversed.Remove(id)) card.Orientation = Orientation.Reversed;
+                run.Deck.Add(card);
+            }
+            foreach (var id in deuter.Charms) run.AddCharm(Charm(id));
+            foreach (var id in deuter.Items) run.AddItem(Item(id));
             return run;
         }
+
+        /// <summary>
+        /// Charms, die man von Anfang an finden kann. Die uebrigen schalten
+        /// Prophezeiungen frei - Entdecken ist ein eigener Grund, noch einmal
+        /// zu spielen.
+        /// </summary>
+        public static IEnumerable<string> StarterCharmIds =>
+            Charms.Select(c => c.Id).Where(id => !ProphecyCatalog.LockedCharmIds.Contains(id));
 
         private static List<CardDefinition> BuildCards()
         {
@@ -217,23 +240,5 @@ namespace Tartot.Core
 
         private static ItemDefinition I(string id, string name, ItemEffectType effect, int mag, string desc)
             => new ItemDefinition(id, name, effect, mag, desc);
-
-        private static List<EnemyDefinition> BuildEnemies()
-        {
-            return new List<EnemyDefinition>
-            {
-                E("smiling_bailiff","Der lächelnde Gerichtsdiener",74,12,9,0,"Er schlägt regelmäßig zu und belohnt sauberes Haltungsspiel."),
-                E("moon_eater","Der Mondfresser",96,16,11,0,"Unter halben HP wird er aggressiver und verbirgt seine Absicht."),
-                E("needle_widow","Die Nadelwitwe",118,19,12,0,"Wechselt zwischen Angriff und Schild."),
-                E("coin_mouth","Das Münzmaul",142,22,13,0,"Bestraft lange Kämpfe mit immer stärkerem Angriff."),
-                E("laughing_hangman","Der lachende Henker",170,26,15,1,"Ein Siegel zwingt dich, ihn zweimal zu brechen."),
-                E("tower_host","Der Wirt im Turm",210,30,17,1,"Boss: hoher Haltungsschutz und eskalierende Phasen."),
-                E("red_sun","Die rote Sonne",260,34,19,2,"Boss: zwei Schicksalssiegel und massiver Druck."),
-                E("world_worm","Der Weltenwurm",330,40,22,2,"Endlosgegner: wächst mit jedem Abschnitt weiter.")
-            };
-        }
-
-        private static EnemyDefinition E(string id, string name, int hp, int stance, int attack, int sigils, string flavor)
-            => new EnemyDefinition { Id=id, Name=name, MaxHp=hp, MaxStance=stance, BaseAttack=attack, Sigils=sigils, Flavor=flavor };
     }
 }

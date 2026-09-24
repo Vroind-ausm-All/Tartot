@@ -11,6 +11,8 @@ namespace Tartot.Core
         public CardInstance Champion;
         public readonly List<(CardInstance Card, int Xp)> CardXp = new List<(CardInstance, int)>();
         public string BestCombo;
+        /// <summary>Gold aus dem Ueberschuss des letzten Treffers.</summary>
+        public int OverkillGold;
     }
 
     public sealed class ProgressionSystem
@@ -37,7 +39,11 @@ namespace Tartot.Core
             summary.FateEarned = Math.Max(15, (int)Math.Round((fateBase + qualityBonus) * deckBonus));
 
             var greed = CharmStacks(run, CharmEffectType.Greed);
-            summary.GoldEarned = (int)Math.Round((18 + run.FightIndex * 4) * (1f + greed * .10f));
+            var enemy = combat.Enemy.Definition;
+            var tierGold = enemy.IsBoss ? 1.5f : enemy.Tier == EnemyTier.Elite ? 1.3f : 1f;
+            var veilGold = run.Veil >= 1 ? .75f : 1f;
+            summary.GoldEarned = (int)Math.Round((12 + run.FightIndex * 3) * (1f + greed * .10f)
+                                                 * tierGold * enemy.GoldFactor * veilGold);
             run.Fate += summary.FateEarned;
             run.FateScoreTotal += summary.FateEarned;
             run.Gold += summary.GoldEarned;
@@ -98,6 +104,7 @@ namespace Tartot.Core
             foreach (var charm in GameCatalog.Charms)
             {
                 if (run.CharmStacks(charm.Id) >= charm.MaxStacks) continue;
+                if (!run.CharmAllowed(charm.Id)) continue;
                 var duplicate = false;
                 foreach (var offered in alreadyOffered)
                     if (offered.Charm != null && offered.Charm.Id == charm.Id) { duplicate = true; break; }
@@ -106,30 +113,53 @@ namespace Tartot.Core
             return candidates.Count == 0 ? null : _rng.Pick(candidates);
         }
 
-        public List<RewardOption> GenerateRewards(RunState run, int count = 3)
+        /// <param name="elite">Elites geben verlaesslich Charms: die ersten zwei Wahlen sind welche.</param>
+        public List<RewardOption> GenerateRewards(RunState run, int count = 3, bool elite = false)
         {
             count += CharmStacks(run, CharmEffectType.ExtraRewardChoice) / 2;
-            count = Math.Min(5, count);
+            if (run.BonusRewardChoices > 0)
+            {
+                run.BonusRewardChoices--;
+                count++;
+            }
+            if (run.Veil >= 3) count--;
+            count = Math.Max(1, Math.Min(5, count));
             var rewards = new List<RewardOption>();
             var rareChance = .08f + CharmStacks(run, CharmEffectType.RareChance) * .04f + run.Luck * .01f;
             var upgradedChance = .05f + CharmStacks(run, CharmEffectType.UpgradedRewardChance) * .08f;
+            // Der Eremit findet seltener Karten - er soll duenn bleiben wollen.
+            var cardShare = run.DeuterRule == DeuterRule.Hermit ? 25 : 45;
+            var reversedChance = run.Darkness * .005f;
 
-            while (rewards.Count < count)
+            if (elite)
+            {
+                for (var i = 0; i < 2 && rewards.Count < count; i++)
+                {
+                    var charm = PickOfferableCharm(run, rewards);
+                    if (charm == null) break;
+                    rewards.Add(new RewardOption { Type=RewardType.Charm, Title=charm.Name, Description=charm.Description, Charm=charm });
+                }
+            }
+
+            var guard = 0;
+            while (rewards.Count < count && guard++ < 200)
             {
                 var roll = _rng.Next(100);
-                if (roll < 45)
+                if (roll < cardShare)
                 {
                     var card = RandomCardReward(run, rareChance);
                     var shimmer = _rng.Chance(rareChance) ? Shimmer.Indigo : Shimmer.Matte;
                     var upgraded = _rng.Chance(upgradedChance);
+                    var reversed = _rng.Chance(reversedChance);
                     rewards.Add(new RewardOption
                     {
                         Type = RewardType.Card,
-                        Title = upgraded ? $"{card.Name}+" : card.Name,
-                        Description = $"{(shimmer == Shimmer.Indigo ? "Indigo-Schimmer" : "Matt")}. {card.Description}",
+                        Title = (reversed ? "↕ " : string.Empty) + (upgraded ? $"{card.Name}+" : card.Name),
+                        Description = $"{(shimmer == Shimmer.Indigo ? "Indigo-Schimmer" : "Matt")}{(reversed ? ", umgekehrt" : string.Empty)}. {card.Description}",
                         Card = card,
                         CardLevel = upgraded ? 2 : 1,
-                        CardShimmer = shimmer
+                        CardShimmer = shimmer,
+                        CardOrientation = reversed ? Orientation.Reversed : Orientation.Upright
                     });
                 }
                 else if (roll < 75)
@@ -161,7 +191,8 @@ namespace Tartot.Core
                     var instance = new CardInstance(reward.Card)
                     {
                         Level = Math.Max(1, reward.CardLevel),
-                        Shimmer = reward.CardShimmer
+                        Shimmer = reward.CardShimmer,
+                        Orientation = reward.CardOrientation
                     };
                     run.Deck.Add(instance);
                     break;
@@ -183,6 +214,7 @@ namespace Tartot.Core
         {
             var discount = CharmStacks(run, CharmEffectType.RemoveDiscount) * .15f;
             fateCost = Math.Max(20, (int)Math.Round(fateCost * Math.Max(.35f, 1f - discount)));
+            if (run.DeuterRule == DeuterRule.Bookkeeper) fateCost *= 2;
             if (run.Fate < fateCost || run.Deck.Count <= GameCatalog.MinimumDeckSize
                 || !run.Deck.Contains(card)) return false;
             run.Fate -= fateCost;
@@ -225,6 +257,9 @@ namespace Tartot.Core
             card.Level++;
             if (card.Shimmer < Shimmer.Gold) card.Shimmer = (Shimmer)((int)card.Shimmer + 1);
             else if (card.Shimmer == Shimmer.Gold) card.Shimmer = Shimmer.Blood;
+            // Aufwerten hat immer auch einen dunklen Preis.
+            run.AddDarkness(2);
+            EventCatalog.NoteShimmer(run, card);
             return true;
         }
 

@@ -23,6 +23,36 @@ namespace Tartot.Tests
                 Flavor = "Steht nur da."
             };
 
+        /// <summary>Ein Boss, der eine Regel bricht und sonst nicht stoert.</summary>
+        public static EnemyDefinition Boss(BossRule rule, int hp = 100000, int stance = 0, int attack = 0,
+            int sigils = 0, bool weakened = false)
+        {
+            var boss = Dummy(hp, stance, attack, sigils);
+            boss.Id = "test_boss";
+            boss.Name = "Testomen";
+            boss.Tier = EnemyTier.Boss;
+            boss.Rules.Add(rule);
+            boss.RulesWeakened = weakened;
+            boss.OmenCardId = "major_16";
+            return boss;
+        }
+
+        /// <summary>Ein Deck aus lauter verschiedenen Karten - genug fuer Regeln, die ein Mindestdeck brauchen.</summary>
+        public static readonly string[] EightCards =
+        {
+            "swords_2", "swords_3", "wands_4", "cups_5", "pentacles_6", "swords_7", "wands_8", "cups_9"
+        };
+
+        /// <summary>Legt irgendeine Handkarte auf den ersten freien, nicht eingestuerzten Platz.</summary>
+        public static CardInstance PlaceAny(CombatSystem sys, CombatState combat)
+        {
+            foreach (var card in combat.Hand.ToList())
+                foreach (var slot in new[] { SlotPosition.Present, SlotPosition.Past, SlotPosition.Future })
+                    if (!combat.Slots.ContainsKey(slot) && sys.PlaceCard(combat, card.InstanceId, slot))
+                        return card;
+            return null;
+        }
+
         /// <summary>Run ohne Charms und ohne Items - nur das angegebene Deck.</summary>
         public static RunState Run(params string[] cardIds)
         {

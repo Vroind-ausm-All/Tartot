@@ -10,10 +10,25 @@ namespace Tartot.Core
     public enum Orientation { Upright, Reversed }
     public enum SlotPosition { Past, Present, Future }
     public enum Shimmer { Matte, White, Indigo, Gold, Blood, Black }
-    public enum GamePhase { Combat, Reward, PathChoice, Shop, Ritual, Oracle, GameOver }
+    public enum GamePhase { Combat, Reward, PathChoice, Shop, Ritual, Oracle, GameOver, Event, BossLoot, Rest, Victory }
     public enum RewardType { Card, Charm, Item, Fate }
-    public enum PathType { Fight, Shop, Ritual, Oracle }
+    public enum PathType { Fight, Shop, Ritual, Oracle, Elite, Event, Rest }
     public enum IntentType { Attack, Guard, Hex, Drain, Frenzy }
+
+    /// <summary>Wie schwer ein Gegner innerhalb seines Akts ist.</summary>
+    public enum EnemyTier { Normal, Elite, Boss, Finale }
+
+    /// <summary>
+    /// Die Grundregel, die ein Boss bricht. Jeder Boss nimmt dir eine
+    /// Selbstverstaendlichkeit weg - nicht mehr HP, sondern eine andere Frage.
+    /// </summary>
+    public enum BossRule { None, Tower, Moon, Death, Wheel, Devil, HangedMan }
+
+    /// <summary>Sonderregel eines Deuters (spielbare Figur).</summary>
+    public enum DeuterRule { None, BloodReader, Bookkeeper, Hermit }
+
+    /// <summary>Was nach einem Boss mit dem gefallenen Omen geschieht.</summary>
+    public enum BossLootChoice { Soak, Bind, Banish }
 
     public enum CharmEffectType
     {

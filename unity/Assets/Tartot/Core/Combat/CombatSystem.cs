@@ -15,9 +15,17 @@ namespace Tartot.Core
         public bool StanceBroken;
         public bool Victory;
         public bool Defeat;
+        /// <summary>Wie weit der toedliche Treffer ueber das Leben hinausging.</summary>
+        public int Overkill;
+        /// <summary>Der haerteste Treffer dieses Runs - und es gab schon einen davor.</summary>
+        public bool NewBestHit;
+        /// <summary>Ein Siegel ist gebrochen, der Boss wechselt die Phase.</summary>
+        public bool PhaseChanged;
+        /// <summary>Der Tod hat eine Karte genommen (Name), sonst leer.</summary>
+        public string CardLost = string.Empty;
     }
 
-    public sealed class CombatSystem
+    public sealed partial class CombatSystem
     {
         /// <summary>Karten auf der Hand zu Beginn jedes Zuges.</summary>
         public const int HandSize = 5;
@@ -47,6 +55,18 @@ namespace Tartot.Core
         /// </summary>
         public const float InterpretationPowerPerReading = 0.15f;
 
+        /// <summary>
+        /// Musterkette: jede Legung mit einem Muster (Paar oder besser) in
+        /// Folge verlaengert die Kette, jedes Glied gibt so viel Multiplikator.
+        /// "Drei Pfade" zaehlt nicht - das kommt fast von allein, und eine
+        /// Kette, die sich von selbst haelt, ist keine Entscheidung.
+        /// </summary>
+        public const float ChainBonusPerLink = .10f;
+
+        /// <summary>Der Buchhalter behaelt so viel Schild zwischen den Runden.</summary>
+        public const float BookkeeperShieldKept = .15f;
+        public const int MaxChainLinks = 5;
+
         private readonly DeterministicRandom _rng;
 
         /// <summary>
@@ -74,9 +94,11 @@ namespace Tartot.Core
             combat.DrawPile.AddRange(run.Deck);
             Shuffle(combat.DrawPile);
             combat.TemporaryDrawBonus = Math.Min(2, CharmStacks(run, CharmEffectType.OpeningDraw));
-            DrawToHand(run, combat, HandSize + combat.TemporaryDrawBonus);
+            DrawToHand(run, combat, HandSizeFor(combat) + combat.TemporaryDrawBonus);
             combat.TemporaryDrawBonus = 0;
             RollIntent(combat);
+            if (HasRule(combat, BossRule.Devil)) OfferPact(combat);
+            PrepareRules(run, combat, null);
             return combat;
         }
 
@@ -84,6 +106,8 @@ namespace Tartot.Core
         {
             var card = combat.Hand.FirstOrDefault(c => c.InstanceId == instanceId);
             if (card == null) return false;
+            // Der Turm: ein eingestuerzter Platz nimmt keine Karte.
+            if (combat.BlockedSlot.HasValue && combat.BlockedSlot.Value == slot) return false;
 
             if (combat.Slots.TryGetValue(slot, out var previous))
             {
@@ -113,6 +137,7 @@ namespace Tartot.Core
             if (card == null) return false;
             combat.TemporaryLuck--;
             combat.Hand.Remove(card);
+            combat.VeiledCards.Remove(card.InstanceId);
             combat.DiscardPile.Add(card);
             DrawToHand(run, combat, 1);
             return true;
@@ -124,7 +149,35 @@ namespace Tartot.Core
         /// </summary>
         public ScoreBreakdown PreviewScore(RunState run, CombatState combat)
         {
-            return CalculateScore(run, combat, commit: false);
+            var score = CalculateScore(run, combat, commit: false);
+            if (combat.Slots.Count == 0) return score;
+
+            var entries = ResolvedEntries(combat).ToList();
+            var preStance = combat.Enemy.Stance;
+            var stanceDamage = StanceDamage(score, entries);
+            var justBroke = preStance > 0 && preStance - stanceDamage <= 0;
+            score.BreaksStance = justBroke;
+            score.ExpectedHit = FateAfterStance(combat, score.FateDamage, justBroke, preStance);
+            score.Lethal = combat.Enemy.Sigils == 0
+                           && score.ExpectedHit >= combat.Enemy.Hp + combat.Enemy.Shield;
+            AddHints(combat, entries, score);
+            return score;
+        }
+
+        /// <summary>Wohin eine Karte auf diesem Platz tatsaechlich wirkt (Das Rad, Der Gehaengte).</summary>
+        public SlotPosition EffectiveSlot(CombatState combat, SlotPosition placed)
+        {
+            var enemy = combat?.Enemy;
+            if (enemy == null) return placed;
+            var weak = enemy.Definition.RulesWeakened;
+            var slot = placed;
+            if (HasRule(combat, BossRule.Wheel) && (!weak || combat.Turn % 2 == 0))
+                slot = (SlotPosition)(((int)slot + (enemy.Phase >= 1 && !weak ? 2 : 1)) % 3);
+            if (HasRule(combat, BossRule.HangedMan) && (!weak || combat.Turn % 2 == 1))
+                slot = slot == SlotPosition.Past ? SlotPosition.Future
+                    : slot == SlotPosition.Future ? SlotPosition.Past
+                    : SlotPosition.Present;
+            return slot;
         }
 
         public TurnResult ResolveTurn(RunState run, CombatState combat)
@@ -136,38 +189,54 @@ namespace Tartot.Core
                 return result;
             }
 
-            var ordered = OrderedSlots(combat).ToList();
+            // Ein unbeantworteter Pakt gilt als abgelehnt.
+            if (combat.PactPending) AnswerPact(run, combat, false);
+
+            var entries = ResolvedEntries(combat).ToList();
             var score = CalculateScore(run, combat, true);
             combat.LastScore = score;
-            combat.LastPlayedCards = ordered.Select(x => x.Card).ToList();
+            combat.LastPlayedCards = entries.Select(x => x.Card).ToList();
             result.Score = score;
 
+            run.Stats.TurnsPlayed++;
+            run.Stats.ReversedPlayed += entries.Count(e => e.Card.Orientation == Orientation.Reversed);
+            if (score.IsWorld)
+            {
+                run.Stats.WorldSpreads++;
+                combat.WorldsThisFight++;
+                run.Stats.MostWorldsInFight = Math.Max(run.Stats.MostWorldsInFight, combat.WorldsThisFight);
+            }
+            foreach (var entry in entries)
+                if (entry.Placed != entry.Effective)
+                    result.Log.Add($"{entry.Card.Definition.Name} wirkt als {SlotName(entry.Effective)}.");
+
             var preStance = combat.Enemy.Stance;
-            var stanceDamage = Math.Max(1, score.Chips / 9 + ordered.Count(x => x.Card.Definition.Suit == Suit.Swords) * 2);
+            var stanceDamage = StanceDamage(score, entries);
             combat.Enemy.Stance = Math.Max(0, combat.Enemy.Stance - stanceDamage);
             var justBroke = preStance > 0 && combat.Enemy.Stance == 0;
             result.StanceBroken = justBroke;
             if (justBroke) result.Log.Add("HALTUNG GEBROCHEN – Schadensfenster geöffnet.");
 
-            var fateDamage = score.FateDamage;
-            if (justBroke || combat.Enemy.BrokenThisRound) fateDamage = (int)Math.Round(fateDamage * 1.5f);
-            if (preStance > 0 && !justBroke)
-            {
-                var cap = Math.Max(1, (int)Math.Round(combat.Enemy.Definition.MaxHp * 0.35f));
-                fateDamage = Math.Min(fateDamage, cap);
-            }
-
+            var fateDamage = FateAfterStance(combat, score.FateDamage, justBroke, preStance);
             fateDamage = DealEnemyDamage(run, combat, fateDamage, true);
             result.FateDamage = fateDamage;
+            // Rekord ist der Wert der Legung, nicht der gedeckelte Schaden: die
+            // Haltung begrenzt, was beim Gegner ankommt, nicht wie gut du gelegt hast.
+            if (score.FateDamage > run.Stats.BestHit)
+            {
+                result.NewBestHit = run.Stats.BestHit > 0;
+                run.Stats.BestHit = score.FateDamage;
+                run.Stats.BestHitCombo = score.ComboName;
+            }
             result.Log.Add($"{score.ComboName}: {score.Chips} Chips × {score.Multiplier:0.00} × Wiederholung {score.RepeatPenalty:0.00} = {fateDamage} Fate-Schaden.");
 
-            DistributeFateContribution(combat, ordered, fateDamage, stanceDamage, score.Multiplier);
+            DistributeFateContribution(combat, entries, fateDamage, stanceDamage, score.Multiplier);
 
-            var immediate = ordered.Where(x => x.Slot != SlotPosition.Future).ToList();
-            var future = ordered.Where(x => x.Slot == SlotPosition.Future).ToList();
+            var immediate = entries.Where(x => x.Effective != SlotPosition.Future).ToList();
+            var future = entries.Where(x => x.Effective == SlotPosition.Future).ToList();
 
             foreach (var entry in immediate)
-                ApplyCard(run, combat, entry.Card, entry.Slot, result);
+                ApplyCard(run, combat, entry.Card, entry.Effective, result);
 
             TickEnemyBurn(run, combat, result);
             CheckEnemyDeathOrSigil(run, combat, result);
@@ -178,17 +247,21 @@ namespace Tartot.Core
             if (!combat.PlayerLost)
             {
                 foreach (var entry in future)
-                    ApplyCard(run, combat, entry.Card, entry.Slot, result);
+                    ApplyCard(run, combat, entry.Card, entry.Effective, result);
                 CheckEnemyDeathOrSigil(run, combat, result);
+                LiftMarkIfFaced(combat, future, result);
             }
 
-            foreach (var entry in ordered)
+            foreach (var entry in entries)
                 combat.DiscardPile.Add(entry.Card);
             combat.Slots.Clear();
 
             if (combat.PlayerWon)
             {
                 AwardRageOnVictory(combat);
+                combat.MarkedCardId = string.Empty;
+                result.Overkill = combat.LastOverkill;
+                if (result.Overkill > 0) result.Log.Add($"ÜBERSCHUSS: {result.Overkill} über das Leben hinaus.");
                 result.Victory = true;
                 return result;
             }
@@ -198,6 +271,8 @@ namespace Tartot.Core
                 result.Defeat = true;
                 return result;
             }
+
+            TickDeathMark(run, combat, result);
 
             combat.Turn++;
             if (combat.Enemy.Stance == 0)
@@ -211,14 +286,46 @@ namespace Tartot.Core
                 else combat.Enemy.BrokenThisRound = true;
             }
 
-            var retained = CharmStacks(run, CharmEffectType.ShieldRetention) * 0.10f;
+            var retained = CharmStacks(run, CharmEffectType.ShieldRetention) * 0.10f
+                           + (run.DeuterRule == DeuterRule.Bookkeeper ? BookkeeperShieldKept : 0f);
             combat.PlayerShield = (int)Math.Floor(combat.PlayerShield * Math.Min(.5f, retained));
             // Der Zieh-Bonus (Der Gehaengte, Leere Karte) galt bisher nur beim
             // Kampfstart und verfiel danach ungenutzt.
-            DrawToHand(run, combat, HandSize + combat.TemporaryDrawBonus);
+            DrawToHand(run, combat, HandSizeFor(combat) + combat.TemporaryDrawBonus);
             combat.TemporaryDrawBonus = 0;
             RollIntent(combat);
+            PrepareRules(run, combat, result);
             return result;
+        }
+
+        /// <summary>Haltungsschaden einer Legung: Chips/9 plus 2 je Schwert.</summary>
+        private static int StanceDamage(ScoreBreakdown score, List<SlotEntry> entries) =>
+            Math.Max(1, score.Chips / 9 + entries.Count(x => x.Card.Definition.Suit == Suit.Swords) * 2);
+
+        /// <summary>
+        /// Was vom Fate-Treffer ankommt: steht die Haltung, ist er auf 35 %
+        /// der Max-HP gedeckelt; bricht sie gerade oder ist sie gebrochen,
+        /// wirkt er mit x1,5.
+        /// </summary>
+        private static int FateAfterStance(CombatState combat, int fate, bool justBroke, int preStance)
+        {
+            if (justBroke || combat.Enemy.BrokenThisRound) fate = (int)Math.Round(fate * 1.5f);
+            if (preStance > 0 && !justBroke)
+            {
+                var cap = Math.Max(1, (int)Math.Round(combat.Enemy.Definition.MaxHp * 0.35f));
+                fate = Math.Min(fate, cap);
+            }
+            return fate;
+        }
+
+        public static string SlotName(SlotPosition slot)
+        {
+            switch (slot)
+            {
+                case SlotPosition.Past: return "VERGANGENHEIT";
+                case SlotPosition.Future: return "ZUKUNFT";
+                default: return "GEGENWART";
+            }
         }
 
         public void DrawToHand(RunState run, CombatState combat, int targetCount)
@@ -245,11 +352,13 @@ namespace Tartot.Core
 
         private ScoreBreakdown CalculateScore(RunState run, CombatState combat, bool commit)
         {
-            var entries = OrderedSlots(combat).ToList();
+            var entries = ResolvedEntries(combat).ToList();
             var cards = entries.Select(e => e.Card).ToList();
             var score = new ScoreBreakdown { Chips = 0, Multiplier = 1f, ComboName = "Offene Legung" };
             if (cards.Count == 0) return score;
 
+            var reversedMult = run.DeuterRule == DeuterRule.BloodReader ? .15f : .10f;
+            var darkChips = run.Darkness / 20;
             foreach (var card in cards)
             {
                 var chips = card.EffectiveRank;
@@ -263,8 +372,10 @@ namespace Tartot.Core
                     score.Multiplier += CharmStacks(run, CharmEffectType.CopyPower) * .10f;
                 if (card.Orientation == Orientation.Reversed)
                 {
-                    score.Multiplier += .10f;
+                    score.Multiplier += reversedMult;
                     score.Multiplier += CharmStacks(run, CharmEffectType.SelfDamagePower) * .12f;
+                    // Verdunkelung naehrt die verkehrte Seite.
+                    chips += darkChips;
                 }
                 if (card.Rage >= 3)
                 {
@@ -274,8 +385,8 @@ namespace Tartot.Core
                 score.Chips += chips;
             }
 
-            if (combat.Slots.ContainsKey(SlotPosition.Present)) score.Multiplier += .15f;
-            if (combat.Slots.ContainsKey(SlotPosition.Future))
+            if (entries.Any(e => e.Effective == SlotPosition.Present)) score.Multiplier += .15f;
+            if (entries.Any(e => e.Effective == SlotPosition.Future))
                 score.Multiplier += .10f + CharmStacks(run, CharmEffectType.FuturePower) * .10f;
 
             var values = cards.Select(c => c.Definition.Rank).OrderBy(v => v).ToList();
@@ -287,11 +398,14 @@ namespace Tartot.Core
             var majorCount = cards.Count(c => c.Definition.IsMajor);
 
             var comboParts = new List<string>();
+            var chainable = false;
             if (sum == 21)
             {
                 score.Multiplier += 2.10f;
                 score.Chips += 21;
+                score.IsWorld = true;
                 comboParts.Add("DIE WELT 21");
+                chainable = true;
                 // Nur beim echten Zug, nicht in der Vorschau: sonst haette der
                 // Spieler durch blosses Hin- und Herschieben von Karten
                 // unbegrenzt Rage aufgebaut.
@@ -303,24 +417,28 @@ namespace Tartot.Core
                 score.Multiplier += .75f;
                 score.Chips += 8;
                 comboParts.Add("Folge");
+                chainable = true;
             }
             if (sameSuit)
             {
                 score.Multiplier += .65f;
                 score.Chips += 10;
                 comboParts.Add("Resonanz");
+                chainable = true;
             }
             if (groups.First().Count() == 3)
             {
                 score.Multiplier += 1.0f;
                 score.Chips += 12;
                 comboParts.Add("Dreiklang");
+                chainable = true;
             }
             else if (groups.First().Count() == 2)
             {
                 score.Multiplier += .50f;
                 score.Chips += 5;
                 comboParts.Add("Paar");
+                chainable = true;
             }
             if (cards.Count == 3 && uniqueSuits == 3)
             {
@@ -331,6 +449,7 @@ namespace Tartot.Core
             {
                 score.Multiplier += .60f + (majorCount - 2) * .25f;
                 comboParts.Add("Großes Omen");
+                chainable = true;
             }
 
             var wands = cards.Count(c => c.Definition.Suit == Suit.Wands);
@@ -339,13 +458,27 @@ namespace Tartot.Core
             score.Multiplier += Math.Max(0, run.Charms.Count - 1) / 5 * CharmStacks(run, CharmEffectType.WorldThread) * .02f;
 
             // Deck-Resonanz: ein kleines, entwickeltes, stimmiges Deck schlaegt
-            // haerter. Der Wert wurde bisher gepflegt, aber nirgends gelesen -
-            // dadurch war das Ausduennen des Decks mechanisch wirkungslos,
-            // obwohl das Design es als zentralen Hebel beschreibt.
-            score.Multiplier += Math.Max(0, run.DeckResonance - 1) * DeckResonancePerStep;
+            // haerter. Der Eremit liest sie doppelt.
+            var resonanceStep = run.DeuterRule == DeuterRule.Hermit ? DeckResonancePerStep * 2 : DeckResonancePerStep;
+            score.Multiplier += Math.Max(0, run.DeckResonance - 1) * resonanceStep;
 
             if (!string.IsNullOrEmpty(run.Prophecy) && run.Prophecy == "XXI" && run.Deck.Count <= 10)
                 score.Multiplier += .30f;
+
+            // Musterkette: wer Zug um Zug ein Muster legt, baut sich auf.
+            score.HasPattern = chainable;
+            score.Chain = chainable ? combat.PatternChain + 1 : 0;
+            if (chainable && combat.PatternChain > 0)
+            {
+                var links = Math.Min(MaxChainLinks, combat.PatternChain);
+                score.Multiplier += links * ChainBonusPerLink;
+                score.Notes.Add($"Kette ×{score.Chain} (+{links * ChainBonusPerLink:0.00}).");
+            }
+            if (commit)
+            {
+                combat.PatternChain = chainable ? combat.PatternChain + 1 : 0;
+                run.Stats.LongestChain = Math.Max(run.Stats.LongestChain, combat.PatternChain);
+            }
 
             score.ComboName = comboParts.Count == 0 ? (cards.Count == 3 ? "Dreier-Legung" : "Offene Legung") : string.Join(" + ", comboParts);
             var signature = string.Join("-", cards.Select(c => c.Definition.Id).OrderBy(s => s)) + "|" + score.ComboName;
@@ -368,8 +501,51 @@ namespace Tartot.Core
                 }
             }
 
-            score.FateDamage = Math.Max(1, (int)Math.Round(score.Chips * score.Multiplier * score.RepeatPenalty));
+            var pact = 1f + combat.FateBonus;
+            if (combat.FateBonus > 0) score.Notes.Add($"Pakt +{combat.FateBonus * 100:0} %.");
+            score.Veiled = entries.Any(e => combat.VeiledCards.Contains(e.Card.InstanceId));
+            score.FateDamage = Math.Max(1, (int)Math.Round(score.Chips * score.Multiplier * score.RepeatPenalty * pact));
             return score;
+        }
+
+        /// <summary>
+        /// Beinahe-Treffer fuer die Vorschau. Konkret statt allgemein: nicht
+        /// "Summe 21 gibt Bonus", sondern "die 7 der Kelche auf deiner Hand
+        /// vollendet DIE WELT". So lehrt die Vorschau die Muster nebenbei.
+        /// </summary>
+        private static void AddHints(CombatState combat, List<SlotEntry> entries, ScoreBreakdown score)
+        {
+            if (score.Veiled) return;
+            var ranks = entries.Select(e => e.Card.Definition.Rank).OrderBy(r => r).ToList();
+            var hand = combat.Hand.Where(c => !combat.VeiledCards.Contains(c.InstanceId)).ToList();
+            var freeSlot = entries.Count < 3 && combat.Slots.Count < 3;
+
+            if (entries.Count == 2 && freeSlot)
+            {
+                var need = 21 - ranks.Sum();
+                var completer = hand.FirstOrDefault(c => c.Definition.Rank == need);
+                if (completer != null) score.Hints.Add($"{completer.Definition.Name} vollendet DIE WELT (21).");
+                else if (need >= 1 && need <= 14) score.Hints.Add($"Noch {need} bis DIE WELT.");
+
+                if (ranks[0] == ranks[1])
+                {
+                    var third = hand.FirstOrDefault(c => c.Definition.Rank == ranks[0]);
+                    if (third != null) score.Hints.Add($"{third.Definition.Name} macht den Dreiklang.");
+                }
+                else if (ranks[1] - ranks[0] == 1)
+                {
+                    var link = hand.FirstOrDefault(c => c.Definition.Rank == ranks[0] - 1 || c.Definition.Rank == ranks[1] + 1);
+                    if (link != null) score.Hints.Add($"{link.Definition.Name} vollendet die Folge.");
+                }
+            }
+            else if (entries.Count == 3 && !score.IsWorld)
+            {
+                var gap = Math.Abs(21 - ranks.Sum());
+                if (gap > 0 && gap <= 3) score.Hints.Add($"Summe {ranks.Sum()}: nur {gap} neben DIE WELT.");
+            }
+
+            if (score.Lethal) score.Hints.Insert(0, "TÖDLICH – dieser Treffer beendet den Kampf.");
+            while (score.Hints.Count > 2) score.Hints.RemoveAt(score.Hints.Count - 1);
         }
 
         private void ApplyCard(RunState run, CombatState combat, CardInstance card, SlotPosition slot, TurnResult result)
@@ -378,7 +554,12 @@ namespace Tartot.Core
             var charmFactor = 1f;
             if (card.IsCopy) charmFactor += CharmStacks(run, CharmEffectType.CopyPower) * .10f;
             if (card.IsUpgraded) charmFactor += CharmStacks(run, CharmEffectType.UpgradedPower) * .08f;
-            if (card.Orientation == Orientation.Reversed) charmFactor += CharmStacks(run, CharmEffectType.SelfDamagePower) * .12f;
+            if (card.Orientation == Orientation.Reversed)
+            {
+                charmFactor += CharmStacks(run, CharmEffectType.SelfDamagePower) * .12f;
+                // +6 % je 20 Verdunkelung: je dunkler der Run, desto lohnender die verkehrte Seite.
+                charmFactor += run.Darkness / 20 * .06f;
+            }
             var rageFactor = card.Rage >= 3 ? 1.5f : 1f;
             if (card.Rage >= 3) card.Rage = 0;
             var factor = slotFactor * card.PowerMultiplier * charmFactor * rageFactor;
@@ -456,7 +637,10 @@ namespace Tartot.Core
                 return;
             }
 
-            var selfDamage = Math.Max(1, (int)Math.Round(power * ReversedCostFraction));
+            var fraction = ReversedCostFraction;
+            if (run.DeuterRule == DeuterRule.BloodReader) fraction *= 1.25f;
+            if (run.Veil >= 7) fraction *= 1.5f;
+            var selfDamage = Math.Max(1, (int)Math.Round(power * fraction));
             run.Hp = Math.Max(1, run.Hp - selfDamage);
             result.Log.Add($"Umkehrpreis: -{selfDamage} HP.");
         }
@@ -774,6 +958,15 @@ namespace Tartot.Core
 
         private void CheckEnemyDeathOrSigil(RunState run, CombatState combat, TurnResult result)
         {
+            // Schon besiegt: was die Zukunftskarten danach noch treffen, ist
+            // weiterer Ueberschuss. Vorher lief diese Pruefung ein zweites Mal
+            // von vorn und setzte den Ueberschuss auf 0 zurueck.
+            if (combat.PlayerWon)
+            {
+                combat.LastOverkill += Math.Max(0, -combat.Enemy.Hp);
+                combat.Enemy.Hp = 0;
+                return;
+            }
             if (combat.Enemy.Hp > 0) return;
             if (combat.Enemy.Sigils > 0)
             {
@@ -782,8 +975,10 @@ namespace Tartot.Core
                 combat.Enemy.Stance = combat.Enemy.Definition.MaxStance;
                 combat.Enemy.AttackRamp += 3;
                 result.Log.Add("SCHICKSALSSIEGEL BRICHT – der Gegner kehrt verändert zurück.");
+                OnPhaseChange(run, combat, result);
                 return;
             }
+            combat.LastOverkill = Math.Max(0, -combat.Enemy.Hp);
             combat.Enemy.Hp = 0;
             combat.PlayerWon = true;
             result.Log.Add("Gegner besiegt.");
@@ -792,32 +987,50 @@ namespace Tartot.Core
         private void RollIntent(CombatState combat)
         {
             var enemy = combat.Enemy;
-            var lowHp = enemy.Hp <= enemy.Definition.MaxHp / 2;
+            var definition = enemy.Definition;
+            var lowHp = enemy.Hp <= definition.MaxHp / 2;
+            var attack = definition.BaseAttack + enemy.AttackRamp;
+            var bonus = 1f + combat.EnemyAttackBonus;
+            // Wer nicht angreift (Angriff 0), greift auch mit Zorn nicht an.
+            int Scaled(int value) => value <= 0 ? 0 : Math.Max(1, (int)Math.Round(value * bonus));
+
             if (lowHp && combat.Turn % 4 == 0)
             {
                 enemy.Intent = IntentType.Frenzy;
-                enemy.IntentValue = Math.Max(1, (enemy.Definition.BaseAttack + enemy.AttackRamp) / 2);
+                enemy.IntentValue = Scaled(Math.Max(1, attack / 2));
                 return;
             }
+
+            IntentType intent;
+            var patterned = definition.Pattern != null && definition.Pattern.Length > 0;
+            if (patterned)
+                intent = definition.Pattern[(combat.Turn - 1) % definition.Pattern.Length];
             // Der seltenere Zug wird zuerst geprueft. Vorher stand Guard (%3)
             // vor Hex (%5), wodurch Hex auf Zug 15 und 30 nie vorkam.
-            if (combat.Turn % 5 == 0)
+            else if (combat.Turn % 5 == 0) intent = IntentType.Hex;
+            else if (combat.Turn % 3 == 0) intent = IntentType.Guard;
+            else intent = IntentType.Attack;
+
+            enemy.Intent = intent;
+            switch (intent)
             {
-                enemy.Intent = IntentType.Hex;
-                enemy.IntentValue = enemy.Definition.BaseAttack + enemy.AttackRamp;
-                return;
+                case IntentType.Guard:
+                    enemy.IntentValue = Math.Max(4, definition.MaxStance / 2);
+                    break;
+                case IntentType.Hex:
+                case IntentType.Drain:
+                    enemy.IntentValue = Scaled(attack);
+                    break;
+                case IntentType.Frenzy:
+                    enemy.IntentValue = Scaled(Math.Max(1, (int)Math.Round(attack * .6f)));
+                    break;
+                default:
+                    enemy.IntentValue = Scaled(attack + (lowHp ? 2 : 0));
+                    break;
             }
-            if (combat.Turn % 3 == 0)
-            {
-                enemy.Intent = IntentType.Guard;
-                enemy.IntentValue = Math.Max(4, enemy.Definition.MaxStance / 2);
-                return;
-            }
-            enemy.Intent = IntentType.Attack;
-            enemy.IntentValue = enemy.Definition.BaseAttack + enemy.AttackRamp + (lowHp ? 2 : 0);
         }
 
-        private void DistributeFateContribution(CombatState combat, List<(SlotPosition Slot, CardInstance Card)> entries, int damage, int stanceDamage, float mult)
+        private void DistributeFateContribution(CombatState combat, List<SlotEntry> entries, int damage, int stanceDamage, float mult)
         {
             var totalRanks = Math.Max(1, entries.Sum(e => e.Card.EffectiveRank));
             foreach (var e in entries)
@@ -856,11 +1069,25 @@ namespace Tartot.Core
             return charm == null ? 0 : run.CharmStacks(charm.Id);
         }
 
-        private IEnumerable<(SlotPosition Slot, CardInstance Card)> OrderedSlots(CombatState combat)
+        /// <summary>Eine gelegte Karte: wo sie liegt und wo sie wirkt.</summary>
+        public struct SlotEntry
         {
-            var order = new[] { SlotPosition.Past, SlotPosition.Present, SlotPosition.Future };
-            foreach (var slot in order)
-                if (combat.Slots.TryGetValue(slot, out var card)) yield return (slot, card);
+            public SlotPosition Placed;
+            public SlotPosition Effective;
+            public CardInstance Card;
+        }
+
+        /// <summary>
+        /// Die Legung in Wirkungsreihenfolge. Ohne Bossregel liegt jede Karte
+        /// dort, wo sie wirkt; Das Rad und Der Gehaengte verschieben das.
+        /// </summary>
+        public IEnumerable<SlotEntry> ResolvedEntries(CombatState combat)
+        {
+            var list = new List<SlotEntry>();
+            foreach (var slot in new[] { SlotPosition.Past, SlotPosition.Present, SlotPosition.Future })
+                if (combat.Slots.TryGetValue(slot, out var card))
+                    list.Add(new SlotEntry { Placed = slot, Effective = EffectiveSlot(combat, slot), Card = card });
+            return list.OrderBy(e => (int)e.Effective).ThenBy(e => (int)e.Placed);
         }
 
         private void Shuffle<T>(IList<T> list)

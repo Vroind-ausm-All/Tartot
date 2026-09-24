@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Tartot.Core;
 using Xunit;
@@ -108,13 +109,88 @@ namespace Tartot.Tests
         }
 
         [Fact]
-        public void Enemies_GrowInDifficulty()
+        public void Acts_GrowInDifficulty()
         {
-            var enemies = GameCatalog.Enemies;
-            Assert.NotEmpty(enemies);
-            for (var i = 1; i < enemies.Count; i++)
-                Assert.True(enemies[i].MaxHp > enemies[i - 1].MaxHp,
-                    $"{enemies[i].Id} ist nicht staerker als {enemies[i - 1].Id}.");
+            // Frueher eine feste Achterreihe mit steigenden HP. Jetzt hat jeder
+            // Akt einen eigenen Pool - wachsen muss er im Schnitt, und innerhalb
+            // eines Akts muss ein Boss mehr aushalten als seine Elites und die
+            // Elites mehr als die normalen Gegner.
+            double AverageHp(IEnumerable<EnemyDefinition> list) => list.Average(e => e.MaxHp);
+            for (var act = 2; act <= ActCatalog.ActCount; act++)
+                Assert.True(AverageHp(ActCatalog.NormalsOf(act)) > AverageHp(ActCatalog.NormalsOf(act - 1)),
+                    $"Akt {act} ist nicht staerker als Akt {act - 1}.");
+
+            for (var act = 1; act <= ActCatalog.ActCount; act++)
+            {
+                var normal = AverageHp(ActCatalog.NormalsOf(act));
+                var elite = AverageHp(ActCatalog.ElitesOf(act));
+                var boss = AverageHp(ActCatalog.BossesOf(act));
+                Assert.True(elite > normal, $"Akt {act}: Elites ({elite}) muessen mehr aushalten als Normale ({normal}).");
+                Assert.True(boss > elite, $"Akt {act}: Bosse ({boss}) muessen mehr aushalten als Elites ({elite}).");
+            }
+        }
+
+        [Fact]
+        public void EveryActHasEnoughEnemiesForItsFights()
+        {
+            // Vier normale Kaempfe je Akt, ohne Wiederholung: also mindestens vier Normale.
+            for (var act = 1; act <= ActCatalog.ActCount; act++)
+            {
+                Assert.True(ActCatalog.NormalsOf(act).Count >= ActCatalog.FightsBeforeBoss);
+                Assert.True(ActCatalog.ElitesOf(act).Count >= 1);
+                Assert.True(ActCatalog.BossesOf(act).Count >= 2, $"Akt {act} braucht zwei moegliche Omen.");
+            }
+        }
+
+        [Fact]
+        public void EveryBossBreaksARuleAndCarriesAnOmen()
+        {
+            foreach (var boss in ActCatalog.Bosses)
+            {
+                Assert.NotEmpty(boss.Rules);
+                Assert.DoesNotContain(BossRule.None, boss.Rules);
+                Assert.Contains(GameCatalog.Cards, c => c.Id == boss.OmenCardId);
+            }
+            // Jede Regel kommt bei genau einem Akt-Boss vor.
+            var rules = ActCatalog.Bosses.SelectMany(b => b.Rules).ToList();
+            Assert.Equal(rules.Count, rules.Distinct().Count());
+        }
+
+        [Fact]
+        public void EnemyIdsAreUnique()
+        {
+            var ids = GameCatalog.Enemies.Select(e => e.Id).ToList();
+            Assert.Equal(ids.Count, ids.Distinct().Count());
+        }
+
+        [Fact]
+        public void EveryEnemyHasAPattern()
+        {
+            foreach (var enemy in GameCatalog.Enemies)
+                Assert.True(enemy.Pattern.Length > 0, $"{enemy.Id} hat kein Absichtsmuster.");
+        }
+
+        [Fact]
+        public void DeutersReferenceRealContent()
+        {
+            foreach (var deuter in DeuterCatalog.All)
+            {
+                Assert.True(deuter.Deck.Length >= GameCatalog.MinimumDeckSize, $"{deuter.Id}: Deck zu klein.");
+                Assert.All(deuter.Deck, id => Assert.Contains(GameCatalog.Cards, c => c.Id == id));
+                Assert.All(deuter.ReversedCards, id => Assert.Contains(id, deuter.Deck));
+                Assert.All(deuter.Charms, id => Assert.Contains(GameCatalog.Charms, c => c.Id == id));
+                Assert.All(deuter.Items, id => Assert.Contains(GameCatalog.Items, i => i.Id == id));
+                if (!string.IsNullOrEmpty(deuter.UnlockedBy))
+                    Assert.NotNull(ProphecyCatalog.Find(deuter.UnlockedBy));
+            }
+        }
+
+        [Fact]
+        public void EveryVeilLevelIsDescribed()
+        {
+            Assert.Equal(VeilCatalog.MaxVeil + 1, VeilCatalog.All.Count);
+            for (var i = 0; i <= VeilCatalog.MaxVeil; i++)
+                Assert.Equal(i, VeilCatalog.All[i].Level);
         }
 
         [Fact]

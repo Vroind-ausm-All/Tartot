@@ -7,7 +7,12 @@ namespace Tartot.Core
     /// <summary>Ein vollstaendiger Speicherstand eines laufenden Runs.</summary>
     public sealed class SaveData
     {
-        public const int CurrentVersion = 1;
+        /// <summary>
+        /// Version 2: Akte, Verdunkelung, Deuter, Schleier, Ereignisse und
+        /// Bossregeln. Version-1-Staende laden weiter - fehlende Felder fallen
+        /// auf den Anfang eines Runs zurueck.
+        /// </summary>
+        public const int CurrentVersion = 2;
 
         public int Version = CurrentVersion;
         public long Seed;
@@ -19,6 +24,10 @@ namespace Tartot.Core
         /// <summary>Null, wenn gerade kein Kampf laeuft.</summary>
         public CombatState Combat;
         public string EnemyId = string.Empty;
+        /// <summary>Das laufende Ereignis - sonst wuerde ein Neustart es neu wuerfeln.</summary>
+        public string EventId = string.Empty;
+        public bool EventResolved;
+        public string EventEpilogue = string.Empty;
     }
 
     /// <summary>
@@ -60,6 +69,11 @@ namespace Tartot.Core
                 root.Set("combat", WriteCombat(game.Combat));
                 root.Set("enemyId", game.Combat.Enemy?.Definition?.Id ?? string.Empty);
             }
+            if (game.CurrentEvent != null)
+                root.Set("event", JsonValue.Object()
+                    .Set("id", game.CurrentEvent.Id)
+                    .Set("resolved", game.EventResolved)
+                    .Set("epilogue", game.EventEpilogue ?? string.Empty));
             return Json.Write(root, indented);
         }
 
@@ -89,6 +103,13 @@ namespace Tartot.Core
             save.Run = ReadRun(root.Get("run"), pool);
             var combatNode = root.Get("combat");
             if (combatNode != null) save.Combat = ReadCombat(combatNode, pool, save.EnemyId);
+            var eventNode = root.Get("event");
+            if (eventNode != null)
+            {
+                save.EventId = eventNode.GetString("id");
+                save.EventResolved = eventNode.GetBool("resolved");
+                save.EventEpilogue = eventNode.GetString("epilogue");
+            }
             return save;
         }
 
@@ -213,8 +234,44 @@ namespace Tartot.Core
                 .Set("fateTotal", run.FateScoreTotal)
                 .Set("prophecy", run.Prophecy ?? string.Empty)
                 .Set("shopRemovals", run.ShopRemovals)
-                .Set("interpretations", WriteCounts(run.Interpretations));
+                .Set("shopRefines", run.ShopRefines)
+                .Set("interpretations", WriteCounts(run.Interpretations))
+                .Set("deuter", run.DeuterId ?? DeuterCatalog.DefaultId)
+                .Set("deuterRule", run.DeuterRule.ToString())
+                .Set("veil", run.Veil)
+                .Set("daily", run.IsDaily)
+                .Set("actBosses", WriteStrings(run.ActBosses))
+                .Set("defeatedBosses", WriteStrings(run.DefeatedBosses))
+                .Set("seenEnemies", WriteStrings(run.SeenEnemies))
+                .Set("seenEvents", WriteStrings(run.SeenEvents))
+                .Set("won", run.Won)
+                .Set("pendingEnemy", run.PendingEnemyId ?? string.Empty)
+                .Set("nextElite", run.NextFightElite)
+                .Set("lastPath", run.LastPath.ToString())
+                .Set("sinceShop", run.StepsSinceShop)
+                .Set("sinceRest", run.StepsSinceRest)
+                .Set("bonusRewards", run.BonusRewardChoices)
+                .Set("darkness", run.Darkness)
+                .Set("storyFlags", WriteStrings(run.StoryFlags.OrderBy(f => f, StringComparer.Ordinal)))
+                .Set("newStoryFlags", WriteStrings(run.NewStoryFlags))
+                .Set("graveCard", run.GraveCardId ?? string.Empty)
+                .Set("graveFight", run.GraveFight)
+                .Set("charmPool", run.CharmPool == null
+                    ? JsonValue.Null()
+                    : WriteStrings(run.CharmPool.OrderBy(f => f, StringComparer.Ordinal)))
+                .Set("stats", WriteCounts(run.Stats.ToDictionary()))
+                .Set("bestHitCombo", run.Stats.BestHitCombo ?? string.Empty);
         }
+
+        private static JsonValue WriteStrings(IEnumerable<string> values)
+        {
+            var array = JsonValue.Array();
+            foreach (var value in values) array.Add(JsonValue.Of(value));
+            return array;
+        }
+
+        private static List<string> ReadStrings(JsonValue node, string key) =>
+            node.GetArray(key).Where(v => v.Kind == JsonKind.String).Select(v => v.StringValue).ToList();
 
         private static RunState ReadRun(JsonValue node, IReadOnlyDictionary<string, CardInstance> pool)
         {
@@ -236,8 +293,47 @@ namespace Tartot.Core
                 FreeNextShopPurchase = node.GetBool("freeShop"),
                 FateScoreTotal = node.GetInt("fateTotal"),
                 Prophecy = node.GetString("prophecy"),
-                ShopRemovals = node.GetInt("shopRemovals")
+                ShopRemovals = node.GetInt("shopRemovals"),
+                ShopRefines = node.GetInt("shopRefines"),
+                DeuterId = node.GetString("deuter", DeuterCatalog.DefaultId),
+                DeuterRule = node.GetEnum("deuterRule", DeuterRule.None),
+                Veil = node.GetInt("veil"),
+                IsDaily = node.GetBool("daily"),
+                Won = node.GetBool("won"),
+                PendingEnemyId = node.GetString("pendingEnemy"),
+                NextFightElite = node.GetBool("nextElite"),
+                LastPath = node.GetEnum("lastPath", PathType.Fight),
+                StepsSinceShop = node.GetInt("sinceShop"),
+                StepsSinceRest = node.GetInt("sinceRest"),
+                BonusRewardChoices = node.GetInt("bonusRewards"),
+                Darkness = node.GetInt("darkness"),
+                GraveCardId = node.GetString("graveCard"),
+                GraveFight = node.GetInt("graveFight")
             };
+
+            run.ActBosses.AddRange(ReadStrings(node, "actBosses"));
+            run.DefeatedBosses.AddRange(ReadStrings(node, "defeatedBosses"));
+            run.SeenEnemies.AddRange(ReadStrings(node, "seenEnemies"));
+            run.SeenEvents.AddRange(ReadStrings(node, "seenEvents"));
+            foreach (var flag in ReadStrings(node, "storyFlags")) run.StoryFlags.Add(flag);
+            run.NewStoryFlags.AddRange(ReadStrings(node, "newStoryFlags"));
+            var charmPool = node.Get("charmPool");
+            if (charmPool != null && charmPool.Kind == JsonKind.Array)
+                run.CharmPool = new HashSet<string>(ReadStrings(node, "charmPool"));
+
+            // Staende aus Version 1 kennen keine geplanten Bosse: nachholen,
+            // deterministisch aus dem, was der Katalog hergibt.
+            if (run.ActBosses.Count == 0)
+                for (var act = 1; act <= ActCatalog.ActCount; act++)
+                    run.ActBosses.Add(ActCatalog.BossesOf(act).First().Id);
+
+            var stats = new Dictionary<string, int>();
+            var statsNode = node.Get("stats");
+            if (statsNode != null && statsNode.Kind == JsonKind.Object)
+                foreach (var pair in statsNode.Members)
+                    stats[pair.Key] = (int)Math.Round(pair.Value.NumberValue);
+            run.Stats.Load(stats);
+            run.Stats.BestHitCombo = node.GetString("bestHitCombo");
 
             var interpretations = node.Get("interpretations");
             if (interpretations != null && interpretations.Kind == JsonKind.Object)
@@ -278,7 +374,20 @@ namespace Tartot.Core
                 .Set("ramp", enemy.AttackRamp)
                 .Set("broken", enemy.BrokenThisRound)
                 .Set("intent", enemy.Intent.ToString())
-                .Set("intentValue", enemy.IntentValue);
+                .Set("intentValue", enemy.IntentValue)
+                .Set("phase", enemy.Phase)
+                .Set("intentHidden", enemy.IntentHidden)
+                .Set("definition", WriteEnemyDefinition(enemy.Definition));
+
+            var contributions = JsonValue.Array();
+            foreach (var c in combat.Contributions.Values)
+                contributions.Add(JsonValue.Object()
+                    .Set("card", c.Card.InstanceId)
+                    .Set("damage", c.Damage)
+                    .Set("shield", c.Shield)
+                    .Set("healing", c.Healing)
+                    .Set("stance", c.StanceDamage)
+                    .Set("mult", c.MultContribution));
 
             return JsonValue.Object()
                 .Set("draw", WriteCardRefs(combat.DrawPile))
@@ -295,14 +404,87 @@ namespace Tartot.Core
                 .Set("comboRepeats", combat.SameComboRepeats)
                 .Set("skipIntent", combat.SkipEnemyIntent)
                 .Set("drawBonus", combat.TemporaryDrawBonus)
-                .Set("lastPlayed", WriteCardRefs(combat.LastPlayedCards));
+                .Set("lastPlayed", WriteCardRefs(combat.LastPlayedCards))
+                .Set("chain", combat.PatternChain)
+                .Set("overkill", combat.LastOverkill)
+                .Set("blocked", combat.BlockedSlot.HasValue ? combat.BlockedSlot.Value.ToString() : string.Empty)
+                .Set("towerCollapses", combat.TowerCollapses)
+                .Set("veiled", WriteStrings(combat.VeiledCards.OrderBy(v => v, StringComparer.Ordinal)))
+                .Set("marked", combat.MarkedCardId ?? string.Empty)
+                .Set("markTurns", combat.MarkTurnsLeft)
+                .Set("nextMark", combat.NextMarkTurn)
+                .Set("pactPending", combat.PactPending)
+                .Set("pactsOffered", combat.PactsOffered)
+                .Set("fateBonus", combat.FateBonus)
+                .Set("attackBonus", combat.EnemyAttackBonus)
+                .Set("worlds", combat.WorldsThisFight)
+                .Set("contributions", contributions);
+        }
+
+        private static JsonValue WriteEnemyDefinition(EnemyDefinition d)
+        {
+            var pattern = JsonValue.Array();
+            foreach (var intent in d.Pattern) pattern.Add(JsonValue.Of(intent.ToString()));
+            var rules = JsonValue.Array();
+            foreach (var rule in d.Rules) rules.Add(JsonValue.Of(rule.ToString()));
+            return JsonValue.Object()
+                .Set("id", d.Id)
+                .Set("name", d.Name)
+                .Set("maxHp", d.MaxHp)
+                .Set("maxStance", d.MaxStance)
+                .Set("attack", d.BaseAttack)
+                .Set("sigils", d.Sigils)
+                .Set("flavor", d.Flavor ?? string.Empty)
+                .Set("tier", d.Tier.ToString())
+                .Set("act", d.Act)
+                .Set("pattern", pattern)
+                .Set("rules", rules)
+                .Set("weakened", d.RulesWeakened)
+                .Set("omen", d.OmenCardId ?? string.Empty)
+                .Set("art", d.Art ?? string.Empty)
+                .Set("goldFactor", d.GoldFactor);
+        }
+
+        /// <summary>
+        /// Der Gegner wird vollstaendig gespeichert, nicht nur seine Id: Schleier,
+        /// Verdunkelung, Spirale und Finale veraendern ihn gegenueber dem Katalog.
+        /// </summary>
+        private static EnemyDefinition ReadEnemyDefinition(JsonValue node)
+        {
+            if (node == null || node.Kind != JsonKind.Object) return null;
+            var d = new EnemyDefinition
+            {
+                Id = node.GetString("id"),
+                Name = node.GetString("name"),
+                MaxHp = Math.Max(1, node.GetInt("maxHp", 1)),
+                MaxStance = node.GetInt("maxStance"),
+                BaseAttack = node.GetInt("attack"),
+                Sigils = node.GetInt("sigils"),
+                Flavor = node.GetString("flavor"),
+                Tier = node.GetEnum("tier", EnemyTier.Normal),
+                Act = node.GetInt("act", 1),
+                RulesWeakened = node.GetBool("weakened"),
+                OmenCardId = node.GetString("omen"),
+                Art = node.GetString("art"),
+                GoldFactor = node.GetFloat("goldFactor", 1f)
+            };
+            d.Pattern = node.GetArray("pattern")
+                .Where(v => v.Kind == JsonKind.String && Enum.TryParse<IntentType>(v.StringValue, out _))
+                .Select(v => (IntentType)Enum.Parse(typeof(IntentType), v.StringValue))
+                .ToArray();
+            foreach (var v in node.GetArray("rules"))
+                if (v.Kind == JsonKind.String && Enum.TryParse<BossRule>(v.StringValue, out var rule))
+                    d.Rules.Add(rule);
+            return d;
         }
 
         private static CombatState ReadCombat(JsonValue node,
             IReadOnlyDictionary<string, CardInstance> pool, string enemyId)
         {
-            var definition = GameCatalog.Enemies.FirstOrDefault(e => e.Id == enemyId)
-                             ?? GameCatalog.Enemies.First();
+            var enemyNodeForDefinition = node.Get("enemy");
+            var definition = ReadEnemyDefinition(enemyNodeForDefinition?.Get("definition"))
+                             ?? GameCatalog.Enemies.FirstOrDefault(e => e.Id == enemyId)?.Clone()
+                             ?? GameCatalog.Enemies.First().Clone();
             var combat = new CombatState { Enemy = new EnemyState(definition) };
 
             var enemyNode = node.Get("enemy");
@@ -317,6 +499,8 @@ namespace Tartot.Core
                 combat.Enemy.BrokenThisRound = enemyNode.GetBool("broken");
                 combat.Enemy.Intent = enemyNode.GetEnum("intent", IntentType.Attack);
                 combat.Enemy.IntentValue = enemyNode.GetInt("intentValue");
+                combat.Enemy.Phase = enemyNode.GetInt("phase");
+                combat.Enemy.IntentHidden = enemyNode.GetBool("intentHidden");
             }
 
             combat.DrawPile.AddRange(ReadCardRefs(node, "draw", pool));
@@ -341,6 +525,35 @@ namespace Tartot.Core
             combat.SameComboRepeats = node.GetInt("comboRepeats");
             combat.SkipEnemyIntent = node.GetBool("skipIntent");
             combat.TemporaryDrawBonus = node.GetInt("drawBonus");
+            combat.PatternChain = node.GetInt("chain");
+            combat.LastOverkill = node.GetInt("overkill");
+            var blocked = node.GetString("blocked");
+            if (Enum.TryParse<SlotPosition>(blocked, out var blockedSlot)) combat.BlockedSlot = blockedSlot;
+            combat.TowerCollapses = node.GetInt("towerCollapses");
+            foreach (var id in ReadStrings(node, "veiled")) combat.VeiledCards.Add(id);
+            combat.MarkedCardId = node.GetString("marked");
+            combat.MarkTurnsLeft = node.GetInt("markTurns");
+            combat.NextMarkTurn = node.GetInt("nextMark", 2);
+            combat.PactPending = node.GetBool("pactPending");
+            combat.PactsOffered = node.GetInt("pactsOffered");
+            combat.FateBonus = node.GetFloat("fateBonus");
+            combat.EnemyAttackBonus = node.GetFloat("attackBonus");
+            combat.WorldsThisFight = node.GetInt("worlds");
+
+            foreach (var entry in node.GetArray("contributions"))
+            {
+                var cardId = entry.GetString("card");
+                if (!pool.TryGetValue(cardId, out var card)) continue;
+                combat.Contributions[cardId] = new PlayedCardContribution
+                {
+                    Card = card,
+                    Damage = entry.GetInt("damage"),
+                    Shield = entry.GetInt("shield"),
+                    Healing = entry.GetInt("healing"),
+                    StanceDamage = entry.GetInt("stance"),
+                    MultContribution = entry.GetFloat("mult")
+                };
+            }
             return combat;
         }
 
