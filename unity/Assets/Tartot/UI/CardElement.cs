@@ -61,7 +61,7 @@ namespace Tartot.Unity
         private static string HeadText(CardInstance card)
         {
             var name = card.Definition.IsMajor
-                ? Roman(card.Definition.Rank)
+                ? Roman(card.Definition.DisplayNumber)
                 : card.Definition.Rank.ToString();
             var level = card.Level > 1 ? new string('+', Math.Min(3, card.Level - 1)) : string.Empty;
             return name + level;

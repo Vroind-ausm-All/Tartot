@@ -6,7 +6,7 @@
 keine Unity-Installation. Geprüft ist:
 
 - `Tartot.Core` kompiliert gegen `netstandard2.1` (Unitys API-Ebene) mit
-  `TreatWarningsAsErrors`, und 127 Tests laufen grün
+  `TreatWarningsAsErrors`, und 130 Tests laufen grün
 - der Unity-Code kompiliert gegen Stubs der verwendeten Unity-Typen
   (`dotnet build tools/unity-syntax-check`)
 
@@ -78,12 +78,30 @@ der Grund, warum das Projekt so geschnitten ist.
 
 ---
 
+## Wie das Ganze aussieht, ohne Unity
+
+Für einen ersten Eindruck lässt sich der echte Spielzustand aus dem Kern
+ziehen und im vorgesehenen Design zeichnen:
+
+```bash
+dotnet run --project src/Tartot.Sim -c Release -- --snapshot=/tmp/tartot_state
+python3 tools/screenshots/render.py /tmp/tartot_state /tmp/tartot_html
+python3 tools/screenshots/shoot.py  /tmp/tartot_html  /tmp/tartot_shots
+```
+
+Die Zahlen und Karten stammen aus dem Regelkern, die Gestaltung bildet
+`Tartot.uss` nach — gezeichnet wird von Chromium, **nicht von Unity**.
+Schriftart, Abstände und Theme können dort abweichen. Es ersetzt also keinen
+Unity-Build, zeigt aber verlässlich, welche Werte wo landen.
+
+---
+
 ## Ohne Unity testen — geht sofort
 
 Der komplette Regelkern lässt sich ohne Unity prüfen und spielen lassen:
 
 ```bash
-dotnet test src/Tartot.Tests                                    # 127 Tests
+dotnet test src/Tartot.Tests                                    # 130 Tests
 dotnet run --project src/Tartot.Sim -c Release -- --runs=50     # 50 Runs durchspielen
 dotnet build tools/unity-syntax-check                           # Unity-Code auf Syntax prüfen
 ```

@@ -18,6 +18,16 @@ namespace Tartot.Core
         public string Description;
 
         public bool IsMajor => Suit == Suit.Major;
+
+        /// <summary>
+        /// Die Zahl, die auf der Karte steht.
+        /// </summary>
+        /// <remarks>
+        /// Fuer Grosse Arkana ist das die Arkana-Nummer, nicht der Rang: Der
+        /// Narr ist die 0, spielt aber mit Rang 1 (siehe GameCatalog). Wer hier
+        /// Rank nimmt, beschriftet Den Narren faelschlich mit I.
+        /// </remarks>
+        public int DisplayNumber => IsMajor && Major.HasValue ? (int)Major.Value : Rank;
     }
 
     [Serializable]

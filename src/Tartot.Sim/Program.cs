@@ -23,6 +23,14 @@ public static class Program
         var reversed = ArgValue(args, "reversed", 0) != 0;
         var allReadings = ArgValue(args, "readings", 0) != 0;
 
+        // Zustandsabzug fuer die Bildschirmdarstellung - kein Balancing-Lauf.
+        foreach (var arg in args)
+            if (arg.StartsWith("--snapshot=", StringComparison.Ordinal))
+            {
+                Snapshot.Write(arg.Substring("--snapshot=".Length));
+                return;
+            }
+
         Console.WriteLine($"=== Tartot Balancing: {runs} Runs, Kampflimit {maxFights} ===\n");
 
         var pilot = new Autopilot { DeckTarget = deckTarget, ReverseStartingDeck = reversed };

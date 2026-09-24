@@ -87,6 +87,10 @@ namespace Tartot.Core
                     Id = $"major_{i}",
                     Name = names[i],
                     Suit = Suit.Major,
+                    // Der Narr traegt die Arkana-Nummer 0, im Spiel aber Rang 1:
+                    // Muster wie Summe 21, Paar und Dreiklang rechnen mit Rank,
+                    // und eine Karte mit Wert 0 waere dort tot. Die Anzeige
+                    // nimmt dagegen die Arkana-Nummer - siehe CardDefinition.DisplayNumber.
                     Rank = i == 0 ? 1 : i,
                     BasePower = 4 + i / 3,
                     Major = (MajorArcana)i,

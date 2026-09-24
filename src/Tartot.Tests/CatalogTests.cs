@@ -118,6 +118,31 @@ namespace Tartot.Tests
         }
 
         [Fact]
+        public void TheFoolShowsZeroButPlaysAsOne()
+        {
+            // Der Narr traegt die Arkana-Nummer 0. Im Spiel rechnet er mit Rang 1,
+            // sonst waere er in Summe 21, Paar und Dreiklang eine tote Karte.
+            // Beschriftet wird er trotzdem mit 0 - vorher stand dort faelschlich I.
+            var fool = GameCatalog.Cards.First(c => c.Major == MajorArcana.Fool);
+            Assert.Equal(0, fool.DisplayNumber);
+            Assert.Equal(1, fool.Rank);
+        }
+
+        [Fact]
+        public void EveryOtherMajorShowsItsOwnNumber()
+        {
+            foreach (var card in GameCatalog.Cards.Where(c => c.IsMajor))
+                Assert.Equal((int)card.Major.Value, card.DisplayNumber);
+        }
+
+        [Fact]
+        public void MinorCardsShowTheirRank()
+        {
+            foreach (var card in GameCatalog.Cards.Where(c => !c.IsMajor))
+                Assert.Equal(card.Rank, card.DisplayNumber);
+        }
+
+        [Fact]
         public void StarterRun_IsPlayable()
         {
             var run = GameCatalog.CreateStarterRun();
