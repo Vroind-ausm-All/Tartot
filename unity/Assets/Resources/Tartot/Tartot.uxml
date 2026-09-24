@@ -11,10 +11,16 @@
 
   <ui:VisualElement name="wurzel" class="wurzel">
 
+    <!-- 0. Kopfzeile: wo im Run man steht. Eigene Zeile, damit die
+         Spielerleiste auch mit Gold und Verdunkelung nicht umbricht. -->
+    <ui:Label name="spieler-runde" class="kopfzeile" text="" />
+
     <!-- 1. Gegner: mehr als HP und naechster Zug steht hier bewusst nicht. -->
     <ui:VisualElement name="gegner" class="gegner">
       <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />
       <ui:Label name="gegner-name" class="gegner__name" text="—" />
+      <!-- Bossregel: steht immer sichtbar da, bevor sie greift. -->
+      <ui:Label name="gegner-regel" class="gegner__regel" text="" />
       <ui:Label name="gegner-hp" class="gegner__hp" text="— / —" />
       <ui:VisualElement class="balken">
         <ui:VisualElement name="gegner-hp-balken" class="balken__fuellung" />
@@ -32,7 +38,7 @@
       <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
       <ui:Label name="spieler-fate" class="leiste__wert leiste__wert--fate" text="0 Fate" />
       <ui:Label name="spieler-luck" class="leiste__wert leiste__wert--gedaempft" text="Luck 0" />
-      <ui:Label name="spieler-runde" class="leiste__wert leiste__wert--gedaempft" text="Runde 1" />
+      <ui:Label name="spieler-dunkel" class="leiste__wert leiste__wert--dunkel" text="" />
     </ui:VisualElement>
 
     <ui:VisualElement name="charmleiste" class="charmleiste" />
@@ -42,28 +48,43 @@
       <ui:VisualElement name="platz-past" class="platz">
         <ui:Label class="platz__titel" text="VERGANGENHEIT" />
         <ui:VisualElement name="platz-past-inhalt" />
-        <ui:Label class="platz__hinweis" text="90 % — Vorbereitung" />
+        <ui:Label name="platz-past-hinweis" class="platz__hinweis" text="90 % — Vorbereitung" />
       </ui:VisualElement>
       <ui:VisualElement name="platz-present" class="platz">
         <ui:Label class="platz__titel" text="GEGENWART" />
         <ui:VisualElement name="platz-present-inhalt" />
-        <ui:Label class="platz__hinweis" text="100 % — sicher" />
+        <ui:Label name="platz-present-hinweis" class="platz__hinweis" text="100 % — sicher" />
       </ui:VisualElement>
       <ui:VisualElement name="platz-future" class="platz">
         <ui:Label class="platz__titel" text="ZUKUNFT" />
         <ui:VisualElement name="platz-future-inhalt" />
-        <ui:Label class="platz__hinweis" text="150 % — nach dem Gegner" />
+        <ui:Label name="platz-future-hinweis" class="platz__hinweis" text="150 % — nach dem Gegner" />
       </ui:VisualElement>
     </ui:VisualElement>
 
     <ui:Label name="vorschau" class="vorschau" text="" />
+    <!-- Beinahe-Treffer: "Die 7 der Kelche vollendet DIE WELT". -->
+    <ui:Label name="vorschau-hinweis" class="vorschau__hinweis" text="" />
     <ui:Label name="protokoll" class="protokoll" text="" />
+
+    <!-- Der Teufel verhandelt - mitten im Kampf, ohne Overlay. -->
+    <ui:VisualElement name="pakt" class="pakt" style="display: none;">
+      <ui:Label name="pakt-text" class="pakt__text" text="" />
+      <ui:VisualElement class="pakt__knoepfe">
+        <ui:Button name="pakt-ja" class="knopf knopf--pakt" text="UNTERSCHREIBEN" />
+        <ui:Button name="pakt-nein" class="knopf knopf--zweitrangig" text="ABLEHNEN" />
+      </ui:VisualElement>
+    </ui:VisualElement>
 
     <!-- 4. Hand und Aktion -->
     <ui:VisualElement name="hand" class="hand" />
     <ui:Button name="ausfuehren" class="knopf" text="SCHICKSAL AUSFÜHREN" />
 
-    <!-- Overlay fuer Belohnung, Weg, Haendler, Ritual, Orakel, Ende -->
+    <!-- Kurze Einblendung: erfuellte Prophezeiung, neuer Rekord. -->
+    <ui:Label name="toast" class="toast" text="" style="display: none;" />
+
+    <!-- Overlay fuer Titel, Belohnung, Weg, Haendler, Ritual, Orakel,
+         Ereignis, Omen-Beute, Rast, Sieg und Run-Bericht -->
     <ui:VisualElement name="overlay" class="overlay" style="display: none;">
       <ui:Label name="overlay-titel" class="overlay__titel" text="" />
       <ui:Label name="overlay-untertitel" class="overlay__untertitel" text="" />

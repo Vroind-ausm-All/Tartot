@@ -26,6 +26,23 @@
     padding: 16px;
 }
 
+/* -------------------------------------------------------- Verdunkelung */
+/* Je dunkler der Run, desto tiefer der Grund. Keine Zahl sagt es - man sieht es. */
+.wurzel--dunkel-1 { background-color: #0d0c0e; }
+.wurzel--dunkel-2 { background-color: #100b0c; }
+.wurzel--dunkel-3 { background-color: #130a0a; }
+.wurzel--dunkel-4 { background-color: #160808; }
+.wurzel--dunkel-5 { background-color: #1a0606; }
+
+/* ----------------------------------------------------------- Kopfzeile */
+.kopfzeile {
+    font-size: 13px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
 /* ------------------------------------------------------------- Gegner */
 .gegner {
     align-items: center;
@@ -45,6 +62,15 @@
     color: var(--elfenbein);
     margin-top: 6px;
     -unity-text-align: middle-center;
+}
+
+.gegner__regel {
+    font-size: 14px;
+    color: var(--blut);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 2px 12px;
 }
 
 .gegner__hp {
@@ -98,6 +124,7 @@
 .leiste__wert--schild { color: var(--indigo-hell); }
 .leiste__wert--fate { color: var(--ocker); }
 .leiste__wert--gedaempft { color: var(--grau); }
+.leiste__wert--dunkel { color: var(--blut); }
 
 .charmleiste {
     flex-direction: row;
@@ -136,6 +163,16 @@
 }
 
 .platz--belegt { border-color: var(--ocker); }
+
+/* Der Turm: eingestuerzt. Kein Rahmen, kein Platz. */
+.platz--eingestuerzt {
+    border-color: var(--blut);
+    background-color: #1b0d0d;
+}
+.platz--eingestuerzt .platz__titel { color: var(--blut); }
+
+/* Das Rad, der Gehaengte: der Platz wirkt woanders. */
+.platz--verschoben { border-color: var(--indigo-hell); }
 
 .platz__titel {
     font-size: 13px;
@@ -203,6 +240,23 @@
 .karte--dunkel .karte__symbol,
 .karte--dunkel .karte__text { color: var(--elfenbein); }
 
+/* Der Mond: verdeckt. Man sieht nur die Rueckseite. */
+.karte--verdeckt { background-color: var(--indigo); border-color: var(--indigo-hell); }
+.karte--verdeckt .karte__kopf,
+.karte--verdeckt .karte__symbol,
+.karte--verdeckt .karte__text { color: var(--elfenbein); }
+
+/* Der Tod: gezeichnet. */
+.karte--gezeichnet { border-color: var(--blut); border-width: 3px; }
+
+.karte__zeichen {
+    font-size: 10px;
+    color: var(--elfenbein);
+    background-color: var(--blut);
+    -unity-font-style: bold;
+    padding: 0 4px;
+}
+
 .karte__rage {
     font-size: 9px;
     color: var(--blut);
@@ -223,6 +277,16 @@
     -unity-text-align: middle-center;
     margin: 4px 0;
     min-height: 20px;
+}
+
+.vorschau--toedlich { color: var(--blut); -unity-font-style: bold; }
+
+.vorschau__hinweis {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    min-height: 16px;
 }
 
 .protokoll {
@@ -257,6 +321,41 @@
     font-size: 16px;
 }
 
+/* -------------------------------------------------------------- Pakt */
+.pakt {
+    border-width: 2px;
+    border-color: var(--blut);
+    background-color: #1b0d0d;
+    padding: 8px;
+    margin-top: 4px;
+}
+
+.pakt__text {
+    font-size: 14px;
+    color: var(--elfenbein);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.pakt__knoepfe { flex-direction: row; justify-content: space-between; }
+.pakt__knoepfe .knopf { flex-grow: 1; margin: 6px 4px 0 4px; }
+.knopf--pakt { background-color: var(--blut); color: var(--elfenbein); border-color: var(--ocker); }
+
+/* ------------------------------------------------------------- Toast */
+.toast {
+    position: absolute;
+    left: 16px; right: 16px; top: 40%;
+    padding: 14px;
+    background-color: var(--schwarz);
+    border-width: 2px;
+    border-color: var(--ocker-hell);
+    color: var(--ocker-hell);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
 /* ----------------------------------------------------------- Overlay */
 .overlay {
     position: absolute;
@@ -287,4 +386,77 @@
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 10px;
+}
+
+/* ------------------------------------------------ Zwischensequenz */
+.szene__bild {
+    height: 160px;
+    background-color: var(--schwarz);
+    border-width: 1px;
+    border-color: var(--grau);
+    margin-bottom: 14px;
+}
+
+.szene__beat {
+    font-size: 18px;
+    color: var(--elfenbein);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+}
+
+.szene__beat--neu { color: var(--ocker-hell); }
+
+.szene__schluss {
+    font-size: 17px;
+    color: var(--ocker-hell);
+    -unity-font-style: italic;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin: 10px 0;
+}
+
+.wahl__hinweis {
+    font-size: 12px;
+    color: var(--grau);
+    white-space: normal;
+}
+
+/* ------------------------------------------------------- Run-Bericht */
+.bericht__zeile {
+    font-size: 15px;
+    color: var(--elfenbein);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.bericht__abschnitt {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-font-style: bold;
+    margin-top: 12px;
+    -unity-text-align: middle-center;
+}
+
+.bericht__neu { font-size: 15px; color: var(--ocker-hell); -unity-text-align: middle-center; white-space: normal; }
+
+/* Beinahe: der letzte Blick vor "Noch einmal". */
+.beinahe {
+    border-width: 1px;
+    border-color: var(--ocker);
+    padding: 6px 8px;
+    margin-top: 6px;
+}
+
+.beinahe__titel { font-size: 15px; color: var(--elfenbein); -unity-font-style: bold; }
+.beinahe__text { font-size: 12px; color: var(--grau); white-space: normal; }
+.beinahe__balken { height: 4px; background-color: var(--schwarz); margin-top: 4px; }
+.beinahe__fuellung { height: 100%; background-color: var(--ocker); }
+
+.titel__marke {
+    font-size: 54px;
+    color: var(--elfenbein);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 12px;
 }

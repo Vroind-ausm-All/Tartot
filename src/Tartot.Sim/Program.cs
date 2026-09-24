@@ -35,6 +35,12 @@ public static class Program
                 return;
             }
 
+        if (ArgValue(args, "career", 0) != 0)
+        {
+            Career(runs, maxFights, seedBase);
+            return;
+        }
+
         if (sweep)
         {
             VeilSweep(runs, maxFights, seedBase, deckTarget, deuter);
@@ -182,6 +188,38 @@ public static class Program
             double Pct(Func<RunOutcome, bool> f) => 100.0 * list.Count(f) / list.Count;
             Console.WriteLine($"{veil,8} | {Pct(o => o.Won),5:0}% | {Pct(o => !o.Won && o.ActReached == 1),5:0}% | {Pct(o => !o.Won && o.ActReached == 2),5:0}% | {Pct(o => !o.Won && o.ActReached == 3),6:0}% | {Pct(o => !o.Won && o.ActReached == 4),5:0}% | {list.Average(o => o.FightsCleared),6:0.0}");
         }
+    }
+
+    /// <summary>
+    /// Eine Spielerlaufbahn: ein Meta-Fortschritt ueber alle Runs, wie bei
+    /// einem echten Spieler. Misst, ob Veteranen staerker werden (sollen sie
+    /// kaum) und wann was freigeschaltet wird.
+    /// </summary>
+    private static void Career(int runs, int maxFights, int seedBase)
+    {
+        Console.WriteLine($"=== Laufbahn: {runs} Runs mit einem Meta-Fortschritt, immer Schleier 0 ===\n");
+        var meta = new MetaProgress();
+        var pilot = new Autopilot { Meta = meta };
+        var buckets = new List<int>();
+        var wins = 0;
+        for (var i = 0; i < runs; i++)
+        {
+            var outcome = pilot.PlayRun(seedBase + i, maxFights);
+            var report = meta.CompleteRun(pilot.LastGame, outcome.Won, outcome.DiedAgainst);
+            if (outcome.Won) wins++;
+            foreach (var unlocked in report.Unlocked)
+                Console.WriteLine($"  Run {i + 1,4}: {unlocked}");
+            if ((i + 1) % 50 == 0)
+            {
+                buckets.Add(wins);
+                wins = 0;
+            }
+        }
+        Console.WriteLine("\nSiegquote je 50 Runs der Laufbahn:");
+        for (var b = 0; b < buckets.Count; b++)
+            Console.WriteLine($"  Runs {b * 50 + 1,4}-{(b + 1) * 50,4}: {buckets[b] * 2,3} %");
+        Console.WriteLine($"\nProphezeiungen erfuellt: {meta.CompletedProphecies.Count}/{ProphecyCatalog.All.Count}");
+        Console.WriteLine($"Lesarten: {meta.InterpretationCount}");
     }
 
     private static string ArgString(string[] args, string name, string fallback)

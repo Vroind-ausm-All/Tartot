@@ -39,10 +39,12 @@ namespace Tartot.Unity.EditorTools
         {
             // Schneller Beweis, dass der Kern im Editor laeuft, ohne die
             // Oberflaeche anzufassen.
-            var outcome = new Autopilot().PlayRun(seed: 1337, maxFights: 10);
-            Debug.Log($"Tartot-Selbsttest: {outcome.FightsCleared} Kaempfe, Deck {outcome.DeckSize}, " +
-                      $"Resonanz {outcome.DeckResonance}/10, gestorben gegen {outcome.DiedAgainst}. " +
-                      $"Karten im Katalog: {GameCatalog.Cards.Count}, Charms: {GameCatalog.Charms.Count}.");
+            var outcome = new Autopilot().PlayRun(seed: 1337, maxFights: 40);
+            var ende = outcome.Won ? "Finale geschlagen" : $"gestorben in Akt {outcome.ActReached} gegen {outcome.DiedAgainst}";
+            Debug.Log($"Tartot-Selbsttest: {outcome.FightsCleared} Kaempfe, {ende}. Deck {outcome.DeckSize}, " +
+                      $"Verdunkelung {outcome.Darkness}, {outcome.EventsSeen} Ereignisse. " +
+                      $"Katalog: {GameCatalog.Cards.Count} Karten, {GameCatalog.Charms.Count} Charms, " +
+                      $"{GameCatalog.Enemies.Count} Gegner, {EventCatalog.All.Count} Ereignisse.");
         }
 
         private static PanelSettings CreatePanelSettings()

@@ -17,9 +17,12 @@ namespace Tartot.Unity
     ///
     /// Bedienung: Karte antippen, dann einen Platz antippen. Ein belegter
     /// Platz gibt die Karte auf Tipp zurueck auf die Hand.
+    ///
+    /// Aufgeteilt: diese Datei traegt Bindung und Kampf, die Overlays
+    /// (Titel, Wege, Ereignisse, Bericht) stehen in TartotView.Overlays.cs.
     /// </remarks>
     [RequireComponent(typeof(UIDocument))]
-    public sealed class TartotView : MonoBehaviour
+    public sealed partial class TartotView : MonoBehaviour
     {
         [Tooltip("0 = zufaelliger Seed. Ein fester Wert macht einen Run reproduzierbar.")]
         public long Seed;
@@ -29,34 +32,56 @@ namespace Tartot.Unity
 
         private const string SaveKey = "tartot.save";
         private const string MetaKey = "tartot.meta";
+        private const string SetupKey = "tartot.setup";
 
         private GameController _game;
         private MetaProgress _meta;
         private CardElement _selected;
 
+        /// <summary>Titelschirm statt Run: Deuter, Schleier, Tageskarte.</summary>
+        private bool _showTitle;
+        private RunSetup _setup = new RunSetup();
+        /// <summary>Der Bericht des beendeten Runs - einmal verbucht, dann nur noch gezeigt.</summary>
+        private RunReport _report;
+        /// <summary>Prophezeiungen, die in diesem Run schon eingeblendet wurden.</summary>
+        private readonly HashSet<string> _announced = new HashSet<string>();
+        private string _toast = string.Empty;
+
         // Zwischengespeicherte Elemente - Q<T>() ist zu teuer fuer jeden Frame.
-        private VisualElement _root, _charmBar, _hand, _overlay, _overlayRow, _overlayButtons;
+        private VisualElement _root, _frame, _charmBar, _hand, _overlay, _overlayRow, _overlayButtons, _pact;
         private VisualElement _enemyHpBar, _enemyStanceBar;
-        private Label _enemyName, _enemyHp, _enemyStance, _enemyIntent;
-        private Label _playerHp, _playerShield, _playerFate, _playerLuck, _playerTurn;
-        private Label _preview, _log, _overlayTitle, _overlaySubtitle;
+        private Label _enemyName, _enemyRule, _enemyHp, _enemyStance, _enemyIntent;
+        private Label _playerHp, _playerShield, _playerFate, _playerLuck, _playerDark, _playerTurn;
+        private Label _preview, _previewHint, _log, _overlayTitle, _overlaySubtitle, _pactText, _toastLabel;
         private Button _actButton;
         private readonly Dictionary<SlotPosition, VisualElement> _slots =
             new Dictionary<SlotPosition, VisualElement>();
         private readonly Dictionary<SlotPosition, VisualElement> _slotContents =
             new Dictionary<SlotPosition, VisualElement>();
+        private readonly Dictionary<SlotPosition, Label> _slotHints =
+            new Dictionary<SlotPosition, Label>();
+
+        private static readonly Dictionary<SlotPosition, string> DefaultSlotHints = new Dictionary<SlotPosition, string>
+        {
+            [SlotPosition.Past] = "90 % — Vorbereitung",
+            [SlotPosition.Present] = "100 % — sicher",
+            [SlotPosition.Future] = "150 % — nach dem Gegner"
+        };
 
         private void OnEnable()
         {
             _root = GetComponent<UIDocument>().rootVisualElement;
             CacheElements();
             _meta = MetaProgress.Deserialize(PlayerPrefs.GetString(MetaKey, string.Empty));
+            _setup = LoadSetup();
             StartOrResume();
         }
 
         private void CacheElements()
         {
+            _frame = _root.Q<VisualElement>("wurzel");
             _enemyName = _root.Q<Label>("gegner-name");
+            _enemyRule = _root.Q<Label>("gegner-regel");
             _enemyHp = _root.Q<Label>("gegner-hp");
             _enemyStance = _root.Q<Label>("gegner-haltung");
             _enemyIntent = _root.Q<Label>("gegner-absicht");
@@ -67,12 +92,22 @@ namespace Tartot.Unity
             _playerShield = _root.Q<Label>("spieler-schild");
             _playerFate = _root.Q<Label>("spieler-fate");
             _playerLuck = _root.Q<Label>("spieler-luck");
+            _playerDark = _root.Q<Label>("spieler-dunkel");
             _playerTurn = _root.Q<Label>("spieler-runde");
 
             _charmBar = _root.Q<VisualElement>("charmleiste");
             _hand = _root.Q<VisualElement>("hand");
             _preview = _root.Q<Label>("vorschau");
+            _previewHint = _root.Q<Label>("vorschau-hinweis");
             _log = _root.Q<Label>("protokoll");
+
+            _pact = _root.Q<VisualElement>("pakt");
+            _pactText = _root.Q<Label>("pakt-text");
+            _root.Q<Button>("pakt-ja").clicked += () => OnPact(true);
+            _root.Q<Button>("pakt-nein").clicked += () => OnPact(false);
+
+            _toastLabel = _root.Q<Label>("toast");
+            _toastLabel.RegisterCallback<ClickEvent>(_ => { _toast = string.Empty; RefreshToast(); });
 
             _overlay = _root.Q<VisualElement>("overlay");
             _overlayTitle = _root.Q<Label>("overlay-titel");
@@ -89,6 +124,7 @@ namespace Tartot.Unity
                 var element = _root.Q<VisualElement>("platz-" + key);
                 _slots[slot] = element;
                 _slotContents[slot] = _root.Q<VisualElement>("platz-" + key + "-inhalt");
+                _slotHints[slot] = _root.Q<Label>("platz-" + key + "-hinweis");
                 var captured = slot;
                 element.RegisterCallback<ClickEvent>(_ => OnSlotClicked(captured));
             }
@@ -100,7 +136,7 @@ namespace Tartot.Unity
             var saved = PlayerPrefs.GetString(SaveKey, string.Empty);
             if (string.IsNullOrEmpty(saved))
             {
-                NewRun();
+                _showTitle = true;
             }
             else if (SaveSystem.TryDeserialize(saved, out var save, out var error))
             {
@@ -109,34 +145,70 @@ namespace Tartot.Unity
             else
             {
                 // Ein kaputter Stand darf den Einstieg nicht blockieren.
-                Debug.LogWarning($"Speicherstand unlesbar, starte neu: {error}");
-                NewRun();
+                Debug.LogWarning($"Speicherstand unlesbar, zurueck zum Titel: {error}");
+                PlayerPrefs.DeleteKey(SaveKey);
+                _showTitle = true;
             }
             Refresh();
         }
 
-        private void NewRun()
+        private void NewRun(RunSetup setup)
         {
-            var seed = Seed != 0 ? Seed : DateTime.UtcNow.Ticks;
-            // Der Meta-Fortschritt geht in den Run: freigeschaltete Lesarten
-            // vertiefen die Wirkung der Grossen Arkana, die man oft genug
-            // gespielt hat.
-            _game = new GameController(seed, _meta);
+            _setup = setup ?? new RunSetup();
+            var seed = Seed != 0 ? Seed
+                : _setup.IsDaily ? MetaProgress.DailySeed()
+                : DateTime.UtcNow.Ticks;
+            // Der Meta-Fortschritt geht in den Run: Lesarten, Story-Flags,
+            // freigeschaltete Charms und das Grab des letzten Runs.
+            _game = new GameController(seed, _meta, _setup);
+            _report = null;
+            _announced.Clear();
+            _toast = string.Empty;
+            _eventId = string.Empty;
+            _showTitle = false;
             PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.SetString(SetupKey, $"{_setup.DeuterId}|{_setup.Veil}");
+            Save();
+        }
+
+        private static RunSetup LoadSetup()
+        {
+            var parts = PlayerPrefs.GetString(SetupKey, string.Empty).Split('|');
+            var setup = new RunSetup();
+            if (parts.Length == 2)
+            {
+                setup.DeuterId = parts[0];
+                if (int.TryParse(parts[1], out var veil)) setup.Veil = veil;
+            }
+            return setup;
         }
 
         private void Save()
         {
-            if (!AutoSave || _game == null) return;
-            PlayerPrefs.SetString(SaveKey, _game.Save());
+            if (!AutoSave) return;
+            if (_game != null && _game.Phase != GamePhase.GameOver) PlayerPrefs.SetString(SaveKey, _game.Save());
+            else PlayerPrefs.DeleteKey(SaveKey);
             PlayerPrefs.SetString(MetaKey, _meta.Serialize());
             PlayerPrefs.Save();
+        }
+
+        /// <summary>
+        /// Verbucht den beendeten Run genau einmal. Danach zeigt der Bericht,
+        /// was neu ist und was knapp verfehlt wurde.
+        /// </summary>
+        private void CompleteRunOnce()
+        {
+            if (_report != null || _game == null) return;
+            var killedBy = _game.Run.Won ? string.Empty : _game.Combat?.Enemy?.Definition?.Name ?? string.Empty;
+            _report = _meta.CompleteRun(_game, null, killedBy);
+            Save();
         }
 
         // ------------------------------------------------------- Eingaben
         private void OnCardClicked(CardElement card)
         {
             if (_game.Phase != GamePhase.Combat) return;
+            _toast = string.Empty;
             if (_selected == card) { _selected.SetSelected(false); _selected = null; }
             else
             {
@@ -145,11 +217,13 @@ namespace Tartot.Unity
                 _selected.SetSelected(true);
             }
             RefreshPreview();
+            RefreshToast();
         }
 
         private void OnSlotClicked(SlotPosition slot)
         {
-            if (_game.Phase != GamePhase.Combat) return;
+            if (_game == null || _game.Phase != GamePhase.Combat) return;
+            _toast = string.Empty;
 
             if (_game.Combat.Slots.ContainsKey(slot))
             {
@@ -157,7 +231,8 @@ namespace Tartot.Unity
             }
             else if (_selected != null)
             {
-                _game.CombatSystem.PlaceCard(_game.Combat, _selected.Card.InstanceId, slot);
+                if (!_game.CombatSystem.PlaceCard(_game.Combat, _selected.Card.InstanceId, slot))
+                    _log.text = "Dieser Platz ist eingestürzt.";
             }
             else return;
 
@@ -165,44 +240,92 @@ namespace Tartot.Unity
             Refresh();
         }
 
+        private void OnPact(bool accept)
+        {
+            if (_game == null) return;
+            _game.AnswerPact(accept);
+            Save();
+            Refresh();
+        }
+
         private void OnAct()
         {
-            if (_game.Phase != GamePhase.Combat) return;
+            if (_game == null || _game.Phase != GamePhase.Combat) return;
             if (_game.Combat.Slots.Count == 0)
             {
                 _log.text = "Lege mindestens eine Karte.";
                 return;
             }
 
-            var wasFight = _game.Run.FightIndex;
-            _game.ResolveTurn();
+            var turn = _game.ResolveTurn();
             _selected = null;
+            // Vor dem Verbuchen: danach steckt der Run schon in den
+            // Lebenszeit-Werten und wuerde doppelt zaehlen.
+            AnnounceMoments(turn);
 
             if (_game.Phase == GamePhase.GameOver)
-                _meta.RegisterRun(_game, won: false,
-                    killedBy: _game.Combat?.Enemy?.Definition?.Name ?? string.Empty);
-            else if (_game.Run.FightIndex > wasFight)
-                // Jeder ueberstandene Kampf zaehlt als Begegnung mit den
-                // Grossen Arkana im Deck - so wachsen die Lesarten.
+                CompleteRunOnce();
+            else if (_game.Phase != GamePhase.Combat)
+                // Jeder gewonnene Kampf zaehlt als Begegnung mit den Grossen
+                // Arkana im Deck - so wachsen die Lesarten. Vorher wurde hier
+                // auf einen hoeheren Kampfindex geprueft; der steigt aber erst
+                // beim naechsten Kampfstart, also zaehlte kein Sieg.
                 foreach (var card in _game.Run.Deck)
-                    if (card.Definition.IsMajor) _meta.EncounterArcanum(card.Definition.Id);
+                    if (card.Definition.IsMajor)
+                        _meta.EncounterArcanum(card.Definition.Id);
 
             Save();
             Refresh();
         }
 
+        /// <summary>
+        /// Die Momente, die nicht im Protokoll untergehen duerfen: eine
+        /// erfuellte Prophezeiung, ein neuer Rekord, eine verlorene Karte.
+        /// </summary>
+        private void AnnounceMoments(TurnResult turn)
+        {
+            var lines = new List<string>();
+            foreach (var prophecy in _meta.PendingFulfilled(_game.Run))
+                if (_announced.Add(prophecy.Id))
+                    lines.Add($"PROPHEZEIUNG ERFÜLLT\n{prophecy.Title}\n{prophecy.RewardText}");
+            if (turn != null)
+            {
+                if (turn.NewBestHit) lines.Add($"NEUER REKORD: Legung im Wert von {_game.Run.Stats.BestHit}");
+                if (!string.IsNullOrEmpty(turn.CardLost)) lines.Add($"DER TOD NIMMT {turn.CardLost.ToUpperInvariant()}");
+            }
+            if (lines.Count > 0) _toast = string.Join("\n\n", lines);
+        }
+
         // ---------------------------------------------------- Darstellung
         private void Refresh()
         {
-            RefreshEnemy();
-            RefreshPlayer();
-            RefreshCharms();
-            RefreshSpread();
-            RefreshHand();
-            RefreshPreview();
-            _log.text = _game.Message;
-            _actButton.SetEnabled(_game.Phase == GamePhase.Combat);
+            RefreshDarkness();
+            if (_game != null && !_showTitle)
+            {
+                RefreshEnemy();
+                RefreshPlayer();
+                RefreshCharms();
+                RefreshSpread();
+                RefreshHand();
+                RefreshPreview();
+                RefreshPact();
+                _log.text = _game.Message;
+                _actButton.SetEnabled(_game.Phase == GamePhase.Combat);
+            }
             RefreshOverlay();
+            RefreshToast();
+        }
+
+        private void RefreshDarkness()
+        {
+            var stage = _game == null || _showTitle ? 0 : _game.Run.DarknessStage;
+            for (var i = 1; i <= 5; i++) _frame?.EnableInClassList($"wurzel--dunkel-{i}", i == stage);
+        }
+
+        private void RefreshToast()
+        {
+            _toastLabel.text = _toast;
+            _toastLabel.style.display = string.IsNullOrEmpty(_toast) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
         private void RefreshEnemy()
@@ -211,7 +334,12 @@ namespace Tartot.Unity
             if (enemy == null) return;
 
             _enemyName.text = enemy.Definition.Name.ToUpperInvariant();
-            _enemyHp.text = $"{Mathf.Max(0, enemy.Hp)} / {enemy.Definition.MaxHp} HP"
+            _enemyRule.text = string.Join("  ·  ", CombatSystem.ActiveRuleTexts(_game.Combat));
+
+            // Der Mond zeigt sein Leben nur ungefaehr.
+            var moon = CombatSystem.HasRule(_game.Combat, BossRule.Moon);
+            var hp = Mathf.Max(0, enemy.Hp);
+            _enemyHp.text = (moon ? $"≈ {(hp + 9) / 10 * 10}" : hp.ToString()) + $" / {enemy.Definition.MaxHp} HP"
                             + (enemy.Sigils > 0 ? $"   ✦ {enemy.Sigils} Siegel" : string.Empty);
             SetBar(_enemyHpBar, enemy.Hp, enemy.Definition.MaxHp);
 
@@ -221,7 +349,7 @@ namespace Tartot.Unity
                 : $"Haltung {enemy.Stance} / {enemy.Definition.MaxStance}";
             SetBar(_enemyStanceBar, enemy.Stance, Mathf.Max(1, enemy.Definition.MaxStance));
 
-            _enemyIntent.text = "Nächster Zug: " + IntentText(enemy);
+            _enemyIntent.text = "Nächster Zug: " + (enemy.IntentHidden ? "??? — der Mond verbirgt es" : IntentText(enemy));
         }
 
         private static void SetBar(VisualElement bar, int value, int max)
@@ -248,9 +376,18 @@ namespace Tartot.Unity
             var run = _game.Run;
             _playerHp.text = $"{run.Hp} / {run.MaxHp} HP";
             _playerShield.text = $"{_game.Combat?.PlayerShield ?? 0} Schild";
-            _playerFate.text = $"{run.Fate} Fate";
+            _playerFate.text = $"{run.Fate} Fate · {run.Gold} Gold";
             _playerLuck.text = $"Luck {_game.Combat?.TemporaryLuck ?? run.Luck}";
-            _playerTurn.text = $"Kampf {run.FightIndex + 1} · Runde {_game.Combat?.Turn ?? 1}";
+            _playerDark.text = run.Darkness > 0 ? $"Dunkel {run.Darkness}" : string.Empty;
+            _playerTurn.text = $"{Where(run).ToUpperInvariant()} · RUNDE {_game.Combat?.Turn ?? 1}";
+        }
+
+        /// <summary>"Akt II · Kampf 3/5", "FINALE" oder "Spirale 4".</summary>
+        private static string Where(RunState run)
+        {
+            if (ActCatalog.IsFinale(run.FightIndex)) return "FINALE";
+            if (ActCatalog.IsSpiral(run.FightIndex)) return $"Spirale {ActCatalog.SpiralDepth(run.FightIndex)}";
+            return $"Akt {MetaProgress.Roman(run.Act)} · Kampf {run.FightIndex % ActCatalog.FightsPerAct + 1}/{ActCatalog.FightsPerAct}";
         }
 
         private void RefreshCharms()
@@ -271,15 +408,32 @@ namespace Tartot.Unity
             }
         }
 
+        private CardElement CombatCard(CardInstance card, Action<CardElement> onClick)
+        {
+            var combat = _game.Combat;
+            var veiled = combat != null && combat.VeiledCards.Contains(card.InstanceId);
+            var mark = combat != null && combat.MarkedCardId == card.InstanceId ? combat.MarkTurnsLeft : 0;
+            return new CardElement(card, onClick, veiled, mark);
+        }
+
         private void RefreshSpread()
         {
+            var combat = _game.Combat;
             foreach (var slot in _slots.Keys.ToList())
             {
                 var content = _slotContents[slot];
                 content.Clear();
-                var occupied = _game.Combat != null && _game.Combat.Slots.TryGetValue(slot, out var card);
+                var occupied = combat != null && combat.Slots.ContainsKey(slot);
+                var blocked = combat != null && combat.BlockedSlot.HasValue && combat.BlockedSlot.Value == slot;
+                var effective = combat == null ? slot : _game.CombatSystem.EffectiveSlot(combat, slot);
+
                 _slots[slot].EnableInClassList("platz--belegt", occupied);
-                if (occupied) content.Add(new CardElement(_game.Combat.Slots[slot]));
+                _slots[slot].EnableInClassList("platz--eingestuerzt", blocked);
+                _slots[slot].EnableInClassList("platz--verschoben", effective != slot);
+                _slotHints[slot].text = blocked ? "EINGESTÜRZT — der Turm"
+                    : effective != slot ? $"wirkt als {CombatSystem.SlotName(effective)}"
+                    : DefaultSlotHints[slot];
+                if (occupied) content.Add(CombatCard(combat.Slots[slot], null));
             }
         }
 
@@ -289,11 +443,13 @@ namespace Tartot.Unity
             _selected = null;
             if (_game.Combat == null) return;
             foreach (var card in _game.Combat.Hand)
-                _hand.Add(new CardElement(card, OnCardClicked));
+                _hand.Add(CombatCard(card, OnCardClicked));
         }
 
         private void RefreshPreview()
         {
+            _preview.EnableInClassList("vorschau--toedlich", false);
+            _previewHint.text = string.Empty;
             if (_game.Phase != GamePhase.Combat || _game.Combat.Slots.Count == 0)
             {
                 _preview.text = string.Empty;
@@ -304,154 +460,34 @@ namespace Tartot.Unity
             var score = _game.PreviewScore();
             if (score == null) { _preview.text = string.Empty; return; }
 
+            if (score.Veiled)
+            {
+                _preview.text = "Die Legung liegt im Mondlicht — ungewiss.";
+                return;
+            }
+
             var penalty = score.RepeatPenalty < 1f
                 ? $" × Wiederholung {score.RepeatPenalty:0.00}"
                 : string.Empty;
-            _preview.text = $"{score.ComboName}: {score.Chips} × {score.Multiplier:0.00}{penalty} = {score.FateDamage}";
+            var landing = score.BreaksStance ? $" → HALTUNG BRICHT: {score.ExpectedHit}"
+                : score.ExpectedHit < score.FateDamage ? $" → Haltung deckelt: {score.ExpectedHit}"
+                : string.Empty;
+            var chain = score.Chain >= 2 ? $" · Kette ×{score.Chain}" : string.Empty;
+            _preview.text = $"{score.ComboName}: {score.Chips} × {score.Multiplier:0.00}{penalty} = {score.FateDamage}{landing}{chain}";
+            _preview.EnableInClassList("vorschau--toedlich", score.Lethal);
+            _previewHint.text = string.Join("   ·   ", score.Hints);
         }
 
-        // -------------------------------------------------------- Overlay
-        private void RefreshOverlay()
+        private void RefreshPact()
         {
-            _overlayRow.Clear();
-            _overlayButtons.Clear();
-
-            switch (_game.Phase)
-            {
-                case GamePhase.Combat:
-                    _overlay.style.display = DisplayStyle.None;
-                    return;
-                case GamePhase.Reward: BuildRewardOverlay(); break;
-                case GamePhase.PathChoice: BuildPathOverlay(); break;
-                case GamePhase.Shop: BuildShopOverlay(); break;
-                case GamePhase.Ritual: BuildRitualOverlay(); break;
-                case GamePhase.Oracle: BuildOracleOverlay(); break;
-                case GamePhase.GameOver: BuildGameOverOverlay(); break;
-            }
-            _overlay.style.display = DisplayStyle.Flex;
-        }
-
-        private Button OverlayButton(string text, Action action, bool secondary = false)
-        {
-            var button = new Button(() => { action(); Save(); Refresh(); }) { text = text };
-            button.AddToClassList("knopf");
-            if (secondary) button.AddToClassList("knopf--zweitrangig");
-            _overlayButtons.Add(button);
-            return button;
-        }
-
-        private void BuildRewardOverlay()
-        {
-            _overlayTitle.text = "WÄHLE EINE BELOHNUNG";
-            _overlaySubtitle.text = _game.Message;
-            for (var i = 0; i < _game.Rewards.Count; i++)
-            {
-                var index = i;
-                var reward = _game.Rewards[i];
-                OverlayButton($"{reward.Title}\n{reward.Description}",
-                    () => _game.ChooseReward(index), secondary: true);
-            }
-            OverlayButton("ÜBERSPRINGEN — dein Deck bleibt dünn", () => _game.SkipRewardForFate());
-        }
-
-        private void BuildPathOverlay()
-        {
-            _overlayTitle.text = "WOHIN FÜHRT DEIN WEG?";
-            _overlaySubtitle.text = $"{_game.Run.Deck.Count} Karten · {_game.Run.Gold} Gold · Resonanz {_game.Run.DeckResonance}/10";
-            foreach (var path in _game.Paths)
-            {
-                var captured = path;
-                OverlayButton(PathLabel(path), () => _game.ChoosePath(captured), secondary: true);
-            }
-        }
-
-        private static string PathLabel(PathType path)
-        {
-            switch (path)
-            {
-                case PathType.Shop: return "HÄNDLER — sein Mantel öffnet sich";
-                case PathType.Ritual: return "RITUAL — forme dein Deck";
-                case PathType.Oracle: return "ORAKEL — eine Prophezeiung";
-                default: return "KAMPF — etwas wartet";
-            }
-        }
-
-        private void BuildShopOverlay()
-        {
-            _overlayTitle.text = "DER HÄNDLER";
-            _overlaySubtitle.text = $"{_game.Run.Gold} Gold";
-            for (var i = 0; i < _game.ShopOffers.Count; i++)
-            {
-                var index = i;
-                var offer = _game.ShopOffers[i];
-                var button = OverlayButton(
-                    offer.Sold ? $"{offer.Reward.Title} — verkauft"
-                               : $"{offer.Reward.Title} — {offer.Price} Gold",
-                    () => _game.BuyShopOffer(index), secondary: true);
-                button.SetEnabled(!offer.Sold && _game.Run.Gold >= offer.Price);
-            }
-
-            // Vergessen: die Goldsenke. Karte antippen, um sie dauerhaft aus
-            // dem Deck zu nehmen. Der Preis steigt mit jeder Loeschung.
-            var removalPrice = _game.RemovalPrice;
-            var headline = new Label($"VERGESSEN — {removalPrice} Gold je Karte");
-            headline.AddToClassList("overlay__untertitel");
-            _overlayRow.Add(headline);
-
-            var deckRow = new VisualElement();
-            deckRow.AddToClassList("overlay__reihe");
-            foreach (var card in _game.Run.Deck)
-            {
-                var element = new CardElement(card, clicked =>
-                {
-                    _game.RemoveCardAtShop(clicked.Card);
-                    Save();
-                    Refresh();
-                });
-                element.SetEnabled(_game.CanRemoveAtShop(card));
-                deckRow.Add(element);
-            }
-            _overlayRow.Add(deckRow);
-
-            OverlayButton("WEITERGEHEN", () => _game.ContinueFromOffgame());
-        }
-
-        private void BuildRitualOverlay()
-        {
-            _overlayTitle.text = "RITUAL";
-            _overlaySubtitle.text = "Du veränderst nicht nur Zahlen. Du formst dein Deck.";
-            foreach (var card in _game.Run.Deck.Take(12))
-            {
-                var element = new CardElement(card, clicked =>
-                {
-                    _game.RitualRemove(clicked.Card);
-                    Save();
-                    Refresh();
-                });
-                _overlayRow.Add(element);
-            }
-            OverlayButton("WEITERGEHEN", () => _game.ContinueFromOffgame());
-        }
-
-        private void BuildOracleOverlay()
-        {
-            _overlayTitle.text = "DAS ORAKEL";
-            _overlaySubtitle.text = "Drei Prophezeiungen. Eine gilt.";
-            foreach (var prophecy in new[] { "XXI", "BLUT", "EINHEIT" })
-            {
-                var captured = prophecy;
-                OverlayButton(captured, () => _game.ChooseOracle(captured), secondary: true);
-            }
-            OverlayButton("WEITERGEHEN", () => _game.ContinueFromOffgame());
-        }
-
-        private void BuildGameOverOverlay()
-        {
-            _overlayTitle.text = "DU FÄLLST";
-            _overlaySubtitle.text =
-                $"Kampf {_game.Run.FightIndex + 1} · {_game.Run.Deck.Count} Karten · {_game.Run.FateScoreTotal} Fate gesamt\n" +
-                $"Beste Tiefe bisher: Kampf {_meta.BestFightsCleared + 1}";
-            OverlayButton("NOCH EINMAL", NewRun);
+            var pending = _game.Phase == GamePhase.Combat && _game.Combat != null && _game.Combat.PactPending;
+            _pact.style.display = pending ? DisplayStyle.Flex : DisplayStyle.None;
+            if (!pending) return;
+            var bonus = CombatSystem.PactBonus(_game.Combat);
+            var cost = CombatSystem.PactCost(_game.Combat);
+            _pactText.text = $"Der Teufel bietet einen Pakt: +{bonus * 100:0} % Fate-Schaden für diesen Kampf.\n" +
+                             $"Preis: {cost} Max-HP für immer und +{CombatSystem.PactDarkness} Verdunkelung.\n" +
+                             $"Lehnst du ab, schlägt er {CombatSystem.PactDeclinePenalty * 100:0} % härter zu.";
         }
     }
 }

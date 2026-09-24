@@ -114,13 +114,70 @@ sofort einen echten Compilerfehler gefunden.
 
 ---
 
+## Der Bogen eines Runs
+
+```
+Core/Content/Acts.cs       drei Akte: Gegnerpools, Elites, Bosse, Finale, Spirale
+Core/Content/Events.cs     18 Ereignisse mit Zwischensequenzen (Beats + Wahlen)
+Core/Content/Deuters.cs    vier spielbare Figuren und die Schleier 0-8
+Core/Combat/BossRules.cs   die Regelbrecher (Teil von CombatSystem, partial)
+Core/Progression/Prophecies.cs   Freischaltziele und der Run-Bericht
+```
+
+**Regeln greifen an genau einer Stelle.** Das Rad und der Gehängte verändern
+nicht die Legung, sondern nur, *wo eine Karte wirkt*:
+`CombatSystem.EffectiveSlot(combat, platz)`. Vorschau, Musterbewertung,
+Positionsfaktor und Zeitpunkt (Zukunft nach dem Gegner) lesen alle diese eine
+Funktion. So kann die Vorschau nie etwas anderes zeigen als der Zug tut —
+beides ist als Test festgehalten.
+
+**Bosse sind Daten plus Regel-Enum.** Ein Boss trägt eine Liste von
+`BossRule`s, eine Phase (gebrochene Siegel) und ein Flag `RulesWeakened` fürs
+Finale. Das Finale ist kein eigener Code: es ist ein Gegner, dem der Run beim
+Start die Regeln der geschlagenen Bosse einsetzt.
+
+**Gegner werden beim Kampfstart geklont und skaliert** (Schleier,
+Verdunkelung, Spiraltiefe). Der Katalog bleibt unberührt, und der
+Speicherstand legt den *skalierten* Gegner vollständig ab — nicht nur seine
+Id. Vorher hätte ein Endlosgegner beim Laden als erster Katalogeintrag
+weitergelebt.
+
+**Ereignisse sind Code, keine Skriptsprache.** Jede Wahl ist ein Delegat
+`EventContext → Schlusssatz`. Das ist weniger flexibel als ein
+Operations-Interpreter, aber für 18 Szenen lesbarer und vollständig testbar:
+`EventTests.EveryChoice_ResolvesWithoutBreakingTheRun` spielt jede Wahl jedes
+Ereignisses mit sechs Seeds und prüft, dass danach Deck, HP, Gold und
+Verdunkelung gültig sind.
+
+**Meta-Fortschritt wird beim Run-Start kopiert, nie referenziert.** Lesarten,
+Story-Flags, Charm-Pool und das Grab des letzten Runs wandern als Kopie in den
+`RunState`. Ein Speicherstand läuft dadurch genauso weiter, egal was
+zwischendurch freigeschaltet wurde. Die Tageskarte übernimmt gar nichts —
+Veteran und Neuling spielen dieselbe Karte.
+
+## Speicherformat 2
+
+Neu: Deuter, Schleier, geplante und besiegte Bosse, Verdunkelung, Statistik,
+Story-Flags, Charm-Pool, das laufende Ereignis (sonst würde ein App-Neustart
+die Szene neu würfeln) und alle Bossregel-Zustände im Kampf (eingestürzter
+Platz, gezeichnete Karte, verdeckte Karten, Pakt, Kette).
+
+Version-1-Stände laden weiter: fehlende Felder fallen auf den Anfang eines
+Runs zurück, ein fehlender Bossplan wird aus dem Katalog nachgezogen, ein
+fehlender Gegner aus seiner Id. Auch das ist ein Test
+(`SaveV2Tests.AVersion1Save_StillLoads`).
+
+---
+
 ## Nächste Schritte
 
 1. Charms in Trigger-Gruppen strukturieren (`OnDraw`, `OnScore`, `OnCardPlayed`,
    `OnKill`, `OnReward`) statt eines gewachsenen `switch`.
-2. Items mit eigenen Zielmodi versehen (`Combat`, `Deck`, `Reward`, `Shop`).
-3. Große Arkana als eigene Animations-/Unterbrechungsschicht.
-4. Die freigeschalteten Lesarten aus `MetaProgress` in die Kartenwirkung
-   einspeisen — gesammelt werden sie bereits.
-5. Akt-Struktur: die acht gebauten Gegner sind derzeit eher ein Tutorial als
-   ein Spannungsbogen (siehe `BALANCING.md`).
+2. Items mit eigenen Zielmodi versehen (`Combat`, `Deck`, `Reward`, `Shop`);
+   der Autopilot benutzt bisher nur Heiltränke.
+3. Große Arkana und Bossregeln als eigene Animations-/Unterbrechungsschicht —
+   der Turm, der eine Position einstürzen lässt, braucht zwei Sekunden Bühne.
+4. Hofkarten als Figuren (siehe Godot-Referenz), bisher spielen sie wie Zahlenkarten.
+
+Erledigt aus der vorigen Liste: Lesarten wirken, und die Akt-Struktur ersetzt
+die acht Gegner, die eher Tutorial als Spannungsbogen waren.

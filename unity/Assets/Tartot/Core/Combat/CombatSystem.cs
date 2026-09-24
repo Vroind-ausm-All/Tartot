@@ -53,7 +53,7 @@ namespace Tartot.Core
         /// du verstehst eine bestimmte Karte besser und holst mehr aus ihr
         /// heraus. Wer nie mit dem Tod gespielt hat, kann ihn nicht deuten.
         /// </summary>
-        public const float InterpretationPowerPerReading = 0.15f;
+        public const float InterpretationPowerPerReading = 0.10f;
 
         /// <summary>
         /// Musterkette: jede Legung mit einem Muster (Paar oder besser) in

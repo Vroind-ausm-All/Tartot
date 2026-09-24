@@ -304,7 +304,7 @@ namespace Tartot.Core
             list.Add(new EventDefinition
             {
                 Id = "tinte_1", Title = "Das Tintenfass", Art = "tintenfass",
-                MinDarkness = 25, ExcludesFlag = "tinte_1", Weight = 2f,
+                MinDarkness = 20, ExcludesFlag = "tinte_1", Weight = 2f,
                 Beats = new[]
                 {
                     "Ein Tintenfass am Wegrand, randvoll, obwohl es regnet.",
@@ -333,7 +333,7 @@ namespace Tartot.Core
             list.Add(new EventDefinition
             {
                 Id = "tinte_2", Title = "Die Schreiber", Art = "schreiber",
-                MinAct = 2, MinDarkness = 35, RequiresFlag = "tinte_1", ExcludesFlag = "tinte_2", Weight = 3f,
+                MinAct = 2, MinDarkness = 30, RequiresFlag = "tinte_1", ExcludesFlag = "tinte_2", Weight = 3f,
                 Beats = new[]
                 {
                     "In einem Saal ohne Fenster sitzen Schreiber und kopieren dein Deck.",
@@ -365,7 +365,7 @@ namespace Tartot.Core
             list.Add(new EventDefinition
             {
                 Id = "tinte_3", Title = "Das Schwarze Blatt", Art = "schwarzes_blatt",
-                MinAct = 3, MinDarkness = 45, RequiresFlag = "tinte_2", ExcludesFlag = "tinte_3", Weight = 4f,
+                MinAct = 3, MinDarkness = 40, RequiresFlag = "tinte_2", ExcludesFlag = "tinte_3", Weight = 4f,
                 Beats = new[]
                 {
                     "Am Ende des Saals liegt ein einzelnes Blatt, schwärzer als die Nacht hinter dir.",

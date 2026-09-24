@@ -298,17 +298,41 @@ namespace Tartot.Core
                     near.Add(new NearMiss
                     {
                         Title = gap == 0 ? "Genau dein Rekord" : $"{gap} {(gap == 1 ? "Kampf" : "Kämpfe")} unter deinem Rekord",
-                        Detail = $"Dein tiefster Run endete nach Kampf {previousBestFights}.",
+                        Detail = $"Dein tiefster Run endete in Kampf {previousBestFights + 1}.",
                         Progress = 1f - gap * .05f
                     });
-                if (run.Act >= ActCatalog.ActCount)
+
+                // Am Boss gestorben: wie viel fehlte? Das ist der staerkste
+                // Satz, den ein Todesbildschirm sagen kann.
+                var enemy = game.Combat?.Enemy;
+                var share = enemy == null ? 1f : (float)enemy.Hp / Math.Max(1, enemy.Definition.MaxHp);
+                // Nur wenn wirklich wenig fehlte - ein Boss mit vollem Leben ist kein Beinahe.
+                var close = enemy != null && enemy.Hp > 0 && (enemy.Sigils == 0 ? share <= .5f : share <= .25f);
+                if (enemy != null && enemy.Definition.IsBoss && close)
+                {
+                    var finale = enemy.Definition.Tier == EnemyTier.Finale;
                     near.Add(new NearMiss
                     {
-                        Title = "Die Welt war nah",
-                        Detail = $"Noch {Math.Max(1, ActCatalog.FinaleIndex - run.FightIndex)} Kampf bis zum Finale.",
-                        Reward = $"Schleier {Math.Min(VeilCatalog.MaxVeil, run.Veil + 1)} öffnet sich mit dem Sieg",
-                        Progress = .9f
+                        Title = $"{enemy.Definition.Name} hatte noch {enemy.Hp} HP" +
+                                (enemy.Sigils > 0 ? $" und {enemy.Sigils} Siegel" : string.Empty),
+                        Detail = enemy.Sigils > 0 ? "Ein Siegel stand noch." : "Ein, zwei Legungen mehr.",
+                        Reward = finale
+                            ? $"Der Sieg hätte Schleier {Math.Min(VeilCatalog.MaxVeil, run.Veil + 1)} geöffnet"
+                            : $"Dahinter wartete Akt {Roman(Math.Min(ActCatalog.ActCount, run.Act + 1))}",
+                        Progress = enemy.Sigils > 0 ? .5f * (1f - share) : 1f - share
                     });
+                }
+                else if (run.Act == ActCatalog.ActCount)
+                {
+                    var left = ActCatalog.FinaleIndex - run.FightIndex;
+                    near.Add(new NearMiss
+                    {
+                        Title = "Das Finale war nah",
+                        Detail = $"Noch {left} {(left == 1 ? "Kampf" : "Kämpfe")} bis zur Welt.",
+                        Reward = $"Schleier {Math.Min(VeilCatalog.MaxVeil, run.Veil + 1)} öffnet sich mit dem Sieg",
+                        Progress = .8f
+                    });
+                }
             }
 
             // Lesarten, die eine einzige Begegnung entfernt sind.
@@ -322,7 +346,7 @@ namespace Tartot.Core
                     {
                         Title = $"{card.Name}: noch 1 Begegnung",
                         Detail = $"bis zur Lesart „{InterpretationNames[i]}“.",
-                        Reward = "+15 % Wirkung für dieses Arkanum",
+                        Reward = $"+{CombatSystem.InterpretationPowerPerReading * 100:0} % Wirkung für dieses Arkanum",
                         Progress = .95f
                     });
                 }

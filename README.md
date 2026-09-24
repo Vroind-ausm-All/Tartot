@@ -36,6 +36,24 @@ zwischen Kämpfen), **Siegesmale** und der Schimmer-Leiter
 `Matt → Weiß → Indigo → Gold → Blut → Schwarz`. Nach jedem Sieg wird aus den
 wichtigsten Karten ein **Schicksalsträger** gewählt und garantiert verbessert.
 
+## Warum man noch einmal spielt
+
+Drei Akte mit angekündigten **Regelbrecher-Bossen** (der Turm lässt Positionen
+einstürzen, der Tod nimmt deine beste Karte, der Teufel verhandelt), ein
+**Finale aus den Bossen, die du geschlagen hast**, danach die endlose
+**Schwarze Spirale**. Unterwegs **Ereignisse als kurze Zwischensequenzen**,
+zwei davon Geschichten, die sich über mehrere Runs erzählen, und ein Grab mit
+der besten Karte deines letzten Runs. Jeder Boss macht dein Deck stärker —
+und **dunkler**.
+
+Die Vorschau zeigt, was *fast* geht („Die 7 der Kelche vollendet DIE WELT“),
+der Run-Bericht endet mit dem, was *fast* geklappt hätte („Der Tod hatte noch
+230 HP“). **19 Prophezeiungen** schalten Charms und drei weitere Deuter frei,
+**Schleier 0–8** machen es schwerer, die **Tageskarte** ist für alle gleich.
+
+Gemessen: 34 % Siege auf Schleier 0, Tode verteilt über alle Akte, 5 % auf
+Schleier 8. Das ganze Design in [`docs/SUCHT.md`](docs/SUCHT.md).
+
 ---
 
 ## Aufbau
@@ -47,7 +65,7 @@ unity/Assets/Tartot/
   Scripts/         Bootstrap
 src/
   Tartot.Core/     csproj, das dieselben Core-Quellen verlinkt (eine Kopie!)
-  Tartot.Tests/    xunit — 130 Tests
+  Tartot.Tests/    xunit — 246 Tests
   Tartot.Sim/      Balancing-Simulation
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
@@ -68,14 +86,15 @@ auseinanderlaufen.
 # Alles bauen
 dotnet build
 
-# Tests (130)
+# Tests (246)
 dotnet test src/Tartot.Tests
 
-# Balancing: 200 komplette Runs spielen und auswerten
-dotnet run --project src/Tartot.Sim -c Release -- --runs=200 --fights=40
+# Balancing: 400 komplette Runs spielen, Kurve je Kampf und Statistik
+dotnet run --project src/Tartot.Sim -c Release -- --runs=400 --detail=1 --stats=1
 
-# Deckgröße gegen Reichweite messen
-dotnet run --project src/Tartot.Sim -c Release -- --runs=150 --deck=8
+# Schwierigkeitskurve über alle Schleier, eine ganze Spielerlaufbahn
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --veilsweep=1
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --career=1
 
 # Unity-Code auf Syntax prüfen, ohne Unity
 dotnet build tools/unity-syntax-check
@@ -94,6 +113,7 @@ inklusive Weg von Hand und was ungeprüft ist, in
 
 | | |
 |---|---|
+| [`docs/SUCHT.md`](docs/SUCHT.md) | Die Sucht-Architektur: Zug, Run, Laufbahn |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Entscheidungen und warum |
 | [`docs/BALANCING.md`](docs/BALANCING.md) | Formeln, gemessene Zahlen, Befunde |
 | [`docs/UNITY.md`](docs/UNITY.md) | Unity-Einrichtung und was ungeprüft ist |
@@ -101,7 +121,7 @@ inklusive Weg von Hand und was ungeprüft ist, in
 
 ## Stand
 
-Der Regelkern ist geprüft: **130 Tests**, 200 Runs ohne Absturz, Speichern
-und Laden mitten im Kampf, reproduzierbare Seeds. Was fehlt, ist überwiegend
-Inhalt und Politur — siehe *Offene Punkte* in
+Der Regelkern ist geprüft: **246 Tests**, 400 Runs ohne Absturz, Speichern
+und Laden mitten im Bosskampf und mitten in einer Szene, reproduzierbare
+Seeds. Was fehlt, ist überwiegend Kunst, Animation und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).

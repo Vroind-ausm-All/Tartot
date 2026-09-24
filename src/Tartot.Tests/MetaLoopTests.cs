@@ -83,7 +83,7 @@ namespace Tartot.Tests
             var meta = new MetaProgress();
             var game = new GameController(4, meta);
             Assert.DoesNotContain(meta.PendingFulfilled(game.Run), p => p.Id == "welt_oeffnet");
-            game.Run.Stats.WorldSpreads = 30;
+            game.Run.Stats.WorldSpreads = ProphecyCatalog.Find("welt_oeffnet").Target;
             Assert.Contains(meta.PendingFulfilled(game.Run), p => p.Id == "welt_oeffnet");
         }
 
@@ -110,8 +110,9 @@ namespace Tartot.Tests
         {
             var meta = new MetaProgress();
             var game = new GameController(4);
-            game.Run.Stats.WorldSpreads = 20;       // 20 von 30 fuer "Die Welt oeffnet sich"
-            game.Run.Stats.LongestChain = 7;         // 7 von 8 fuer "Kettenleser"
+            game.Run.Stats.WorldSpreads = 20;
+            // Eins unter dem Ziel von "Kettenleser".
+            game.Run.Stats.LongestChain = ProphecyCatalog.Find("kettenleser").Target - 1;
             var report = meta.CompleteRun(game, won: false, killedBy: "Der Turm");
 
             Assert.InRange(report.NearMisses.Count, 1, 3);
@@ -132,6 +133,33 @@ namespace Tartot.Tests
             var report = meta.CompleteRun(new GameController(4), won: false);
             Assert.Equal(4, meta.ArcanaEncounters["major_1"]);
             Assert.Contains(report.NearMisses, n => n.Title.StartsWith("Der Magier") && n.Detail.Contains("Transformation"));
+        }
+
+        [Fact]
+        public void DyingAtABoss_ShowsHowMuchWasLeft()
+        {
+            var meta = new MetaProgress();
+            var game = new GameController(4, meta);
+            TestTools.JumpToFight(game, 4);
+            game.Run.Hp = 1;
+            game.Combat.PlayerShield = 0;
+            game.Run.Charms.Clear();
+            TestTools.PlaceSomewhere(game, game.Combat.Hand[0]);
+            game.ResolveTurn();
+            Assert.Equal(GamePhase.GameOver, game.Phase);
+
+            // Mit vollem Leben ist es kein Beinahe.
+            var copy = MetaProgress.Deserialize(meta.Serialize());
+            var boss = game.Combat.Enemy;
+            var full = copy.CompleteRun(game, won: false, killedBy: boss.Definition.Name);
+            Assert.DoesNotContain(full.NearMisses, n => n.Title.Contains("hatte noch"));
+
+            // Ein Siegel weg und fast tot: das ist eins.
+            boss.Sigils = 0;
+            boss.Hp = boss.Definition.MaxHp / 5;
+            var report = meta.CompleteRun(game, won: false, killedBy: boss.Definition.Name);
+            Assert.Contains(report.NearMisses, n => n.Title == $"{boss.Definition.Name} hatte noch {boss.Hp} HP");
+            Assert.StartsWith("GEFALLEN IN AKT I", report.Headline);
         }
 
         [Fact]

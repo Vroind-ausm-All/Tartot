@@ -246,7 +246,7 @@ namespace Tartot.Core
 
         private static EnemyDefinition BuildSpiralBoss()
         {
-            var worm = E("weltenwurm", "Der Weltenwurm", EnemyTier.Boss, 5, 620, 46, 24, 2, "AFDHA",
+            var worm = E("weltenwurm", "Der Weltenwurm", EnemyTier.Boss, 5, 620, 46, 24, 1, "AFDHA",
                 "Die Welt ist nicht das Ende. Er frisst sie von hinten und wächst mit jeder Schleife.");
             worm.OmenCardId = "major_21";
             return worm;

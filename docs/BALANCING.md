@@ -3,8 +3,11 @@
 Balancing wird hier **gemessen, nicht geschätzt**.
 
 ```bash
-dotnet run --project src/Tartot.Sim -c Release -- --runs=200 --fights=40
-dotnet run --project src/Tartot.Sim -c Release -- --runs=150 --deck=8
+dotnet run --project src/Tartot.Sim -c Release -- --runs=400 --detail=1 --stats=1
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --veilsweep=1
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --deuter=aderleser
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --fights=60 --spiral=1
+dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --career=1
 ```
 
 Der Autopilot spielt vernünftig, nicht optimal — etwa auf dem Niveau eines
@@ -37,7 +40,12 @@ plus Charm-Boni. Bei voller Rage (3/3): × 1,5, danach verbraucht.
 | Großes Omen (≥2 Arkana) | +0,60, je weiteres +0,25 |
 | Paar | +0,50 und +5 Chips |
 | Drei Pfade (3 Farben) | +0,35 |
-| Deck-Resonanz | +0,06 je Stufe über 1 |
+| Deck-Resonanz | +0,06 je Stufe über 1 (Eremit: doppelt) |
+| **Musterkette** | +0,10 je Glied, höchstens 5 — nur Paar oder besser zählt |
+| Umgekehrte Karte beim Aderleser | +0,15 statt +0,10 |
+
+Danach: **Pakt des Teufels** × 1,5 auf den ganzen Fate-Schaden.
+**Verdunkelung**: umgekehrte Karten +1 Chip und +6 % Wirkung je 20.
 
 **Wiederholungs-Malus** bei identischer Legung: 1,00 → 0,90 → 0,75 → 0,50.
 Eine andere Legung setzt ihn zurück.
@@ -53,6 +61,10 @@ Eine andere Legung setzt ihn zurück.
 Stirbst du im selben Zug, verfällt die Zukunftskarte ersatzlos. Das ist der
 Sinn der Position und als Test festgehalten.
 
+Das Rad und der Gehängte verschieben, **wo** eine Karte wirkt, nicht wo sie
+liegt: `CombatSystem.EffectiveSlot`. Vorschau, Muster, Faktor und Zeitpunkt
+lesen alle diese eine Funktion.
+
 ### Haltung
 
 Solange Haltung steht, ist ein einzelner Fate-Schlag auf **35 % der maximalen
@@ -63,94 +75,166 @@ gewinnt der Gegner 60 % seiner Haltung zurück.
 **Schicksalssiegel**: bei tödlichem Schaden kehrt der Gegner mit 45 % HP,
 voller Haltung und +3 Angriff zurück.
 
-### Endlos-Skalierung
+### Akte, Schleier, Spirale
 
-Nach den acht gebauten Gegnern:
-`HP × (1 + Stufe × 0,18)`, `Haltung × (1 + Stufe × 0,12)`,
-`Angriff + Stufe × 2`, Siegel bis 4.
+Drei Akte à vier Kämpfe und ein Boss, dann das Finale. Werte je Akt stehen im
+Katalog (`Content/Acts.cs`), gemessen und eingebrannt — nicht per Formel.
 
----
+| | Normale | Elites | Bosse |
+|---|---|---|---|
+| Akt I | 110–160 HP, Angriff 17–25 | 230–260 | 320–360, 1 Siegel |
+| Akt II | 240–320 HP, Angriff 17–23 | 450–480 | 495–510, 1 Siegel |
+| Akt III | 380–450 HP, Angriff 19–22 | 600–620 | 640–650, 1 Siegel |
+| Finale | Die Welt: 504 HP, 2 Siegel, Regeln der geschlagenen Bosse abgeschwächt | | |
+
+Beim Kampfstart wird der Gegner geklont und skaliert: Verdunkelung +1 Angriff
+je 25, dann die Schleier (siehe unten).
+
+**Spirale** je Tiefe *t*: `HP × 1,08^t × (1 + 0,008·t²)`, Haltung +6 % je
+Tiefe, Angriff +*t*, Siegel +1 je 8 Tiefen. Jeder vierte Kampf ist der
+Weltenwurm mit zwei oder mehr ungeschwächten Regeln. Wer die Welt schlägt,
+heilt beim Eintritt 40 %.
+
+**Wirtschaft**: Gold je Sieg `(12 + 3·Kampfindex) × Stufe` (Elite ×1,3,
+Boss ×1,5), Überschuss je 8 ein Gold (gedeckelt 4 + 4·Akt), direkter Weg
++12. Senken: Händlerangebote, Vergessen (45, +25 je Mal), Veredeln (70, +30
+je Mal).
 
 ## 2. Gemessener Stand
 
-200 Runs, Deck-Ziel 12, Kampflimit 40:
+400 Runs, Wahrsagerin, Schleier 0, Deck-Ziel 14:
 
 | Kennzahl | Wert |
 |---|---|
-| Ohne Absturz durchgelaufen | **200 / 200** |
-| Kämpfe im Schnitt | 10,1 (max 16) |
-| Züge pro Kampf | 5,3 |
-| Deckgröße am Ende | 11,6 |
-| Charm-Stacks am Ende | 10,3 |
-| Deck-Resonanz am Ende | 7,5 von 10 |
-| Ungenutztes Gold | 81 |
+| Ohne Absturz durchgelaufen | **400 / 400** |
+| **Siege** (Finale geschlagen) | **34 %** |
+| Kämpfe im Schnitt | 12,5 (von 16) |
+| Züge pro Kampf | 4,1 — Normale 3–3,5, Bosse 5–6,5 |
+| Deckgröße am Ende | 12,9 |
+| Verdunkelung am Ende | 35 |
+| DIE WELT gelegt | 21 pro Run |
+| Längste Musterkette | 5,7 |
+| Stärkste Legung | Median 327, Spitze 764 |
+| Ereignisse / Rasten / Elites | 4,1 / 1,9 / 1,1 pro Run |
+| Ungenutztes Gold | 179 |
+
+### Wo die Runs enden
+
+| Akt I | Akt II | Akt III | Finale | **Sieg** |
+|---|---|---|---|---|
+| 12 % | 12 % | 20 % | 23 % | **34 %** |
+
+Todesrate im Bosskampf: Turm 13 %, Mond 10 %, Tod 11 %, Rad 8 %,
+Teufel 13 %, Gehängter 11 %, **die Welt 40 %** derer, die sie erreichen.
+
+### Deuter
+
+| Deuter | Sieg |
+|---|---|
+| Die Wahrsagerin | 34 % |
+| Der Aderleser | 32 % |
+| Der Buchhalter | 35 % |
+| Der Eremit (Deck-Ziel 9) | 24 % |
+
+### Schleier
+
+| Schleier | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|---|
+| Sieg | 34 % | 31 % | 27 % | 31 % | 23 % | 15 % | 10 % | 8 % | 5 % |
+
+300 Runs je Stufe, Streuung etwa ±3 Punkte.
+
+### Spirale
+
+Wer die Welt schlägt und weitergeht, erreicht im Schnitt **Tiefe 4**
+(Maximum 12). Jeder Weltenwurm ist ein Kontrollpunkt.
+
+### Laufbahn
+
+300 Runs mit *einem* Meta-Fortschritt, wie ein echter Spieler:
+
+- Freischaltungen in Run 1, 3–6, 8, 9, 11, 17, 18, 22, 25 — danach bleiben
+  nur die Schleier- und Spiralziele als lange Strecke.
+- Siegquote auf Schleier 0: **rund 42 %** statt 34 %. Davon kommen gut 5
+  Punkte aus den Lesarten (voll gelesen: 38,8 %), der Rest aus den
+  freigeschalteten Charms. Genau dafür gibt es die Schleier: wer gewinnt,
+  öffnet Schleier 1 und spielt dort.
 
 ---
 
-## 3. Befunde
+## 3. Befunde dieser Runde
 
-### Die gebaute Strecke ist ein Tutorial, kein Spannungsbogen
+### Der Bogen war ein Tutorial — jetzt stirbt man überall
 
-**96 % der Runs schlagen alle acht gebauten Gegner** und sterben erst im
-Endlosmodus. Nur 4 % scheitern vorher, praktisch alle an *Die rote Sonne*
-(Gegner 7).
+Vorher schlugen 96 % der Runs alle acht gebauten Gegner. Nach dem Umbau auf
+drei Akte waren es zunächst **0 % Tote in Akt I und II** und 55 % am Finale:
+normale Gegner dauerten 2–2,7 Züge und kosteten kaum Leben. Fünf Tuning-Runden
+später liegt die Verteilung bei 12 / 12 / 20 / 23 / 34 %.
 
-Das heißt: die Schwierigkeit liegt vollständig in der Endlos-Skalierung, nicht
-im entworfenen Inhalt. Das ist eine **Struktur- und Inhaltsfrage**, keine
-Zahlenfrage — sie sollte zusammen mit einer Akt-Struktur entschieden werden
-und nicht durch Hochdrehen der vorhandenen acht Gegner.
+### Gegner-HP ist der falsche Hebel
 
-### DeckResonance war ein toter Wert
+Mehr Gegner-HP ändert fast nichts. Der Haltungsdeckel (35 % der Max-HP je
+Treffer) bestimmt die Kampflänge — wer HP verdoppelt, verdoppelt nicht die
+Züge. Was wirkt, ist **Haltung** (hält den Deckel länger) und **Angriff**
+(Schaden über 16 Kämpfe summiert sich). Ein einziger Angriffspunkt mehr für
+alle Gegner kostete 13 Punkte Siegquote.
 
-`UpdateDeckResonance` wurde an **fünf Stellen gepflegt und nirgends gelesen**.
-Der Wert belohnt genau das, was beide Konzeptpapiere als zentralen Hebel
-beschreiben — kleines Deck, entwickelte Karten, stimmiger Build.
+Die erste Schleier-Kurve war deshalb flach und brach dann ein
+(29, 29, 26, 27, **13, 2** %). Umgebaut: milde Stufen zuerst, harte Angriffe
+erst ab Akt II — sonst wird der erste Boss zur Mauer (40–55 % Tote in Akt I).
 
-Zusätzlich zählte die Deckgröße nur an zwei Sprungmarken (≤ 12 und ≤ 9). Da
-ein Run praktisch nie unter 12 Karten kam, war der Hebel doppelt tot. Jetzt
-ist die Deckgröße ein Gradient (`(16 − Deckgröße) / 2`), und der Wert geht in
-den Multiplikator ein.
+### Der Rekord maß den Deckel
 
-### Die erste Messung war ungültig — das Instrument war kaputt
+Der härteste Treffer klebte bei 224–228: genau 35 % der HP der
+Akt-III-Bosse. Er maß den Haltungsdeckel, nicht den Build. Jetzt zählt der
+Wert der Legung vor dem Deckel.
 
-Der Autopilot kaufte im Laden auch Karten und arbeitete damit gegen sein
-eigenes Ausdünnen. Das Deck endete **unabhängig vom Ziel** bei rund 12 Karten,
-und die Deckgröße schien wirkungslos.
+### Drei echte Fehler, gefunden durch Messung und Tests
 
-Mit korrigiertem Instrument:
+1. **Ein Ereignis konnte den Boss ersetzen.** Der Kartenspieler-Kampf wurde
+   für den *nächsten* Kampf vorgemerkt — war das ein Boss oder das Finale,
+   trat der Kartenspieler an seine Stelle. Sichtbar wurde es, weil zwei Runs
+   „in der Spirale“ weiterliefen, ohne das Finale gesehen zu haben.
+2. **Der Überschuss wurde auf 0 zurückgesetzt.** Die Todesprüfung lief nach
+   den Zukunftskarten ein zweites Mal von vorn. Überschuss-Gold kam dadurch
+   fast nie an. Gefunden vom Test `Overkill_IsMeasured`.
+3. **Lesarten wuchsen im Spiel nie pro Sieg.** Die Oberfläche zählte eine
+   Begegnung, wenn der Kampfindex gestiegen war — der steigt aber erst beim
+   nächsten Kampfstart. Gezählt wurde nur am Run-Ende.
 
-| Deck-Ziel | Kämpfe | Deck am Ende | Resonanz |
-|---|---|---|---|
-| 8 | **10,6** | 8,0 | 9,5 |
-| 10 | 10,1 | 9,7 | 8,3 |
-| 12 | 10,1 | 11,6 | 7,5 |
-| 16 | 9,9 | 13,4 | 6,7 |
-| 22 | 9,9 | 13,6 | 6,7 |
+### Zwei Deuter lagen daneben
 
-Ein kleines Deck kommt also messbar weiter — der Designanspruch stimmt.
+Der **Aderleser** gewann **0,7 %**: er startete mit dem umgekehrten Teufel
+(4 HP Selbstschaden je Einsatz plus erhöhter Umkehrpreis) und fast ohne
+Heilung. Jetzt mit Kraft statt Teufel, einem Kelch mehr und der Mondbrosche:
+32 %. Der **Buchhalter** gewann zuerst 56 %; mit weniger Startgold, ohne
+Startcharm und 15 statt 20 % Schildrest: 35 %.
 
-### Der Resonanz-Multiplikator trägt derzeit fast nichts bei
+### Die Spirale war eine Mauer
 
-Kontrollmessung mit `DeckResonancePerStep = 0`:
+Sieger erreichten Tiefe 2,9, weil der erste Weltenwurm mit drei Siegeln kam
+und man ohne Heilung aus dem Finale stolperte (88 % Tote an ihm). Jetzt ein
+Siegel weniger, Heilung beim Eintritt: Tiefe 4,2.
 
-| | Deck-Ziel 8 | Deck-Ziel 22 | Spreizung |
-|---|---|---|---|
-| Ohne Resonanz | 10,4 | 9,6 | 0,8 |
-| Mit Resonanz (0,06) | 10,6 | 9,9 | 0,7 |
+### Gold
 
-Der Vorteil eines kleinen Decks kommt aus der **Ziehkonsistenz**, die es
-ohnehin gab, nicht aus der Resonanz. Die Verdrahtung ist trotzdem richtig —
-ein gepflegter Wert, den niemand liest, ist ein Fehler —, aber bei 0,06 pro
-Stufe ist sie kosmetisch.
+Ungenutztes Gold stieg mit der längeren Strecke auf **465**. Weniger
+Einkommen und **Veredeln** als zweite Senke: 179. Der Rest ist zum Teil
+Instrument — der Autopilot kauft vorsichtig.
 
-`CombatSystem.DeckResonancePerStep` steht als benannte Konstante bereit. Sie
-anzuheben ist eine Designentscheidung mit Schneeballrisiko, weil die Resonanz
-auch Charms und Fortschritt belohnt: ein Run, der ohnehin gut läuft, würde
-zusätzlich beschleunigt.
+### Grenzen des Instruments, ehrlich benannt
+
+- Schleier 1 (weniger Gold) und 3 (eine Belohnungswahl weniger) misst der
+  Autopilot kaum, weil er Gold übrig hat und sein Deck ohnehin deckelt. Ein
+  Mensch spürt beide.
+- Der Autopilot findet DIE WELT per Durchprobieren aller Legungen (21 pro
+  Run). Menschen legen sie seltener — Prophezeiungen um DIE WELT werden für
+  Menschen später fallen als hier gemessen.
+- Items benutzt er nur zum Heilen.
 
 ---
 
-## 3b. Drei gezielte Eingriffe, gemessen
+## 3b. Frühere Eingriffe (vor der Akt-Struktur)
 
 ### Umgekehrte Karten sind jetzt eine Wahl
 
@@ -217,6 +301,10 @@ selbst ist durch neun Tests abgedeckt.
 
 ### Lesarten wirken
 
+*Stand vor der Akt-Struktur. Heute gibt es +10 % je Lesart statt +15 % —
+mit dem längeren Bogen machte der alte Wert Veteranen zu stark (siehe
+Laufbahn in Abschnitt 2).*
+
 Freigeschaltete Lesarten werden beim Run-Start aus dem Meta-Fortschritt
 **kopiert** — ein laufender Run ändert sich dadurch nicht mehr, sonst liefe
 ein Speicherstand anders weiter und der Seed wäre wertlos. Jede Lesart gibt
@@ -243,28 +331,31 @@ den Simulationsaufruf ersetzt.
 
 | Punkt | Beobachtung | Vorschlag |
 |---|---|---|
-| **Inhaltsmenge** | 8 gebaute Gegner, davon nur einer gefährlich | Akt-Struktur mit eigenen Gegnersätzen und Bossen |
-| **Resonanz-Gewicht** | 0,06/Stufe ist kosmetisch | Deckgrößen-Anteil von den übrigen Faktoren trennen und getrennt gewichten |
-| **Ausdünn-Gelegenheiten** | Nur Ritualräume entfernen Karten | Entfernen auch beim Händler anbieten |
-| **Löschdienst ungenutzt** | Der Autopilot löscht 0,0–0,1 Karten pro Run beim Händler | Seine Politik deckelt das Deck ohnehin. Ob der Dienst für Menschen trägt, zeigt erst Spielerfahrung |
-| **Umkehrpreis rundet grob** | Basiskarten kosten alle 1 HP, unabhängig vom Rang | Erst relevant, wenn Kartenwirkungen insgesamt größer werden |
-
----
+| **Die Welt ist steil** | 40 % Todesrate am Finale | Gewollt als Höhepunkt — mit echten Spielern prüfen, ob es sich fair anfühlt |
+| **Resonanz-Gewicht** | 0,06/Stufe ist kosmetisch (außer beim Eremiten) | Deckgrößen-Anteil getrennt gewichten |
+| **Items** | Der Autopilot nutzt nur Heiltränke | Zielmodi für Items, dann messen |
+| **Menschen vs. Autopilot** | Muster-Prophezeiungen sind am Autopiloten geeicht | Nach einem Spieltest nachjustieren |
+| **Umkehrpreis rundet grob** | Basiskarten kosten alle 1 HP | Erst relevant, wenn Kartenwirkungen insgesamt größer werden |
 
 ## 5. Regressionsschutz
 
-**130 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
+**246 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
 Defekt ein eigener Test:
 
-- **Determinismus**: gleicher Seed → identischer Run; goldene RNG-Folge
-  festgeschrieben; Läden-Reroll verschiebt die Kartenzüge nicht
-- **Scoring**: alle Kombinationen einzeln, Summe 20 als Gegenprobe,
-  Wiederholungs-Malus über vier Züge
-- **Vorschau ohne Nebenwirkung** — vorher farmte jede angefasste Karte Rage
-- **Positionen**: Vergangenheit < Gegenwart < Zukunft; Zukunft verfällt bei Tod
-- **Haltung**: Schadenskappe, Burst-Fenster, Rückkehr
-- **Schicksalssiegel**: zweite Phase — und der dokumentierte Gegenfall, dass
-  ein starker Zug ohne Haltung durch beide Phasen bricht
-- **Speichern/Laden**: mitten im Kampf, Kartenidentität, RNG-Fortsetzung,
-  kaputte und veraltete Stände
-- **Katalog**: 78 Karten, 50 Charms mit eindeutigen Wirkungen, 22 Items
+- **Determinismus**: gleicher Seed → identischer Run, auch über Ereignisse
+  und Spirale; goldene RNG-Folge festgeschrieben; Laden-Reroll verschiebt die
+  Kartenzüge nicht
+- **Bossregeln**: jede Regel, ihre Verschärfung nach dem Siegel und ihre
+  abgeschwächte Form im Finale; die Vorschau rechnet dort, wo die Karte wirkt
+- **Momente**: Kette wächst, bricht und ist gedeckelt; Vorschau ändert sie
+  nicht; Überschuss und sein Gold; Beinahe-Hinweise nennen die konkrete Karte
+- **Bogen**: Bosse angekündigt und geplant, keine Wiederholung im Akt, Rast
+  vor jedem Boss, Ereignis ersetzt nie einen Boss, Omen-Beute, Finale,
+  Spirale, jeder Schleier, jeder Deuter
+- **Ereignisse**: jede Wahl jedes Ereignisses mit sechs Seeds, danach ist der
+  Run gültig; Geschichten in der richtigen Reihenfolge; das Grab
+- **Meta**: Prophezeiungen einmalig, gesperrte Charms nie im Angebot,
+  Bericht mit höchstens drei Beinahe, Tageskarte ohne Meta-Fortschritt
+- **Speichern/Laden**: mitten im Bosskampf mit allen Regelzuständen, mitten
+  in einer Szene, in der Omen-Beute; Version-1-Stände laden weiter
+- **Scoring, Positionen, Haltung, Siegel, Umkehrpreis, Händler** (wie zuvor)

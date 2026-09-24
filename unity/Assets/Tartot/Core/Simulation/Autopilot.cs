@@ -109,64 +109,7 @@ namespace Tartot.Core.Simulation
             var guard = 0;
 
             while (game.Phase != GamePhase.GameOver && game.Run.FightIndex < maxFights && guard++ < 5000)
-            {
-                switch (game.Phase)
-                {
-                    case GamePhase.Combat:
-                    {
-                        var record = new FightRecord
-                        {
-                            Index = game.Run.FightIndex,
-                            EnemyId = game.Combat.Enemy.Definition.Id,
-                            Tier = game.Combat.Enemy.Definition.Tier,
-                            HpBefore = (float)game.Run.Hp / Math.Max(1, game.Run.MaxHp)
-                        };
-                        record.Turns = PlayCombat(game);
-                        outcome.TurnsPlayed += record.Turns;
-                        record.HpAfter = (float)game.Run.Hp / Math.Max(1, game.Run.MaxHp);
-                        record.Died = game.Phase == GamePhase.GameOver;
-                        record.GoldAfter = game.Run.Gold;
-                        outcome.Fights.Add(record);
-                        if (record.Died)
-                            outcome.DiedAgainst = game.Combat?.Enemy?.Definition?.Name ?? "-";
-                        break;
-                    }
-                    case GamePhase.Reward:
-                        TakeReward(game);
-                        break;
-                    case GamePhase.PathChoice:
-                        var path = ChoosePath(game);
-                        if (path == PathType.Elite) outcome.ElitesFought++;
-                        if (path == PathType.Shop) outcome.ShopVisits++;
-                        if (game.Paths.Contains(PathType.Shop)) outcome.PathsWithShop++;
-                        game.ChoosePath(path);
-                        break;
-                    case GamePhase.Shop:
-                        Shop(game);
-                        break;
-                    case GamePhase.Ritual:
-                        Ritual(game);
-                        break;
-                    case GamePhase.Oracle:
-                        game.ChooseOracle("XXI");
-                        game.ContinueFromOffgame();
-                        break;
-                    case GamePhase.Event:
-                        PlayEvent(game);
-                        break;
-                    case GamePhase.Rest:
-                        outcome.RestsTaken++;
-                        Rest(game);
-                        break;
-                    case GamePhase.BossLoot:
-                        game.ChooseBossLoot(ChooseBossLoot(game));
-                        break;
-                    case GamePhase.Victory:
-                        if (ContinueIntoSpiral) game.ContinueIntoSpiral();
-                        else game.EndRun();
-                        break;
-                }
-            }
+                Step(game, outcome);
 
             outcome.FightsCleared = game.Run.FightIndex;
             outcome.DeckSize = game.Run.Deck.Count;
@@ -194,6 +137,72 @@ namespace Tartot.Core.Simulation
             return outcome;
         }
 
+        /// <summary>
+        /// Ein einzelner Schritt: das, was die aktuelle Phase verlangt. Damit
+        /// lassen sich echte Runs bis zu einem bestimmten Moment vorspielen -
+        /// etwa fuer Bildschirmabzuege.
+        /// </summary>
+        public void Step(GameController game, RunOutcome outcome = null)
+        {
+            outcome = outcome ?? new RunOutcome();
+            switch (game.Phase)
+            {
+                case GamePhase.Combat:
+                {
+                    var record = new FightRecord
+                    {
+                        Index = game.Run.FightIndex,
+                        EnemyId = game.Combat.Enemy.Definition.Id,
+                        Tier = game.Combat.Enemy.Definition.Tier,
+                        HpBefore = (float)game.Run.Hp / Math.Max(1, game.Run.MaxHp)
+                    };
+                    record.Turns = PlayCombat(game);
+                    outcome.TurnsPlayed += record.Turns;
+                    record.HpAfter = (float)game.Run.Hp / Math.Max(1, game.Run.MaxHp);
+                    record.Died = game.Phase == GamePhase.GameOver;
+                    record.GoldAfter = game.Run.Gold;
+                    outcome.Fights.Add(record);
+                    if (record.Died)
+                        outcome.DiedAgainst = game.Combat?.Enemy?.Definition?.Name ?? "-";
+                    break;
+                }
+                case GamePhase.Reward:
+                    TakeReward(game);
+                    break;
+                case GamePhase.PathChoice:
+                    var path = ChoosePath(game);
+                    if (path == PathType.Elite) outcome.ElitesFought++;
+                    if (path == PathType.Shop) outcome.ShopVisits++;
+                    if (game.Paths.Contains(PathType.Shop)) outcome.PathsWithShop++;
+                    game.ChoosePath(path);
+                    break;
+                case GamePhase.Shop:
+                    Shop(game);
+                    break;
+                case GamePhase.Ritual:
+                    Ritual(game);
+                    break;
+                case GamePhase.Oracle:
+                    game.ChooseOracle("XXI");
+                    game.ContinueFromOffgame();
+                    break;
+                case GamePhase.Event:
+                    PlayEvent(game);
+                    break;
+                case GamePhase.Rest:
+                    outcome.RestsTaken++;
+                    Rest(game);
+                    break;
+                case GamePhase.BossLoot:
+                    game.ChooseBossLoot(ChooseBossLoot(game));
+                    break;
+                case GamePhase.Victory:
+                    if (ContinueIntoSpiral) game.ContinueIntoSpiral();
+                    else game.EndRun();
+                    break;
+            }
+        }
+
         // ------------------------------------------------------------ Kampf
         public int PlayCombat(GameController game)
         {
@@ -201,23 +210,40 @@ namespace Tartot.Core.Simulation
             while (game.Phase == GamePhase.Combat && turns < MaxTurnsPerFight)
             {
                 turns++;
-                if (game.Combat.PactPending) game.AnswerPact(AcceptPact(game));
-                UseHealingIfLow(game);
-                var layout = BestLayout(game);
-                ClearSlots(game);
-                foreach (var (instanceId, slot) in layout)
-                    game.CombatSystem.PlaceCard(game.Combat, instanceId, slot);
-
-                if (game.Combat.Slots.Count == 0)
-                {
-                    if (game.Combat.Hand.Count == 0) break;
-                    foreach (var slot in AllSlots)
-                        if (game.CombatSystem.PlaceCard(game.Combat, game.Combat.Hand[0].InstanceId, slot)) break;
-                    if (game.Combat.Slots.Count == 0) break;
-                }
-                game.ResolveTurn();
+                if (!PlayTurn(game)) break;
             }
             return turns;
+        }
+
+        /// <summary>Ein einzelner Zug: Pakt beantworten, legen, ausfuehren.</summary>
+        public bool PlayTurn(GameController game)
+        {
+            if (!Arrange(game)) return false;
+            game.ResolveTurn();
+            return true;
+        }
+
+        /// <summary>
+        /// Legt die beste Legung auf den Tisch, ohne sie auszufuehren - die
+        /// Vorschau zeigt dann, was der Zug bringen wuerde.
+        /// </summary>
+        public bool Arrange(GameController game)
+        {
+            if (game.Combat.PactPending) game.AnswerPact(AcceptPact(game));
+            UseHealingIfLow(game);
+            var layout = BestLayout(game);
+            ClearSlots(game);
+            foreach (var (instanceId, slot) in layout)
+                game.CombatSystem.PlaceCard(game.Combat, instanceId, slot);
+
+            if (game.Combat.Slots.Count == 0)
+            {
+                if (game.Combat.Hand.Count == 0) return false;
+                foreach (var slot in AllSlots)
+                    if (game.CombatSystem.PlaceCard(game.Combat, game.Combat.Hand[0].InstanceId, slot)) break;
+                if (game.Combat.Slots.Count == 0) return false;
+            }
+            return true;
         }
 
         /// <summary>

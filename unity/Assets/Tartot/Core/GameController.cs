@@ -410,10 +410,15 @@ namespace Tartot.Core
         public void ContinueIntoSpiral()
         {
             if (Phase != GamePhase.Victory) return;
+            // Der Sieg ueber die Welt ist ein Atemzug wert - wer danach ohne
+            // Heilung in die Spirale stolpert, scheitert an der ersten Stufe.
+            var healed = Heal((int)Math.Round(Run.MaxHp * SpiralEntryHeal));
             GeneratePaths();
             Phase = GamePhase.PathChoice;
-            Message = "Die Schwarze Spirale öffnet sich. Sie hat kein Ende – nur eine Tiefe.";
+            Message = $"Die Schwarze Spirale öffnet sich. Sie hat kein Ende – nur eine Tiefe. (+{healed} HP)";
         }
+
+        public const float SpiralEntryHeal = .40f;
 
         /// <summary>Beendet einen gewonnenen Run (oder bricht einen ab).</summary>
         public void EndRun()
@@ -508,8 +513,10 @@ namespace Tartot.Core
             if (Run.StepsSinceShop >= 4) forced.Add(PathType.Shop);
 
             var candidates = new List<PathType> { PathType.Shop, PathType.Ritual, PathType.Oracle, PathType.Event, PathType.Rest };
-            // Elite nie zweimal in Folge und nie direkt vor einem Boss.
-            if (!bossNext && Run.LastPath != PathType.Elite && next % ActCatalog.FightsPerAct != 0)
+            // Elite nie zweimal in Folge, nie direkt vor einem Boss und nicht in
+            // der Spirale - dort waehlt die Spirale selbst.
+            if (!bossNext && !ActCatalog.IsSpiral(next) && Run.LastPath != PathType.Elite
+                && next % ActCatalog.FightsPerAct != 0)
                 candidates.Add(PathType.Elite);
             // Ereignisse sind der haeufigste Umweg - sie tragen die Geschichten.
             candidates.Add(PathType.Event);
@@ -836,6 +843,14 @@ namespace Tartot.Core
             return Scale(template);
         }
 
+        /// <summary>
+        /// Wachstum der Spirale je Tiefe: exponentiell mal quadratisch, damit
+        /// auch absurde Builds irgendwann scheitern - aber nicht an der ersten
+        /// Stufe. Gemessen: Sieger kommen im Schnitt einige Tiefen weit.
+        /// </summary>
+        public const double SpiralHpGrowth = 1.08;
+        public const double SpiralHpCurve = .008;
+
         private static readonly BossRule[] SpiralRules =
             { BossRule.Tower, BossRule.Moon, BossRule.Death, BossRule.Wheel, BossRule.Devil, BossRule.HangedMan };
 
@@ -859,14 +874,14 @@ namespace Tartot.Core
                 template = _rng.Pick(pool).Clone();
             }
 
-            var growth = Math.Pow(1.12, depth) * (1 + .01 * depth * depth);
+            var growth = Math.Pow(SpiralHpGrowth, depth) * (1 + SpiralHpCurve * depth * depth);
             template.Id = $"{template.Id}_spirale_{depth}";
             template.Name = $"{template.Name} · Spirale {depth}";
             template.Act = 5;
             template.MaxHp = (int)Math.Round(template.MaxHp * growth);
-            template.MaxStance = (int)Math.Round(template.MaxStance * (1 + depth * .08));
-            template.BaseAttack += depth * 2;
-            template.Sigils = Math.Min(4, template.Sigils + depth / 4);
+            template.MaxStance = (int)Math.Round(template.MaxStance * (1 + depth * .06));
+            template.BaseAttack += depth;
+            template.Sigils = Math.Min(4, template.Sigils + depth / 8);
             return template;
         }
 

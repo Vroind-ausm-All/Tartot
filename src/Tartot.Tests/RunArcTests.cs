@@ -157,6 +157,19 @@ namespace Tartot.Tests
             game.Paths.AddRange(paths);
         }
 
+        [Fact]
+        public void TheSpiral_OffersNoElite()
+        {
+            for (var seed = 0; seed < 12; seed++)
+            {
+                var game = new GameController(seed);
+                TestTools.JumpToFight(game, ActCatalog.FinaleIndex + 1);
+                TestTools.WinFight(game);
+                if (game.Phase == GamePhase.Reward) game.SkipRewardForFate();
+                Assert.DoesNotContain(PathType.Elite, game.Paths);
+            }
+        }
+
         // ----------------------------------------------------------- Rast
         [Fact]
         public void Rest_HealsAndMovesOn()

@@ -6,7 +6,7 @@
 keine Unity-Installation. Geprüft ist:
 
 - `Tartot.Core` kompiliert gegen `netstandard2.1` (Unitys API-Ebene) mit
-  `TreatWarningsAsErrors`, und 130 Tests laufen grün
+  `TreatWarningsAsErrors`, und 246 Tests laufen grün
 - der Unity-Code kompiliert gegen Stubs der verwendeten Unity-Typen
   (`dotnet build tools/unity-syntax-check`)
 
@@ -101,7 +101,7 @@ Unity-Build, zeigt aber verlässlich, welche Werte wo landen.
 Der komplette Regelkern lässt sich ohne Unity prüfen und spielen lassen:
 
 ```bash
-dotnet test src/Tartot.Tests                                    # 130 Tests
+dotnet test src/Tartot.Tests                                    # 246 Tests
 dotnet run --project src/Tartot.Sim -c Release -- --runs=50     # 50 Runs durchspielen
 dotnet build tools/unity-syntax-check                           # Unity-Code auf Syntax prüfen
 ```
@@ -183,22 +183,41 @@ falsch aus — das ist dann keine Fehlfunktion.
 
 ## Wie die Oberfläche aufgebaut ist
 
-Vier Zonen von oben nach unten, mehr zeigt der Kampfschirm nicht:
+Eine Kopfzeile und vier Zonen von oben nach unten, mehr zeigt der Kampfschirm
+nicht:
 
-1. **Gegner** — Silhouette, HP-Balken, Haltungsbalken, nächster Zug
-2. **Spielerleiste** — HP, Schild, Fate, Luck, Runde; darunter die Charms
-   als Namen mit Anzahl
-3. **Die Legung** — Vergangenheit, Gegenwart, Zukunft mit ihren Prozentwerten
-4. **Vorschau, Protokoll, Hand** und `SCHICKSAL AUSFÜHREN`
+0. **Kopfzeile** — wo du stehst: `AKT II · KAMPF 3/5 · RUNDE 4`, `FINALE`
+   oder `SPIRALE 6`
+1. **Gegner** — Silhouette, Name, **Bossregel als rotes Banner**, HP-Balken,
+   Haltungsbalken, nächster Zug (beim Mond: `???`)
+2. **Spielerleiste** — HP, Schild, Fate und Gold, Luck, Verdunkelung;
+   darunter die Charms als Namen mit Anzahl
+3. **Die Legung** — Vergangenheit, Gegenwart, Zukunft. Ein eingestürzter Platz
+   (Turm) wird rot und nimmt keine Karte; ein verschobener Platz (Rad,
+   Gehängter) sagt, wo er wirkt: „wirkt als GEGENWART“
+4. **Vorschau, Beinahe-Hinweis, Protokoll, Hand** und `SCHICKSAL AUSFÜHREN`.
+   Beim Teufel erscheint darüber das Pakt-Feld mit zwei Knöpfen.
 
-Alles Weitere — Belohnung, Wegwahl, Händler, Ritual, Orakel, Ende — läuft über
-ein Overlay.
+Karten zeigen zwei Bosszustände: **verdeckt** (Mond: Rückseite, kein Wert)
+und **gezeichnet** (Tod: ☠ mit den verbleibenden Runden).
+
+Alles Weitere läuft über ein Overlay: Titel (Deuter, Schleier, Tageskarte),
+Belohnung, Wegwahl mit angekündigtem Omen, Händler (Vergessen oder Veredeln),
+Ritual, Orakel, Rast, **Ereignis** (Satz für Satz mit „…“, dann die Wahl,
+dann der Schlusssatz), **Omen-Beute**, Sieg und der **Run-Bericht** mit der
+Beinahe-Liste.
+
+Eine erfüllte Prophezeiung, ein neuer Rekord oder eine vom Tod genommene
+Karte erscheinen sofort als **Einblendung** in der Mitte; ein Tipp schließt sie.
 
 **Bedienung**: Karte antippen, dann einen Platz antippen. Ein belegter Platz
 gibt die Karte auf Tipp zurück auf die Hand.
 
 **Charmtexte öffnen sich erst auf Tipp.** Im Kampf steht nur Name und Anzahl —
 so bleibt der Kampfschirm sauber, während die Komplexität darunter wächst.
+
+Die View ist zweigeteilt: `TartotView.cs` bindet den Kern an den Kampfschirm,
+`TartotView.Overlays.cs` baut die Overlays. Beide enthalten keine Spielregel.
 
 ### Farben stehen nur im USS
 
@@ -209,7 +228,9 @@ einziger Farbwert** — Karten bekommen USS-Klassen (`karte--schwerter`,
 
 Die Schimmer-Leiter verdunkelt die Kartenfläche schrittweise
 (`Matt → Weiß → Indigo → Gold → Blut → Schwarz`). Damit ist die Verdunkelung
-des eigenen Decks unmittelbar sichtbar, ohne dass eine Zahl es sagt.
+des eigenen Decks unmittelbar sichtbar, ohne dass eine Zahl es sagt. Die
+Verdunkelung des Runs färbt zusätzlich den Hintergrund in fünf Stufen
+(`wurzel--dunkel-1` bis `-5`) ins Blutrote.
 
 ---
 
@@ -223,4 +244,6 @@ des eigenen Decks unmittelbar sichtbar, ohne dass eine Zahl es sagt.
 | **Große Arkana** | sollen sich als kurze Unterbrechung anfühlen (Bildschirm verdunkelt, Symbol, ~2 Sekunden), nicht wie normale Karten. |
 | **Ton und Haptik** | kurze trockene Effekte, Vibration auf Treffer und Musterauslösung. |
 | **Tutorial** | Die drei Positionen müssen in 60 Sekunden sitzen — am besten gezeigt, nicht erklärt. |
-| **Lokalisierung** | Texte liegen derzeit im Katalog-Code. Für Deutsch + Englisch gehören sie in Tabellen. |
+| **Lokalisierung** | Texte liegen derzeit im Katalog-Code, auch die 18 Ereignisse. Für Deutsch + Englisch gehören sie in Tabellen. |
+| **Szenenbilder** | Ereignisse haben einen Bildschlüssel (`szene--kartenspieler`, `szene--grab` …), aber noch kein Bild — die Fläche ist ein Platzhalter. |
+| **Bossregeln inszenieren** | Der Turm, der einen Platz einstürzen lässt, braucht zwei Sekunden Bühne (Riss, Staub). Heute wird der Platz einfach rot. |
