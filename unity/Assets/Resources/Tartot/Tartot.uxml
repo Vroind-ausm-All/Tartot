@@ -1,96 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Der Kampfschirm im Hochformat. Vier Zonen von oben nach unten:
-  Gegner, Spielerleiste, Legung, Hand. Mehr zeigt der Kampf nicht -
-  Charmtexte und Details oeffnen sich erst auf Tipp.
-
-  Die Inhalte werden in TartotView.cs gefuellt; hier steht nur das Geruest.
--->
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
   <Style src="project://database/Assets/Resources/Tartot/Tartot.uss" />
 
   <ui:VisualElement name="wurzel" class="wurzel">
+    <ui:VisualElement name="safe-area" class="safe-area">
+      <ui:Label name="spieler-runde" class="kopfzeile" text="" />
 
-    <!-- 0. Kopfzeile: wo im Run man steht. Eigene Zeile, damit die
-         Spielerleiste auch mit Gold und Verdunkelung nicht umbricht. -->
-    <ui:Label name="spieler-runde" class="kopfzeile" text="" />
+      <ui:VisualElement name="gegner" class="gegner">
+        <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette enemy__art" />
+        <ui:Label name="gegner-name" class="gegner__name" text="—" />
+        <ui:Label name="gegner-regel" class="gegner__regel" text="" />
+        <ui:Label name="gegner-hp" class="gegner__hp" text="— / —" />
+        <ui:VisualElement class="balken"><ui:VisualElement name="gegner-hp-balken" class="balken__fuellung" /></ui:VisualElement>
+        <ui:Label name="gegner-haltung" class="gegner__haltung" text="" />
+        <ui:VisualElement class="balken"><ui:VisualElement name="gegner-haltung-balken" class="balken__fuellung balken__fuellung--haltung" /></ui:VisualElement>
+        <ui:Label name="gegner-absicht" class="gegner__absicht" text="" />
+      </ui:VisualElement>
 
-    <!-- 1. Gegner: mehr als HP und naechster Zug steht hier bewusst nicht. -->
-    <ui:VisualElement name="gegner" class="gegner">
-      <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />
-      <ui:Label name="gegner-name" class="gegner__name" text="—" />
-      <!-- Bossregel: steht immer sichtbar da, bevor sie greift. -->
-      <ui:Label name="gegner-regel" class="gegner__regel" text="" />
-      <ui:Label name="gegner-hp" class="gegner__hp" text="— / —" />
-      <ui:VisualElement class="balken">
-        <ui:VisualElement name="gegner-hp-balken" class="balken__fuellung" />
+      <ui:VisualElement class="leiste">
+        <ui:Label name="spieler-hp" class="leiste__wert" text="—" />
+        <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
+        <ui:Label name="spieler-fate" class="leiste__wert leiste__wert--fate" text="0 Fate" />
+        <ui:Label name="spieler-luck" class="leiste__wert leiste__wert--gedaempft" text="Luck 0" />
+        <ui:Label name="spieler-dunkel" class="leiste__wert leiste__wert--dunkel" text="" />
       </ui:VisualElement>
-      <ui:Label name="gegner-haltung" class="gegner__haltung" text="" />
-      <ui:VisualElement class="balken">
-        <ui:VisualElement name="gegner-haltung-balken" class="balken__fuellung balken__fuellung--haltung" />
+      <ui:VisualElement name="charmleiste" class="charmleiste" />
+
+      <ui:VisualElement name="legung" class="legung">
+        <ui:VisualElement name="platz-past" class="platz">
+          <ui:Label class="platz__titel" text="VERGANGENHEIT" />
+          <ui:VisualElement name="platz-past-inhalt" />
+          <ui:Label name="platz-past-hinweis" class="platz__hinweis" text="90 % — Vorbereitung" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platz-present" class="platz">
+          <ui:Label class="platz__titel" text="GEGENWART" />
+          <ui:VisualElement name="platz-present-inhalt" />
+          <ui:Label name="platz-present-hinweis" class="platz__hinweis" text="100 % — sicher" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platz-future" class="platz">
+          <ui:Label class="platz__titel" text="ZUKUNFT" />
+          <ui:VisualElement name="platz-future-inhalt" />
+          <ui:Label name="platz-future-hinweis" class="platz__hinweis" text="150 % — nach dem Gegner" />
+        </ui:VisualElement>
       </ui:VisualElement>
-      <ui:Label name="gegner-absicht" class="gegner__absicht" text="" />
+
+      <ui:Label name="vorschau" class="vorschau" text="" />
+      <ui:Label name="vorschau-hinweis" class="vorschau__hinweis" text="" />
+      <ui:Label name="protokoll" class="protokoll" text="" />
+
+      <ui:VisualElement name="pakt" class="pakt" style="display: none;">
+        <ui:Label name="pakt-text" class="pakt__text" text="" />
+        <ui:VisualElement class="pakt__knoepfe">
+          <ui:Button name="pakt-ja" class="knopf knopf--pakt" text="UNTERSCHREIBEN" />
+          <ui:Button name="pakt-nein" class="knopf knopf--zweitrangig" text="ABLEHNEN" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+
+      <ui:VisualElement name="hand" class="hand" />
+      <ui:Button name="ausfuehren" class="knopf knopf--automat" text="SCHICKSAL AUSFÜHREN" />
+      <ui:Label name="toast" class="toast" text="" style="display: none;" />
+
+      <ui:VisualElement name="overlay" class="overlay" style="display: none;">
+        <ui:Label name="overlay-titel" class="overlay__titel" text="" />
+        <ui:Label name="overlay-untertitel" class="overlay__untertitel" text="" />
+        <ui:VisualElement name="overlay-reihe" class="overlay__reihe" />
+        <ui:VisualElement name="overlay-knoepfe" />
+      </ui:VisualElement>
     </ui:VisualElement>
 
-    <!-- 2. Spielerleiste -->
-    <ui:VisualElement class="leiste">
-      <ui:Label name="spieler-hp" class="leiste__wert" text="—" />
-      <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
-      <ui:Label name="spieler-fate" class="leiste__wert leiste__wert--fate" text="0 Fate" />
-      <ui:Label name="spieler-luck" class="leiste__wert leiste__wert--gedaempft" text="Luck 0" />
-      <ui:Label name="spieler-dunkel" class="leiste__wert leiste__wert--dunkel" text="" />
+    <ui:VisualElement name="boss-titelkarte" class="bosskarte" picking-mode="Ignore" style="display: none;">
+      <ui:Label class="bosskarte__vor" text="HEUTE IM LICHTSPIELHAUS" />
+      <ui:Label name="boss-titel" class="bosskarte__titel" text="" />
+      <ui:Label name="boss-regel" class="bosskarte__regel" text="" />
     </ui:VisualElement>
 
-    <ui:VisualElement name="charmleiste" class="charmleiste" />
-
-    <!-- 3. Die Legung -->
-    <ui:VisualElement name="legung" class="legung">
-      <ui:VisualElement name="platz-past" class="platz">
-        <ui:Label class="platz__titel" text="VERGANGENHEIT" />
-        <ui:VisualElement name="platz-past-inhalt" />
-        <ui:Label name="platz-past-hinweis" class="platz__hinweis" text="90 % — Vorbereitung" />
-      </ui:VisualElement>
-      <ui:VisualElement name="platz-present" class="platz">
-        <ui:Label class="platz__titel" text="GEGENWART" />
-        <ui:VisualElement name="platz-present-inhalt" />
-        <ui:Label name="platz-present-hinweis" class="platz__hinweis" text="100 % — sicher" />
-      </ui:VisualElement>
-      <ui:VisualElement name="platz-future" class="platz">
-        <ui:Label class="platz__titel" text="ZUKUNFT" />
-        <ui:VisualElement name="platz-future-inhalt" />
-        <ui:Label name="platz-future-hinweis" class="platz__hinweis" text="150 % — nach dem Gegner" />
-      </ui:VisualElement>
-    </ui:VisualElement>
-
-    <ui:Label name="vorschau" class="vorschau" text="" />
-    <!-- Beinahe-Treffer: "Die 7 der Kelche vollendet DIE WELT". -->
-    <ui:Label name="vorschau-hinweis" class="vorschau__hinweis" text="" />
-    <ui:Label name="protokoll" class="protokoll" text="" />
-
-    <!-- Der Teufel verhandelt - mitten im Kampf, ohne Overlay. -->
-    <ui:VisualElement name="pakt" class="pakt" style="display: none;">
-      <ui:Label name="pakt-text" class="pakt__text" text="" />
-      <ui:VisualElement class="pakt__knoepfe">
-        <ui:Button name="pakt-ja" class="knopf knopf--pakt" text="UNTERSCHREIBEN" />
-        <ui:Button name="pakt-nein" class="knopf knopf--zweitrangig" text="ABLEHNEN" />
-      </ui:VisualElement>
-    </ui:VisualElement>
-
-    <!-- 4. Hand und Aktion -->
-    <ui:VisualElement name="hand" class="hand" />
-    <ui:Button name="ausfuehren" class="knopf" text="SCHICKSAL AUSFÜHREN" />
-
-    <!-- Kurze Einblendung: erfuellte Prophezeiung, neuer Rekord. -->
-    <ui:Label name="toast" class="toast" text="" style="display: none;" />
-
-    <!-- Overlay fuer Titel, Belohnung, Weg, Haendler, Ritual, Orakel,
-         Ereignis, Omen-Beute, Rast, Sieg und Run-Bericht -->
-    <ui:VisualElement name="overlay" class="overlay" style="display: none;">
-      <ui:Label name="overlay-titel" class="overlay__titel" text="" />
-      <ui:Label name="overlay-untertitel" class="overlay__untertitel" text="" />
-      <ui:VisualElement name="overlay-reihe" class="overlay__reihe" />
-      <ui:VisualElement name="overlay-knoepfe" />
-    </ui:VisualElement>
-
+    <ui:VisualElement name="film-vignette" class="film film--vignette" picking-mode="Ignore" />
+    <ui:VisualElement name="film-grain" class="film film--grain" picking-mode="Ignore" />
+    <ui:VisualElement name="film-scratch" class="film film--scratch" picking-mode="Ignore" />
   </ui:VisualElement>
 </ui:UXML>

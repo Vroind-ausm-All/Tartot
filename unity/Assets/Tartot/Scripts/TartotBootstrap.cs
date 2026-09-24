@@ -4,16 +4,12 @@ using UnityEngine.UIElements;
 namespace Tartot.Unity
 {
     /// <summary>
-    /// Baut das Spiel aus jeder beliebigen Szene auf, damit man zum
-    /// Ausprobieren nichts konfigurieren muss: Play druecken genuegt.
+    /// Startet TARTOT aus jeder Szene. Fuer den Prototypen ist deshalb keine
+    /// von Hand verdrahtete Startszene und kein PanelSettings-Asset noetig.
     /// </summary>
-    /// <remarks>
-    /// Fuer den Produktionsbuild gehoert stattdessen eine richtige Szene mit
-    /// einem vorbereiteten UIDocument angelegt - dann kann dieses Skript weg.
-    /// </remarks>
     public static class TartotBootstrap
     {
-        private const string UxmlPath = "Tartot/Tartot";      // Assets/Resources/...
+        private const string UxmlPath = "Tartot/Tartot";
         private const string PanelSettingsPath = "Tartot/TartotPanelSettings";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -22,14 +18,21 @@ namespace Tartot.Unity
             if (Object.FindObjectOfType<TartotView>() != null) return;
 
             var tree = Resources.Load<VisualTreeAsset>(UxmlPath);
-            var settings = Resources.Load<PanelSettings>(PanelSettingsPath);
-            if (tree == null || settings == null)
+            if (tree == null)
             {
-                Debug.LogWarning(
-                    "Tartot: UXML oder PanelSettings nicht unter Assets/Resources/Tartot gefunden. " +
-                    "Ruf im Editor einmal Tartot → Projekt einrichten auf, oder lege von Hand " +
-                    "eine Szene mit UIDocument und TartotView an (siehe docs/UNITY.md).");
+                Debug.LogError("Tartot: Assets/Resources/Tartot/Tartot.uxml fehlt.");
                 return;
+            }
+
+            var settings = Resources.Load<PanelSettings>(PanelSettingsPath);
+            if (settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<PanelSettings>();
+                settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+                settings.referenceResolution = new Vector2Int(270, 480);
+                settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+                settings.match = 1f;
+                Debug.Log("Tartot: PanelSettings zur Laufzeit erzeugt (270x480, Point-Art-Prototyp).");
             }
 
             var host = new GameObject("Tartot");
@@ -39,6 +42,7 @@ namespace Tartot.Unity
             document.panelSettings = settings;
             document.visualTreeAsset = tree;
             host.AddComponent<TartotView>();
+            host.AddComponent<TartotPresentation>();
         }
     }
 }

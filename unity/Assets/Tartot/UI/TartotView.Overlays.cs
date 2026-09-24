@@ -268,6 +268,7 @@ namespace Tartot.Unity
             var picture = new VisualElement();
             picture.AddToClassList("szene__bild");
             picture.AddToClassList("szene--" + scene.Art);
+            picture.style.backgroundImage = new StyleBackground(TartotPixelArt.Scene(scene.Art));
             _overlayRow.Add(picture);
 
             var beats = scene.BeatsFor(_game.Run);
