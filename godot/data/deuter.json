@@ -1,0 +1,107 @@
+{
+ "_hinweis": "Die Deuter sind die spielbaren Charaktere. Jeder gibt dem Run eine andere Grundregel und ein anderes Startdeck - das ist der wichtigste Wiederspiel-Hebel neben den Arkana.",
+ "deuter": [
+  {
+   "id": "wahrsagerin",
+   "name": "Die Wahrsagerin",
+   "untertitel": "Sie liest, was ohnehin geschieht.",
+   "freigeschaltet": true,
+   "hp": 70,
+   "gold": 55,
+   "faden_start": 2,
+   "regel": "",
+   "regeltext": "Keine Sonderregel. Der ehrliche Weg.",
+   "deck": [
+    "schwerter_02", "schwerter_02", "schwerter_03", "schwerter_04",
+    "muenzen_02", "muenzen_03", "muenzen_03",
+    "kelche_02", "kelche_04",
+    "staebe_03"
+   ]
+  },
+  {
+   "id": "aderleser",
+   "name": "Der Aderleser",
+   "untertitel": "Er braucht dein Blut, nicht deine Zukunft.",
+   "freigeschaltet": true,
+   "hp": 58,
+   "gold": 45,
+   "faden_start": 3,
+   "regel": "umgekehrt_faden",
+   "regeltext": "Jede umgekehrt gelegte Karte gibt +1 Schicksalsfaden statt maximal einem pro Zug.",
+   "start_charms": ["klingenanhaenger"],
+   "deck": [
+    "schwerter_02", "schwerter_03", "schwerter_04", "schwerter_05",
+    "schwerter_06", "muenzen_02", "muenzen_03",
+    "kelche_02", "staebe_02", "staebe_04"
+   ]
+  },
+  {
+   "id": "traumtrinkerin",
+   "name": "Die Traumtrinkerin",
+   "untertitel": "Sie heilt, bis die Heilung selbst gefaehrlich wird.",
+   "freigeschaltet": true,
+   "hp": 84,
+   "gold": 50,
+   "faden_start": 2,
+   "regel": "ueberheilung_traum_verstaerkt",
+   "regeltext": "Ueberheilung wird zu Traum mit 150 %. Traum kann Karten verdoppeln.",
+   "start_charms": ["kelchrand"],
+   "deck": [
+    "kelche_02", "kelche_03", "kelche_04", "kelche_06",
+    "schwerter_02", "schwerter_03", "muenzen_03", "muenzen_04",
+    "staebe_02", "staebe_03"
+   ]
+  },
+  {
+   "id": "buchhalter",
+   "name": "Der Buchhalter",
+   "untertitel": "Er notiert jeden Treffer. Auch deine.",
+   "freigeschaltet": false,
+   "freischalten_durch": "Beende einen Kampf mit 40 Schild.",
+   "hp": 66,
+   "gold": 95,
+   "faden_start": 2,
+   "regel": "schild_rest_20",
+   "regeltext": "20 % deines Schildes bleibt zwischen den Runden bestehen. Loeschen kostet doppelt.",
+   "start_charms": ["eiserne_muenze", "siegel_des_herrschers"],
+   "deck": [
+    "muenzen_02", "muenzen_03", "muenzen_04", "muenzen_05", "muenzen_06",
+    "schwerter_03", "schwerter_04", "kelche_03", "staebe_02", "staebe_03"
+   ]
+  },
+  {
+   "id": "verbrannte",
+   "name": "Der Verbrannte",
+   "untertitel": "Er hat die Karten schon einmal angezuendet.",
+   "freigeschaltet": false,
+   "freischalten_durch": "Verursache 60 Glut-Schaden in einem Kampf.",
+   "hp": 54,
+   "gold": 50,
+   "faden_start": 2,
+   "regel": "glut_ueberall",
+   "regeltext": "Glut sinkt nicht mehr, sondern bleibt. Du kannst nicht heilen, nur Schild aufbauen.",
+   "start_charms": ["glutknoten", "glutknoten", "messingstab"],
+   "deck": [
+    "staebe_02", "staebe_03", "staebe_04", "staebe_05", "staebe_06",
+    "schwerter_03", "muenzen_03", "muenzen_04", "muenzen_05", "schwerter_02"
+   ]
+  },
+  {
+   "id": "leeres_blatt",
+   "name": "Das leere Blatt",
+   "untertitel": "Nichts steht darauf. Noch nicht.",
+   "freigeschaltet": false,
+   "freischalten_durch": "Beende einen Run mit einem Deck aus 8 oder weniger Karten.",
+   "hp": 44,
+   "gold": 40,
+   "faden_start": 4,
+   "regel": "vier_legungen",
+   "regeltext": "Du darfst 4 Karten pro Zug legen - aber dein Deck startet mit nur 6 Karten und du beginnst mit 1 Verderbnis.",
+   "verderbnis_start": 1,
+   "deck": [
+    "schwerter_04", "schwerter_05", "muenzen_04", "kelche_04",
+    "staebe_04", "staebe_05"
+   ]
+  }
+ ]
+}

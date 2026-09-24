@@ -1,0 +1,254 @@
+{
+ "_hinweis": "Generiert von tools/gen_charms_items.py.",
+ "items": [
+  {
+   "nr": 1,
+   "id": "spiegelscherbe",
+   "name": "Spiegelscherbe",
+   "selten": "SELTEN",
+   "text": "Erstelle permanent eine Kopie einer normalen Karte.",
+   "wo": "karte",
+   "regel": "kopie_permanent"
+  },
+  {
+   "nr": 2,
+   "id": "schere_des_schicksals",
+   "name": "Schere des Schicksals",
+   "selten": "SELTEN",
+   "text": "Loesche permanent eine Karte aus deinem Deck.",
+   "wo": "karte",
+   "regel": "loeschen_permanent"
+  },
+  {
+   "nr": 3,
+   "id": "schwarzes_wachs",
+   "name": "Schwarzes Wachs",
+   "selten": "GEMEIN",
+   "text": "Drehe eine Karte permanent aufrecht oder umgekehrt.",
+   "wo": "karte",
+   "regel": "drehen_permanent"
+  },
+  {
+   "nr": 4,
+   "id": "goldene_nadel",
+   "name": "Goldene Nadel",
+   "selten": "SELTEN",
+   "text": "Verbessere eine Karte permanent.",
+   "wo": "karte",
+   "regel": "aufwerten_permanent"
+  },
+  {
+   "nr": 5,
+   "id": "orakellinse",
+   "name": "Orakellinse",
+   "selten": "GEMEIN",
+   "text": "Sieh die naechsten 5 Karten und ordne sie neu.",
+   "wo": "kampf",
+   "ops": [
+    {
+     "op": "spaehen",
+     "wert": 5
+    }
+   ]
+  },
+  {
+   "nr": 6,
+   "id": "sonnenphiole",
+   "name": "Sonnenphiole",
+   "selten": "GEMEIN",
+   "text": "Heile sofort 15 HP.",
+   "wo": "immer",
+   "ops": [
+    {
+     "op": "heilung",
+     "wert": 15,
+     "unskaliert": true
+    }
+   ]
+  },
+  {
+   "nr": 7,
+   "id": "mondsalz",
+   "name": "Mondsalz",
+   "selten": "SELTEN",
+   "text": "Entferne alle Debuffs und enthuelle 3 Gegneraktionen.",
+   "wo": "kampf",
+   "ops": [
+    {
+     "op": "debuff_weg",
+     "wert": 9
+    },
+    {
+     "op": "absicht_zeigen",
+     "wert": 3
+    }
+   ]
+  },
+  {
+   "nr": 8,
+   "id": "turmpulver",
+   "name": "Turmpulver",
+   "selten": "SELTEN",
+   "text": "20 Schaden an allen Gegnern; dein Schild wird zerstoert.",
+   "wo": "kampf",
+   "ops": [
+    {
+     "op": "schaden",
+     "wert": 20,
+     "alle": true,
+     "unskaliert": true
+    },
+    {
+     "op": "spezial",
+     "id": "turm_schild_null"
+    }
+   ]
+  },
+  {
+   "nr": 9,
+   "id": "teufelspakt",
+   "name": "Teufelspakt",
+   "selten": "VERKEHRT",
+   "text": "Der naechste Haendlerkauf kostet 0 Gold; du erhaeltst dafuer einen Fluch.",
+   "wo": "run",
+   "regel": "teufelspakt"
+  },
+  {
+   "nr": 10,
+   "id": "band_der_liebenden",
+   "name": "Band der Liebenden",
+   "selten": "ARKAN",
+   "text": "Verbinde zwei Karten fuer die naechsten 3 Kaempfe.",
+   "wo": "run",
+   "regel": "band"
+  },
+  {
+   "nr": 11,
+   "id": "strick_des_gehaengten",
+   "name": "Strick des Gehaengten",
+   "selten": "SELTEN",
+   "text": "Ueberspringe eine gegnerische Aktion; dein naechster Zug hat nur 2 Kartenaktionen.",
+   "wo": "kampf",
+   "ops": [
+    {
+     "op": "spezial",
+     "id": "gegner_zug_ueberspringen"
+    },
+    {
+     "op": "legungen_naechster_zug",
+     "wert": 2
+    }
+   ]
+  },
+  {
+   "nr": 12,
+   "id": "pentakelbeutel",
+   "name": "Pentakelbeutel",
+   "selten": "GEMEIN",
+   "text": "Sofort +40 Gold.",
+   "wo": "immer",
+   "ops": [
+    {
+     "op": "gold",
+     "wert": 40
+    }
+   ]
+  },
+  {
+   "nr": 13,
+   "id": "knochenschluessel",
+   "name": "Knochenschluessel",
+   "selten": "SELTEN",
+   "text": "Oeffnet eine verschlossene Truhe oder einen geheimen Weg.",
+   "wo": "run",
+   "regel": "schluessel"
+  },
+  {
+   "nr": 14,
+   "id": "haendlermarke",
+   "name": "Haendlermarke",
+   "selten": "GEMEIN",
+   "text": "Erneuere das komplette Haendlerangebot kostenlos.",
+   "wo": "laden",
+   "regel": "laden_reroll"
+  },
+  {
+   "nr": 15,
+   "id": "aschephiole",
+   "name": "Aschephiole",
+   "selten": "ARKAN",
+   "text": "Bei Tod automatisch verbraucht: Wiederbelebung mit 25 % HP.",
+   "wo": "passiv",
+   "regel": "wiederbelebung"
+  },
+  {
+   "nr": 16,
+   "id": "sternenwasser",
+   "name": "Sternenwasser",
+   "selten": "SELTEN",
+   "text": "+1 Luck fuer den Rest des Abschnitts.",
+   "wo": "immer",
+   "ops": [
+    {
+     "op": "luck",
+     "wert": 1,
+     "dauerhaft": true
+    }
+   ]
+  },
+  {
+   "nr": 17,
+   "id": "siegel_des_kaisers",
+   "name": "Siegel des Kaisers",
+   "selten": "SELTEN",
+   "text": "Beginne die naechsten 3 Kaempfe mit 12 Schild.",
+   "wo": "run",
+   "regel": "kaisersiegel"
+  },
+  {
+   "nr": 18,
+   "id": "tinte_der_priesterin",
+   "name": "Tinte der Priesterin",
+   "selten": "SELTEN",
+   "text": "Verwandle eine Karte in eine zufaellige Karte derselben Farbe und Seltenheit.",
+   "wo": "karte",
+   "regel": "verwandeln"
+  },
+  {
+   "nr": 19,
+   "id": "radmarke",
+   "name": "Radmarke",
+   "selten": "GEMEIN",
+   "text": "Wuerfle eine Kartenbelohnung oder ein Ereignis komplett neu.",
+   "wo": "belohnung",
+   "regel": "belohnung_reroll"
+  },
+  {
+   "nr": 20,
+   "id": "weltenkompass",
+   "name": "Weltenkompass",
+   "selten": "ARKAN",
+   "text": "Zeige alle kommenden Raeume des Abschnitts und waehle frei den naechsten.",
+   "wo": "run",
+   "regel": "kompass"
+  },
+  {
+   "nr": 21,
+   "id": "laterne_des_eremiten",
+   "name": "Laterne des Eremiten",
+   "selten": "SELTEN",
+   "text": "Entferne eine Fluchkarte permanent.",
+   "wo": "karte",
+   "regel": "fluch_entfernen"
+  },
+  {
+   "nr": 22,
+   "id": "glocke_des_gerichts",
+   "name": "Glocke des Gerichts",
+   "selten": "MYTHOS",
+   "text": "Hole eine zuvor geloeschte Karte als verbesserte Version zurueck ins Deck.",
+   "wo": "run",
+   "regel": "gericht_glocke"
+  }
+ ]
+}
