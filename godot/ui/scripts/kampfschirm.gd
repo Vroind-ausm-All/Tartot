@@ -28,6 +28,9 @@ var _knopf: Button
 var _protokoll: Label
 var _gewaehlt: Kartenblatt = null
 var _faden_leiste: HBoxContainer
+var _turm: TurmBoss = null
+var _turm_phase2_gespielt := false
+var _sfx: AudioStreamPlayer
 
 func _init(p_kampf: Kampf, p_katalog: Katalog) -> void:
 	kampf = p_kampf
@@ -101,7 +104,14 @@ func _ready() -> void:
 	_knopf.pressed.connect(_ausfuehren)
 	wurzel.add_child(_knopf)
 
+	_sfx = AudioStreamPlayer.new()
+	_sfx.volume_db = -2.0
+	add_child(_sfx)
+
 	auffrischen()
+	if _turm != null:
+		_turm.play_intro()
+		_turm_ton("intro")
 
 func _trennlinie() -> Control:
 	var c := ColorRect.new()
@@ -154,18 +164,58 @@ func _hand_angetippt(blatt: Kartenblatt) -> void:
 func _ausfuehren() -> void:
 	if kampf.vorbei():
 		return
+	_knopf.disabled = true
 	var vorher: int = kampf.log.size()
+	var ereignisse_vorher: int = kampf.ereignisse.size()
+	var turm_hp_vorher := -1
+	if _ist_turm() and not kampf.gegner.is_empty():
+		turm_hp_vorher = kampf.gegner[0].hp
+
 	kampf.ausfuehren()
 	_gewaehlt = null
 	auffrischen()
+
 	var neu: Array[String] = []
 	for i in range(vorher, kampf.log.size()):
 		neu.append(kampf.log[i])
 	_protokoll.text = "\n".join(neu.slice(maxi(0, neu.size() - 2)))
+
+	if _turm != null and not kampf.gegner.is_empty():
+		var turm: Kaempfer = kampf.gegner[0]
+		var positionssturz := false
+		for i in range(ereignisse_vorher, kampf.ereignisse.size()):
+			var e: Dictionary = kampf.ereignisse[i]
+			if String(e.get("name", "")) == "position_zerstoert":
+				positionssturz = true
+
+		if turm_hp_vorher >= 0 and turm.hp < turm_hp_vorher:
+			if turm.tot:
+				_turm_ton("death")
+				await _turm.play_death()
+			else:
+				var harter_treffer := turm_hp_vorher - turm.hp >= 12
+				_turm_ton("break" if harter_treffer else "hit")
+				await _turm.play_hit(harter_treffer)
+
+		if not turm.tot and not _turm_phase2_gespielt and turm.hp <= int(turm.hp_max / 2):
+			_turm_phase2_gespielt = true
+			_turm_ton("phase2")
+			await _turm.play_phase_two()
+
+		if positionssturz and not turm.tot:
+			_turm_ton("lightning")
+			await _turm.play_collapse()
+
+		if not turm.tot and not kampf.vorbei():
+			_turm_ton("hit")
+			await _turm.play_attack()
+
 	if kampf.vorbei():
 		_knopf.text = "SIEG" if kampf.gewonnen() else "GEFALLEN"
 		_knopf.disabled = true
 		kampf_vorbei.emit(kampf.gewonnen())
+	else:
+		_knopf.disabled = false
 
 # ------------------------------------------------------------- Darstellung
 func auffrischen() -> void:
@@ -177,21 +227,44 @@ func auffrischen() -> void:
 	_hand_zeichnen()
 
 func _gegner_zeichnen() -> void:
+	_turm = null
 	for kind in _gegner_box.get_children():
 		kind.queue_free()
 	for i in kampf.gegner.size():
 		var g: Kaempfer = kampf.gegner[i]
 		if g.tot:
 			continue
-		# Platzhalter fuer die animierte Cartoon-Silhouette.
-		var silhouette := Thema.label("▲", 92, Thema.ELFENBEIN)
-		_gegner_box.add_child(silhouette)
-		_gegner_box.add_child(Thema.label(g.name.to_upper(), 34, Thema.ELFENBEIN))
+		if _ist_turm(i):
+			var center := CenterContainer.new()
+			center.custom_minimum_size.y = 400
+			_turm = TurmBoss.new()
+			_turm.phase_two = _turm_phase2_gespielt or g.hp <= int(g.hp_max / 2)
+			center.add_child(_turm)
+			_gegner_box.add_child(center)
+			_gegner_box.add_child(Thema.label("XVI · DER TURM", 34, Thema.ELFENBEIN))
+			_gegner_box.add_child(Thema.label(
+				"DER TURM: Positionen stuerzen ein.", 23, Thema.BLUT,
+				HORIZONTAL_ALIGNMENT_CENTER, true))
+		else:
+			var silhouette := Thema.label("▲", 92, Thema.ELFENBEIN)
+			_gegner_box.add_child(silhouette)
+			_gegner_box.add_child(Thema.label(g.name.to_upper(), 34, Thema.ELFENBEIN))
 		_gegner_box.add_child(Thema.label("%d / %d HP" % [g.hp, g.hp_max], 30, Thema.BLUT))
 		_gegner_box.add_child(Thema.label("Naechster Zug: %s" % kampf.absicht_text(i), 26, Thema.OCKER))
 		var st: String = g.status_text()
 		if st != "":
 			_gegner_box.add_child(Thema.label(st, 22, Thema.GRAU))
+
+func _ist_turm(index: int = 0) -> bool:
+	if index < 0 or index >= kampf.gegner_def.size():
+		return false
+	return String(kampf.gegner_def[index].get("id", "")) == "boss_turm"
+
+func _turm_ton(name: String) -> void:
+	if _sfx == null:
+		return
+	_sfx.stream = TurmAudio.cue(name)
+	_sfx.play()
 
 func _spieler_zeichnen() -> void:
 	for kind in _spielerleiste.get_children():
