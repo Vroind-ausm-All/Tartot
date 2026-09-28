@@ -339,7 +339,7 @@ den Simulationsaufruf ersetzt.
 
 ## 5. Regressionsschutz
 
-**246 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
+**247 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
 Defekt ein eigener Test:
 
 - **Determinismus**: gleicher Seed → identischer Run, auch über Ereignisse

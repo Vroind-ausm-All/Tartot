@@ -65,10 +65,12 @@ unity/Assets/Tartot/
   Scripts/         Bootstrap
 src/
   Tartot.Core/     csproj, das dieselben Core-Quellen verlinkt (eine Kopie!)
-  Tartot.Tests/    xunit — 246 Tests
+  Tartot.Tests/    xunit — 247 Tests
   Tartot.Sim/      Balancing-Simulation
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
+  blender/              Blockouts aller Gegner und Charms (headless, Pixel-Render)
+assets/blockout/   gerenderte Sprites, Kontaktbögen, .blend-Bibliotheken
 reference/godot/   frühere Godot-Umsetzung, dient als Regelreferenz
 docs/
 ```
@@ -86,7 +88,7 @@ auseinanderlaufen.
 # Alles bauen
 dotnet build
 
-# Tests (246)
+# Tests (247)
 dotnet test src/Tartot.Tests
 
 # Balancing: 400 komplette Runs spielen, Kurve je Kampf und Statistik
@@ -117,11 +119,13 @@ inklusive Weg von Hand und was ungeprüft ist, in
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Entscheidungen und warum |
 | [`docs/BALANCING.md`](docs/BALANCING.md) | Formeln, gemessene Zahlen, Befunde |
 | [`docs/UNITY.md`](docs/UNITY.md) | Unity-Einrichtung und was ungeprüft ist |
+| [`tools/blender/README.md`](tools/blender/README.md) | Blender-Blockouts: Baukasten, Pixel-Render, Konturen |
+| [`docs/entwuerfe/`](docs/entwuerfe/) | UI-Entwürfe im Pixellook (Kampf gegen den Turm, Omen-Beute) |
 | [`reference/godot/README.md`](reference/godot/ README.md) | frühere Godot-Umsetzung |
 
 ## Stand
 
-Der Regelkern ist geprüft: **246 Tests**, 400 Runs ohne Absturz, Speichern
+Der Regelkern ist geprüft: **247 Tests**, 400 Runs ohne Absturz, Speichern
 und Laden mitten im Bosskampf und mitten in einer Szene, reproduzierbare
 Seeds. Was fehlt, ist überwiegend Kunst, Animation und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).
