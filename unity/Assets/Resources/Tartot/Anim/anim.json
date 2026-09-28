@@ -1,0 +1,372 @@
+{
+ "augensammlerin": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "blutorgel": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "boss_gehaengter": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "boss_hierophant": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "attack2": 6,
+   "attack3": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "boss_maessigkeit": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "attack2": 6,
+   "attack3": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8,
+   "summon": 6
+  }
+ },
+ "boss_mond": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "attack2": 6,
+   "attack3": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8,
+   "summon": 6
+  }
+ },
+ "boss_rad": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "boss_sonne": {
+  "fps": 12,
+  "size": 220,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "attack2": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8,
+   "summon": 6,
+   "supernova": 8
+  }
+ },
+ "boss_teufel": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "attack2": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8,
+   "summon": 6
+  }
+ },
+ "boss_tod": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "boss_turm": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "attack1": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "boss_welt": {
+  "fps": 12,
+  "size": 220,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "fette_ratte": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "gerichtsdiener": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "henker_verkehrt": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "hutmann": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "kartenspieler": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "kelchtrinker": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "kleiner_mond": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "lachender_henker": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "laecheln_ohne_gesicht": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "mondfresser": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "muenzmaul": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "nadelwitwe": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "papierpriester": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "schreiende_klinge": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "sieben_finger": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "sonnenkind": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "spiegelschwester": {
+  "fps": 12,
+  "size": 140,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "uhrenwurm": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "wachsbote": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "weltenwurm": {
+  "fps": 12,
+  "size": 200,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4,
+   "phase2": 8
+  }
+ },
+ "zahnmuenze": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ },
+ "zwillingsschatten": {
+  "fps": 12,
+  "size": 120,
+  "states": {
+   "attack": 6,
+   "death": 8,
+   "hit": 3,
+   "idle": 4
+  }
+ }
+}

@@ -427,20 +427,38 @@ def henker_verkehrt(k):
     k.hose([(0.2, 0, 2.5), (0.2, 0, 2.88)], 0.025, "s1")
 
 
-def rote_sonne(k):
-    """Sie geht nicht unter. Sie wartet nur, bis du muede wirst."""
+def _sonne(k, z, r, rays, angry, face_mat="blood", ray_mat="gold"):
+    for i in range(rays):
+        a = 2 * math.pi * i / rays
+        l = r * (0.45 if i % 2 else 0.62)
+        p = Vector((math.cos(a) * (r + l / 2), 0.05, z + math.sin(a) * (r + l / 2)))
+        k.cyl(p, r * 0.2, l, ray_mat, r2=0.0, rot=(0, math.pi / 2 - a, 0), name="strahl")
+    head(k, "sonne", (0, 0, z), r, face_mat)
+    face(k, "sonne", r * 0.28, r * 0.24, r * 0.28, 0.0, r * 1.1, r * 0.5, look=(0, -0.2), teeth=10, lower=7,
+         angry=angry, curve=0.2)
+    k.cyl((0, -r * 0.62, z + r * 0.16), r * 0.08, r * 0.14, "ember", rot=(R(90), 0, 0), name="nase")
+
+
+def sonnenkind(k):
+    """Ein Splitter der roten Sonne. Er wartet nur, bis du muede wirst."""
     z = 1.1
-    for i in range(12):
-        a = 2 * math.pi * i / 12
-        l = 0.32 if i % 2 else 0.45
-        p = Vector((math.cos(a) * (0.72 + l / 2), 0.05, z + math.sin(a) * (0.72 + l / 2)))
-        k.cyl(p, 0.14, l, "gold", r2=0.0, rot=(0, math.pi / 2 - a, 0), name="strahl")
-    head(k, "sonne", (0, 0, z), 0.72, "blood")
-    face(k, "sonne", 0.2, 0.17, 0.2, 0.0, 0.8, 0.36, look=(0, -0.2), teeth=10, lower=7, angry=0.35, curve=0.2)
-    k.cyl((0, -0.45, z + 0.12), 0.06, 0.1, "ember", rot=(R(90), 0, 0), name="nase")
+    _sonne(k, z, 0.72, 12, 0.35)
     arm(k, (-0.6, 0, z - 0.4), (-1.1, -0.1, z - 0.9), pose="open", mat="ink2")
     arm(k, (0.6, 0, z - 0.4), (1.1, -0.1, z - 0.9), pose="open", mirror=True, mat="ink2")
 
+
+def boss_sonne(k):
+    """XIX - Sie brennt, um alles sichtbar zu machen - auch deinen Hochmut."""
+    z = 1.5
+    _sonne(k, z, 0.95, 16, 0.45)
+    arm(k, (-0.8, 0, z + 0.1), (-1.7, -0.1, z + 0.7), pose="open", mat="ink2", r=0.06, size=0.36)
+    arm(k, (0.8, 0, z - 0.3), (1.7, -0.1, z - 0.2), pose="wave", mirror=True, mat="ink2", r=0.06, size=0.36)
+    for x, zz in ((-1.3, 0.2), (1.35, 0.45)):
+        k.ball((x, -0.1, zz), 0.16, "gold2", name="kleine_sonne")
+        for i in range(6):
+            a = 2 * math.pi * i / 6
+            k.cyl((x + math.cos(a) * 0.23, -0.1, zz + math.sin(a) * 0.23), 0.05, 0.12, "gold",
+                  r2=0.0, rot=(0, math.pi / 2 - a, 0), name="strahlchen")
 
 def kartenspieler(k):
     """Er spielt deine Karten. Besser als du."""
@@ -527,6 +545,64 @@ def boss_mond(k):
             rr = s if i % 2 == 0 else s * 0.45
             pts.append((rr * math.cos(a), rr * math.sin(a)))
         k.poly(pts, (x, -0.2, zz), "flat_gold", depth=0.02, name="stern")
+
+
+def boss_hierophant(k):
+    """V - Glaube verbindet. Und fesselt."""
+    k.ball((0, 0.05, 0.25), (0.9, 0.55, 0.28), "paper", name="wolke")
+    for x in (-0.6, -0.2, 0.25, 0.62):
+        k.ball((x, -0.1, 0.32), 0.26, "paper", name="wolkenbausch")
+    k.cyl((0, 0, 1.05), 0.62, 1.3, "blood2", r2=0.3, name="gewand")
+    k.cyl((0, -0.05, 1.05), 0.36, 1.32, "paper", r2=0.2, name="alba")
+    k.box((0, -0.36, 1.05), (0.14, 0.02, 1.0), "gold", name="stola")
+    k.box((0, -0.38, 1.2), (0.3, 0.02, 0.08), "gold", name="stolakreuz")
+    k.cyl((0, 0, 1.62), 0.46, 0.2, "gold", r2=0.34, name="kragen")
+    head(k, "kopf", (0, -0.02, 1.95), (0.32, 0.3, 0.33), "paper")
+    face(k, "kopf", 0.08, 0.12, 0.12, -0.08, 0.5, 0.2, look=(0.3, 0.1), teeth=10, curve=0.3, lid=0.2, lid_mat="s1")
+    k.box((0, 0.02, 2.5), (0.5, 0.3, 0.7), "paper", name="mitra")
+    k.poly([(-0.25, 0), (0.25, 0), (0, 0.3)], (0, -0.13, 2.85), "paper", depth=0.28, name="mitraspitze")
+    k.box((0, -0.14, 2.52), (0.1, 0.01, 0.46), "blood", name="mitrakreuz")
+    k.box((0, -0.14, 2.6), (0.3, 0.01, 0.08), "blood", name="mitrabalken")
+    k.cyl((0, 0.02, 2.2), 0.26, 0.08, "gold", name="mitraband")
+    arm(k, (-0.4, 0, 1.45), (-0.85, -0.1, 1.95), pose="fist", size=0.3, mat="blood2")
+    k.cyl((-0.92, -0.14, 1.9), 0.04, 2.4, "gold", rot=(0, R(-12), 0), name="stab")
+    k.torus((-1.07, -0.14, 3.05), 0.16, 0.05, "gold", rot=(R(90), 0, 0), name="schluesselring")
+    k.torus((-1.2, -0.14, 3.2), 0.12, 0.04, "gold", rot=(R(90), 0, 0), name="schluesselring")
+    k.torus((-0.94, -0.14, 3.2), 0.12, 0.04, "gold", rot=(R(90), 0, 0), name="schluesselring")
+    arm(k, (0.4, 0, 1.45), (0.95, -0.1, 1.3), pose="open", mirror=True, size=0.3, mat="blood2")
+    for x in (-1.35, 1.4):
+        k.cyl((x, 0.1, 0.35), 0.18, 0.62, "paper", r2=0.02, name="akolyth")
+        k.ball((x, 0.02, 0.55), (0.1, 0.06, 0.1), "ink2", name="akolythgesicht")
+        k.ball((x - 0.04, -0.04, 0.57), 0.025, "paper", name="akolythauge")
+        k.ball((x + 0.04, -0.04, 0.57), 0.025, "paper", name="akolythauge")
+
+
+def boss_maessigkeit(k):
+    """XIV - Nicht zu viel. Nicht zu wenig. Genau richtig."""
+    for s, mat in ((-1, "paper"), (1, "ink2")):
+        for i in range(3):
+            k.ball((s * (0.7 + 0.28 * i), 0.3, 2.1 + 0.18 * i), (0.32, 0.08, 0.16), mat,
+                   rot=(0, s * R(25 + 12 * i), 0), name="fluegel")
+    k.ball((0, 0.05, 0.25), (0.9, 0.5, 0.26), "paper", name="wolke")
+    for x in (-0.55, 0.0, 0.55):
+        k.ball((x, -0.1, 0.34), 0.25, "paper", name="wolkenbausch")
+    k.cyl((0, 0, 1.1), 0.52, 1.3, "ink2", r2=0.28, name="gewand")
+    k.box((0, -0.3, 1.2), (0.3, 0.02, 0.9), "paper", name="latz")
+    k.box((0, -0.32, 1.3), (0.06, 0.01, 0.3), "blood", name="kreuz")
+    k.box((0, -0.32, 1.36), (0.18, 0.01, 0.06), "blood", name="kreuzbalken")
+    head(k, "kopf", (0, -0.02, 1.98), (0.32, 0.3, 0.33), "paper")
+    face(k, "kopf", 0.08, 0.12, 0.12, -0.08, 0.5, 0.22, look=(0, 0.1), teeth=10, curve=0.28)
+    k.torus((0, 0.08, 2.35), 0.34, 0.04, "gold", rot=(R(75), 0, 0), name="heiligenschein")
+    for i in range(10):
+        a = math.pi * (0.05 + 0.9 * i / 9)
+        k.cyl((math.cos(a) * 0.5, 0.12, 2.0 + math.sin(a) * 0.5), 0.05, 0.22, "gold", r2=0.0,
+              rot=(0, math.pi / 2 - a, 0), name="kronstrahl")
+    # zwei Kruege: Wasser links, Feuer rechts
+    for s, fluid in ((-1, "indigo2"), (1, "ember")):
+        arm(k, (s * 0.42, 0, 1.5), (s * 0.8, -0.2, 1.55), pose="fist", mirror=s > 0, size=0.26)
+        k.cyl((s * 0.95, -0.25, 1.45), 0.2, 0.36, "gold", r2=0.15, rot=(0, s * R(55), 0), name="krug")
+        k.hose([(s * 0.8, -0.3, 1.35), (s * 0.55, -0.35, 0.9), (s * 0.2, -0.4, 0.5)], 0.08, fluid)
+        k.ball((s * 0.35, -0.45, 0.35), (0.35, 0.2, 0.08), fluid, name="lache")
 
 
 def boss_tod(k):
@@ -704,15 +780,18 @@ FIGUREN = [
     ("spiegelschwester", "elite", spiegelschwester),
     ("muenzmaul", "elite", muenzmaul),
     ("henker_verkehrt", "elite", henker_verkehrt),
-    ("rote_sonne", "elite", rote_sonne),
+    ("sonnenkind", "elite", sonnenkind),
     ("kartenspieler", "elite", kartenspieler),
     ("boss_turm", "boss", boss_turm),
+    ("boss_hierophant", "boss", boss_hierophant),
     ("boss_mond", "boss", boss_mond),
     ("boss_tod", "boss", boss_tod),
     ("boss_rad", "boss", boss_rad),
     ("boss_teufel", "boss", boss_teufel),
     ("boss_gehaengter", "boss", boss_gehaengter),
+    ("boss_maessigkeit", "boss", boss_maessigkeit),
     ("boss_welt", "finale", boss_welt),
+    ("boss_sonne", "finale", boss_sonne),
     ("weltenwurm", "boss", weltenwurm),
 ]
 

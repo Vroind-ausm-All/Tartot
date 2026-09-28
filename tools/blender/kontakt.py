@@ -31,7 +31,7 @@ def names(kind):
     if kind == "figuren":
         text = open(os.path.join(CORE, "Acts.cs"), encoding="utf-8").read()
         pairs = re.findall(r'(?:E|Boss)\("([a-z_]+)", "([^"]+)"', text)
-        pairs += re.findall(r'"(boss_welt|weltenwurm)", "([^"]+)"', text)
+        pairs += re.findall(r'"(boss_welt|boss_sonne|weltenwurm)", "([^"]+)"', text)
     else:
         text = open(os.path.join(CORE, "GameCatalog.cs"), encoding="utf-8").read()
         pairs = re.findall(r'C\("([a-z_]+)","([^"]+)"', text)

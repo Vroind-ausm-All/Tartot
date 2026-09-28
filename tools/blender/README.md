@@ -71,3 +71,25 @@ gefährlich, obwohl es niedlich ist?) früh und billig. Sie ersetzen keine gezei
 
 Ein Artist kann die Sprites direkt übermalen oder die `.blend`-Dateien öffnen, Posen ändern und
 neu rendern. In Unity gehören die PNGs auf *Filter Mode: Point* und *Compression: None*.
+
+## Animationen (`anim.py`)
+
+```bash
+blender -b --factory-startup --python tools/blender/anim.py              # alle Figuren, ca. 4 Minuten
+blender -b --factory-startup --python tools/blender/anim.py -- --nur boss_mond
+```
+
+Jede Figur hängt an einem Drehpunkt an den Füßen. Die Zustände bewegen ihn mit Squash & Stretch
+(12 fps, „on twos“) und lassen Effektteile erscheinen:
+
+| Zustand | Bilder | Wer |
+|---|---|---|
+| `idle`, `attack`, `hit`, `death` | 4, 6, 3, 8 | alle Gegner |
+| `phase2` | 8 | Bosse (Rot-Blitzen beim Siegelbruch) |
+| `attack1`–`attack3`, `summon`, `supernova` | 6–8 | die Bosse aus den Boss-Blättern: Wasser/Feuer/Mischen/Quellen (Mäßigkeit), Segen/Akolythen/Strahl (Hierophant), Würfel/Kette/Diener (Teufel), Spiegel/Projektile/Illusion/Schatten (Mond), Strahlen/Rotation/Sonnen/Supernova (Sonne), Blitz (Turm) |
+
+Ausgabe: `assets/blockout/anim/<id>/<zustand>.png` (Streifen) und `.gif` (Vorschau), dazu eine Kopie
+nach `unity/Assets/Resources/Tartot/Anim/` samt Manifest `anim.json`. Im Spiel spielt
+`UI/EnemyStage.cs` die Streifen ab. Welche Animation ein Zug auslöst, entscheidet
+`Core/Combat/AnimationCues.cs` (getestet): Treffer → Phase 2 → Aktion des Gegners, oder Tod.
+`Editor/AnimImport.cs` stellt die Streifen beim Import auf Point-Filter ohne Kompression.

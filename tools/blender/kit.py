@@ -604,6 +604,34 @@ def _load(path):
     return arr.reshape(h, w, 4)[::-1]
 
 
+def frame_box(cam, lo, hi, size_px, pad=1.0, margin_px=4):
+    """Feste Kamera fuer Animationen: Box um die Ruhepose, mit Luft fuer Bewegung und Effekte."""
+    center = (lo + hi) / 2
+    w, h = (hi.x - lo.x) * pad, (hi.z - lo.z) * pad
+    cam.data.ortho_scale = max(w, h * 1.03) / ((size_px - 2 * margin_px) / size_px)
+    tilt = cam.rotation_euler.x
+    direction = Vector((0, math.sin(tilt), -math.cos(tilt)))
+    cam.location = center - direction * 30
+    cam.data.clip_end = 90
+
+
+def render_fixed(kit, cam, coll, size_px, tmpdir, outline=2):
+    """Ein Bild mit der aktuellen Kamera rendern und nachbearbeiten, ohne Speichern."""
+    scene = bpy.context.scene
+    scene.render.resolution_x = scene.render.resolution_y = size_px
+    for c in scene.collection.children:
+        c.hide_render = c is not coll
+    for f in os.listdir(tmpdir):
+        os.remove(os.path.join(tmpdir, f))
+    scene.render.filepath = os.path.join(tmpdir, "combined")
+    bpy.ops.render.render(write_still=False)
+    rgba = _load(os.path.join(tmpdir, "rgba0001.exr"))
+    ob = _load(os.path.join(tmpdir, "ob0001.exr"))[..., 0]
+    ma = _load(os.path.join(tmpdir, "ma0001.exr"))[..., 0]
+    z = _load(os.path.join(tmpdir, "z0001.exr"))[..., 0]
+    return postprocess(kit, rgba, ob, ma, z, outline)
+
+
 def render_sprite(kit, cam, coll, size_px, tmpdir, out_png, outline=2):
     scene = bpy.context.scene
     scene.render.resolution_x = scene.render.resolution_y = size_px

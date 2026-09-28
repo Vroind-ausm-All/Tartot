@@ -339,7 +339,7 @@ den Simulationsaufruf ersetzt.
 
 ## 5. Regressionsschutz
 
-**247 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
+**265 Tests** (`dotnet test src/Tartot.Tests`), darunter für jeden behobenen
 Defekt ein eigener Test:
 
 - **Determinismus**: gleicher Seed → identischer Run, auch über Ereignisse
@@ -359,3 +359,18 @@ Defekt ein eigener Test:
 - **Speichern/Laden**: mitten im Bosskampf mit allen Regelzuständen, mitten
   in einer Szene, in der Omen-Beute; Version-1-Stände laden weiter
 - **Scoring, Positionen, Haltung, Siegel, Umkehrpreis, Händler** (wie zuvor)
+
+## Bosse nach den Boss-Blättern (Stand nach der Übernahme)
+
+Hierophant (Akt I), Mond, Teufel und Mäßigkeit (Akt III) tragen die LP ihrer Blätter samt
+Phasen-LP; die rote Sonne ist das zweite mögliche Finale (Akt IV). 400 Runs, Schleier 0:
+
+| | vorher | jetzt |
+|---|---|---|
+| Siege | 34 % | 30 % |
+| Tode Akt I / II / III / Finale | 12 / 12 / 20 / 23 % | 16 / 11 / 21 / 23 % |
+
+Tod je Begegnung: Hierophant 17 %, Mäßigkeit 38 %, Teufel 24 %, Mond 5 %, Sonne 45 %, Welt 42 %.
+Die Mäßigkeit trifft den Autopiloten hart, weil er nicht auf Stab und Kelch achtet; ein
+Mensch liest die Regel. Die Regelwerte sind nach einer ersten Messung schon gesenkt
+(Schwächung 35 %, Spiegelung 15 %, Segen 4 Schild, Supernova 3 je Sonne).

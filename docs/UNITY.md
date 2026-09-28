@@ -6,7 +6,7 @@
 keine Unity-Installation. Geprüft ist:
 
 - `Tartot.Core` kompiliert gegen `netstandard2.1` (Unitys API-Ebene) mit
-  `TreatWarningsAsErrors`, und 247 Tests laufen grün
+  `TreatWarningsAsErrors`, und 265 Tests laufen grün
 - der Unity-Code kompiliert gegen Stubs der verwendeten Unity-Typen
   (`dotnet build tools/unity-syntax-check`)
 
@@ -101,7 +101,7 @@ Unity-Build, zeigt aber verlässlich, welche Werte wo landen.
 Der komplette Regelkern lässt sich ohne Unity prüfen und spielen lassen:
 
 ```bash
-dotnet test src/Tartot.Tests                                    # 247 Tests
+dotnet test src/Tartot.Tests                                    # 265 Tests
 dotnet run --project src/Tartot.Sim -c Release -- --runs=50     # 50 Runs durchspielen
 dotnet build tools/unity-syntax-check                           # Unity-Code auf Syntax prüfen
 ```

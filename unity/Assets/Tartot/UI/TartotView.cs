@@ -50,6 +50,7 @@ namespace Tartot.Unity
         // Zwischengespeicherte Elemente - Q<T>() ist zu teuer fuer jeden Frame.
         private VisualElement _root, _frame, _charmBar, _hand, _overlay, _overlayRow, _overlayButtons, _pact;
         private VisualElement _enemyHpBar, _enemyStanceBar;
+        private EnemyStage _stage;
         private Label _enemyName, _enemyRule, _enemyHp, _enemyStance, _enemyIntent;
         private Label _playerHp, _playerShield, _playerFate, _playerLuck, _playerDark, _playerTurn;
         private Label _preview, _previewHint, _log, _overlayTitle, _overlaySubtitle, _pactText, _toastLabel;
@@ -81,6 +82,7 @@ namespace Tartot.Unity
         {
             _frame = _root.Q<VisualElement>("wurzel");
             _enemyName = _root.Q<Label>("gegner-name");
+            _stage = new EnemyStage(_root.Q<VisualElement>("gegner-silhouette"));
             _enemyRule = _root.Q<Label>("gegner-regel");
             _enemyHp = _root.Q<Label>("gegner-hp");
             _enemyStance = _root.Q<Label>("gegner-haltung");
@@ -257,7 +259,12 @@ namespace Tartot.Unity
                 return;
             }
 
+            // Absicht und Runde vor dem Zug merken: danach wuerfelt der Gegner schon die naechste.
+            var enemyBefore = _game.Combat.Enemy;
+            var intentBefore = enemyBefore.Intent;
+            var roundBefore = _game.Combat.Turn;
             var turn = _game.ResolveTurn();
+            _stage.Queue(AnimationCues.ForTurn(turn, enemyBefore, intentBefore, roundBefore));
             _selected = null;
             // Vor dem Verbuchen: danach steckt der Run schon in den
             // Lebenszeit-Werten und wuerde doppelt zaehlen.
@@ -333,6 +340,7 @@ namespace Tartot.Unity
             var enemy = _game.Combat?.Enemy;
             if (enemy == null) return;
 
+            _stage.Show(enemy.Definition);
             _enemyName.text = enemy.Definition.Name.ToUpperInvariant();
             _enemyRule.text = string.Join("  ·  ", CombatSystem.ActiveRuleTexts(_game.Combat));
 

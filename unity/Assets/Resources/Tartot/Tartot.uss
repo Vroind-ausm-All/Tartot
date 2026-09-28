@@ -50,10 +50,20 @@
 }
 
 .gegner__silhouette {
-    width: 140px;
-    height: 140px;
-    background-color: var(--elfenbein);
-    /* Platzhalter fuer die animierte Cartoon-Silhouette. */
+    width: 200px;
+    height: 200px;
+}
+
+/* Fenster in Bildgroesse; das Streifen-Element darin wird pro Bild verschoben. */
+.gegner__buehne {
+    overflow: hidden;
+    align-self: center;
+}
+
+.gegner__streifen {
+    position: absolute;
+    top: 0;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 .gegner__name {
