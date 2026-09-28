@@ -409,6 +409,8 @@ namespace Tartot.Core
                 .Set("overkill", combat.LastOverkill)
                 .Set("blocked", combat.BlockedSlot.HasValue ? combat.BlockedSlot.Value.ToString() : string.Empty)
                 .Set("towerCollapses", combat.TowerCollapses)
+                .Set("acolytes", combat.Acolytes)
+                .Set("suns", combat.Suns)
                 .Set("veiled", WriteStrings(combat.VeiledCards.OrderBy(v => v, StringComparer.Ordinal)))
                 .Set("marked", combat.MarkedCardId ?? string.Empty)
                 .Set("markTurns", combat.MarkTurnsLeft)
@@ -442,7 +444,9 @@ namespace Tartot.Core
                 .Set("weakened", d.RulesWeakened)
                 .Set("omen", d.OmenCardId ?? string.Empty)
                 .Set("art", d.Art ?? string.Empty)
-                .Set("goldFactor", d.GoldFactor);
+                .Set("goldFactor", d.GoldFactor)
+                .Set("phaseHp", d.PhaseHp)
+                .Set("stage", d.Stage ?? string.Empty);
         }
 
         /// <summary>
@@ -466,7 +470,9 @@ namespace Tartot.Core
                 RulesWeakened = node.GetBool("weakened"),
                 OmenCardId = node.GetString("omen"),
                 Art = node.GetString("art"),
-                GoldFactor = node.GetFloat("goldFactor", 1f)
+                GoldFactor = node.GetFloat("goldFactor", 1f),
+                PhaseHp = node.GetInt("phaseHp"),
+                Stage = node.GetString("stage")
             };
             d.Pattern = node.GetArray("pattern")
                 .Where(v => v.Kind == JsonKind.String && Enum.TryParse<IntentType>(v.StringValue, out _))
@@ -530,6 +536,8 @@ namespace Tartot.Core
             var blocked = node.GetString("blocked");
             if (Enum.TryParse<SlotPosition>(blocked, out var blockedSlot)) combat.BlockedSlot = blockedSlot;
             combat.TowerCollapses = node.GetInt("towerCollapses");
+            combat.Acolytes = node.GetInt("acolytes");
+            combat.Suns = node.GetInt("suns");
             foreach (var id in ReadStrings(node, "veiled")) combat.VeiledCards.Add(id);
             combat.MarkedCardId = node.GetString("marked");
             combat.MarkTurnsLeft = node.GetInt("markTurns");

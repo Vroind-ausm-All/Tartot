@@ -22,7 +22,7 @@ namespace Tartot.Core
     /// Die Grundregel, die ein Boss bricht. Jeder Boss nimmt dir eine
     /// Selbstverstaendlichkeit weg - nicht mehr HP, sondern eine andere Frage.
     /// </summary>
-    public enum BossRule { None, Tower, Moon, Death, Wheel, Devil, HangedMan }
+    public enum BossRule { None, Tower, Moon, Death, Wheel, Devil, HangedMan, Temperance, Hierophant, Sun }
 
     /// <summary>Sonderregel eines Deuters (spielbare Figur).</summary>
     public enum DeuterRule { None, BloodReader, Bookkeeper, Hermit }

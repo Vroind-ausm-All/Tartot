@@ -149,6 +149,95 @@ namespace Tartot.Core
                 combat.MarkTurnsLeft = weak ? 4 : phase >= 1 ? 2 : 3;
                 result?.Log.Add($"Der Tod zeichnet {target.Definition.Name}. Noch {combat.MarkTurnsLeft} Runden.");
             }
+
+            if (HasRule(combat, BossRule.Hierophant))
+            {
+                var interval = weak ? 3 : phase >= 1 ? 1 : 2;
+                var max = weak ? 2 : phase >= 1 ? 5 : 3;
+                if (combat.Turn % interval == 0 && combat.Acolytes < max)
+                {
+                    combat.Acolytes++;
+                    result?.Log.Add($"Der Hierophant ruft einen Akolythen. Es sind {combat.Acolytes}.");
+                }
+                // In der zweiten Phase schlagen die Akolythen mit.
+                if (phase >= 1 && !weak && enemy.Intent != IntentType.Guard)
+                    enemy.IntentValue += AcolyteStrike * combat.Acolytes;
+            }
+
+            if (HasRule(combat, BossRule.Sun))
+            {
+                combat.Suns += phase >= 1 ? 2 : 1;
+                result?.Log.Add($"Eine neue Sonne geht auf. Es sind {combat.Suns}.");
+            }
+        }
+
+        // ------------------------------------------------------ Maessigkeit
+        public const float TemperanceHalf = .65f;
+        public const float TemperanceBalanceMult = .5f;
+        public const float TemperanceReflect = .15f;
+
+        /// <summary>Wasserrunden (ungerade) und Feuerrunden (gerade).</summary>
+        public static bool IsFireRound(CombatState combat) => combat.Turn % 2 == 0;
+
+        /// <summary>Stab ist Feuer, Kelch ist Wasser: das Element der Runde halbiert sein Gegenteil.</summary>
+        public static float TemperanceFactor(CombatState combat, CardInstance card)
+        {
+            if (!HasRule(combat, BossRule.Temperance)) return 1f;
+            var suit = card.Definition.Suit;
+            if (suit == Suit.Wands && !IsFireRound(combat)) return TemperanceHalf;
+            if (suit == Suit.Cups && IsFireRound(combat)) return TemperanceHalf;
+            return 1f;
+        }
+
+        /// <summary>Zweite Phase: wer beide Elemente legt, haelt das Gleichgewicht.</summary>
+        public static bool TemperanceMixing(CombatState combat) =>
+            HasRule(combat, BossRule.Temperance) && combat.Enemy.Phase >= 1 && !combat.Enemy.Definition.RulesWeakened;
+
+        public static bool IsBalanced(IEnumerable<CardInstance> cards)
+        {
+            var list = cards.ToList();
+            return list.Any(c => c.Definition.Suit == Suit.Wands) && list.Any(c => c.Definition.Suit == Suit.Cups);
+        }
+
+        // ------------------------------------------------------ Hierophant, Sonne
+        public const int AcolyteBlessing = 4;
+        public const int AcolyteStrike = 2;
+        public const int SupernovaAt = 4;
+        public const int SupernovaPerSun = 3;
+
+        /// <summary>Vor dem Gegnerzug: die Akolythen segnen ihn mit Schild.</summary>
+        private void ApplyBlessings(CombatState combat, TurnResult result)
+        {
+            if (!HasRule(combat, BossRule.Hierophant) || combat.Acolytes <= 0) return;
+            var shield = AcolyteBlessing * combat.Acolytes;
+            combat.Enemy.Shield += shield;
+            result.Log.Add($"{combat.Acolytes} Akolythen segnen den Hierophanten: +{shield} Schild.");
+        }
+
+        /// <summary>Nach dem Gegnerzug: vier Sonnen am Himmel werden zur Supernova.</summary>
+        private void CheckSupernova(RunState run, CombatState combat, TurnResult result)
+        {
+            if (!HasRule(combat, BossRule.Sun) || combat.Suns < SupernovaAt || combat.PlayerLost) return;
+            var damage = SupernovaPerSun * combat.Suns;
+            result.Log.Add($"SUPERNOVA – {combat.Suns} Sonnen verglühen.");
+            result.Supernova = true;
+            combat.Suns = 0;
+            TakePlayerDamage(run, combat, damage, result);
+        }
+
+        /// <summary>Gebrochene Haltung vertreibt Akolythen und loescht Sonnen.</summary>
+        private static void OnStanceBroken(CombatState combat, TurnResult result)
+        {
+            if (combat.Acolytes > 0)
+            {
+                result.Log.Add($"Die Haltung bricht – {combat.Acolytes} Akolythen fliehen.");
+                combat.Acolytes = 0;
+            }
+            if (combat.Suns > 0)
+            {
+                result.Log.Add($"Die Haltung bricht – {combat.Suns} Sonnen erlöschen.");
+                combat.Suns = 0;
+            }
         }
 
         /// <summary>Die gezeichnete Karte, falls es eine gibt.</summary>

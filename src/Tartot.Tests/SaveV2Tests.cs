@@ -76,6 +76,7 @@ namespace Tartot.Tests
         public void ABossFightMidRule_SurvivesARestart()
         {
             var game = new GameController(12);
+            game.Run.ActBosses[ActCatalog.ActCount] = ActCatalog.Finale.Id;
             game.Run.DefeatedBosses.AddRange(new[] { "boss_turm", "boss_tod", "boss_teufel" });
             TestTools.JumpToFight(game, ActCatalog.FinaleIndex);
             var combat = game.Combat;

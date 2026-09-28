@@ -23,6 +23,10 @@ namespace Tartot.Core
         public bool PhaseChanged;
         /// <summary>Der Tod hat eine Karte genommen (Name), sonst leer.</summary>
         public string CardLost = string.Empty;
+        /// <summary>Die rote Sonne hat ihre Supernova ausgeloest.</summary>
+        public bool Supernova;
+        /// <summary>Die Maessigkeit hat einen Teil des Treffers zurueckgespiegelt.</summary>
+        public int Reflected;
     }
 
     public sealed partial class CombatSystem
@@ -215,7 +219,11 @@ namespace Tartot.Core
             combat.Enemy.Stance = Math.Max(0, combat.Enemy.Stance - stanceDamage);
             var justBroke = preStance > 0 && combat.Enemy.Stance == 0;
             result.StanceBroken = justBroke;
-            if (justBroke) result.Log.Add("HALTUNG GEBROCHEN – Schadensfenster geöffnet.");
+            if (justBroke)
+            {
+                result.Log.Add("HALTUNG GEBROCHEN – Schadensfenster geöffnet.");
+                OnStanceBroken(combat, result);
+            }
 
             var fateDamage = FateAfterStance(combat, score.FateDamage, justBroke, preStance);
             fateDamage = DealEnemyDamage(run, combat, fateDamage, true);
@@ -232,6 +240,15 @@ namespace Tartot.Core
 
             DistributeFateContribution(combat, entries, fateDamage, stanceDamage, score.Multiplier);
 
+            // Die Maessigkeit in der zweiten Phase: wer nicht beide Elemente legt,
+            // bekommt einen Teil des eigenen Treffers zurueck.
+            if (TemperanceMixing(combat) && fateDamage > 0 && !IsBalanced(entries.Select(e => e.Card)))
+            {
+                result.Reflected = (int)Math.Round(fateDamage * TemperanceReflect);
+                result.Log.Add($"Die Mäßigkeit spiegelt {result.Reflected} zurück.");
+                TakePlayerDamage(run, combat, result.Reflected, result);
+            }
+
             var immediate = entries.Where(x => x.Effective != SlotPosition.Future).ToList();
             var future = entries.Where(x => x.Effective == SlotPosition.Future).ToList();
 
@@ -241,8 +258,12 @@ namespace Tartot.Core
             TickEnemyBurn(run, combat, result);
             CheckEnemyDeathOrSigil(run, combat, result);
 
-            if (!combat.PlayerWon)
+            if (!combat.PlayerWon && !combat.PlayerLost)
+            {
+                ApplyBlessings(combat, result);
                 ResolveEnemyIntent(run, combat, result);
+                CheckSupernova(run, combat, result);
+            }
 
             if (!combat.PlayerLost)
             {
@@ -445,6 +466,12 @@ namespace Tartot.Core
                 score.Multiplier += .35f;
                 comboParts.Add("Drei Pfade");
             }
+            if (TemperanceMixing(combat) && IsBalanced(cards))
+            {
+                score.Multiplier += TemperanceBalanceMult;
+                comboParts.Add("Gleichgewicht");
+                chainable = true;
+            }
             if (majorCount >= 2)
             {
                 score.Multiplier += .60f + (majorCount - 2) * .25f;
@@ -565,7 +592,7 @@ namespace Tartot.Core
             }
             var rageFactor = card.Rage >= 3 ? 1.5f : 1f;
             if (card.Rage >= 3) card.Rage = 0;
-            var factor = slotFactor * card.PowerMultiplier * charmFactor * rageFactor;
+            var factor = slotFactor * card.PowerMultiplier * charmFactor * rageFactor * TemperanceFactor(combat, card);
             var power = Math.Max(1, (int)Math.Round(card.Definition.BasePower * factor));
 
             if (card.Definition.IsMajor)
@@ -974,7 +1001,14 @@ namespace Tartot.Core
             if (combat.Enemy.Sigils > 0)
             {
                 combat.Enemy.Sigils--;
-                combat.Enemy.Hp = Math.Max(1, (int)Math.Round(combat.Enemy.Definition.MaxHp * .45f));
+                var definition = combat.Enemy.Definition;
+                if (definition.PhaseHp > 0)
+                {
+                    // Bosse mit Blatt kommen staerker zurueck, als sie gingen.
+                    definition.MaxHp = definition.PhaseHp;
+                    combat.Enemy.Hp = definition.PhaseHp;
+                }
+                else combat.Enemy.Hp = Math.Max(1, (int)Math.Round(definition.MaxHp * .45f));
                 combat.Enemy.Stance = combat.Enemy.Definition.MaxStance;
                 combat.Enemy.AttackRamp += 3;
                 result.Log.Add("SCHICKSALSSIEGEL BRICHT – der Gegner kehrt verändert zurück.");

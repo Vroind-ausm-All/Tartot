@@ -67,6 +67,14 @@ namespace Tartot.Core
         public string Art = string.Empty;
         /// <summary>Mehr Gold beim Sieg (die fette Ratte des Haendlers).</summary>
         public float GoldFactor = 1f;
+        /// <summary>
+        /// Lebenskraft der zweiten Phase. 0 heisst: nach einem gebrochenen
+        /// Siegel kehrt der Gegner mit 45 % zurueck. Bosse mit eigenem Blatt
+        /// ("220 / 320") kommen staerker wieder, als sie gingen.
+        /// </summary>
+        public int PhaseHp;
+        /// <summary>Wo der Kampf spielt (Buehne im Kampfbild).</summary>
+        public string Stage = string.Empty;
 
         public bool IsBoss => Tier == EnemyTier.Boss || Tier == EnemyTier.Finale;
 

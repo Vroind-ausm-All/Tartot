@@ -113,6 +113,10 @@ namespace Tartot.Core
         /// <summary>Der Turm: dieser Platz ist in diesem Zug eingestuerzt.</summary>
         public SlotPosition? BlockedSlot;
         public int TowerCollapses;
+        /// <summary>Der Hierophant: beschworene Akolythen, jeder segnet ihn mit Schild.</summary>
+        public int Acolytes;
+        /// <summary>Die rote Sonne: kleine Sonnen am Himmel. Ab vier kommt die Supernova.</summary>
+        public int Suns;
         /// <summary>Der Mond: verdeckte Handkarten (Instanz-Ids).</summary>
         public HashSet<string> VeiledCards = new HashSet<string>();
         /// <summary>Der Tod: gezeichnete Karte und verbleibende Runden.</summary>

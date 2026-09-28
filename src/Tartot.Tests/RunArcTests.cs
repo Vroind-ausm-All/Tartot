@@ -33,9 +33,11 @@ namespace Tartot.Tests
         public void NewRun_AnnouncesOneBossPerAct()
         {
             var game = new GameController(3);
-            Assert.Equal(ActCatalog.ActCount, game.Run.ActBosses.Count);
+            // Drei Aktbosse und der Endgegner von Akt IV.
+            Assert.Equal(ActCatalog.ActCount + 1, game.Run.ActBosses.Count);
             for (var act = 1; act <= ActCatalog.ActCount; act++)
                 Assert.Contains(ActCatalog.BossesOf(act), b => b.Id == game.Run.ActBosses[act - 1]);
+            Assert.Contains(ActCatalog.Finales, f => f.Id == game.Run.ActBosses[ActCatalog.ActCount]);
             Assert.Equal(game.Run.ActBosses[0], game.UpcomingBoss().Id);
             Assert.Contains(game.UpcomingBoss().Name, game.Message);
         }
@@ -66,6 +68,7 @@ namespace Tartot.Tests
         public void TheFinale_CarriesTheRulesOfTheBeatenBosses()
         {
             var game = new GameController(3);
+            game.Run.ActBosses[ActCatalog.ActCount] = ActCatalog.Finale.Id;
             game.Run.DefeatedBosses.Add("boss_turm");
             game.Run.DefeatedBosses.Add("boss_tod");
             TestTools.JumpToFight(game, ActCatalog.FinaleIndex);
@@ -393,6 +396,7 @@ namespace Tartot.Tests
         public void Veil8_SealsTheWorldOnceMore()
         {
             var game = new GameController(3, setup: new RunSetup { Veil = 8 });
+            game.Run.ActBosses[ActCatalog.ActCount] = ActCatalog.Finale.Id;
             TestTools.JumpToFight(game, ActCatalog.FinaleIndex);
             Assert.Equal(ActCatalog.Finale.Sigils + 1, game.Combat.Enemy.Definition.Sigils);
         }

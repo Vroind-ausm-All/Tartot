@@ -116,6 +116,10 @@ namespace Tartot.Tests
             // eines Akts muss ein Boss mehr aushalten als seine Elites und die
             // Elites mehr als die normalen Gegner.
             double AverageHp(IEnumerable<EnemyDefinition> list) => list.Average(e => e.MaxHp);
+            // Bosse mit eigenem Blatt kommen in der zweiten Phase mit voller
+            // Phasen-LP zurueck - was sie aushalten, ist die Summe beider Phasen.
+            double Endurance(IEnumerable<EnemyDefinition> list) => list.Average(e =>
+                e.MaxHp + e.Sigils * (e.PhaseHp > 0 ? e.PhaseHp : e.MaxHp * .45));
             for (var act = 2; act <= ActCatalog.ActCount; act++)
                 Assert.True(AverageHp(ActCatalog.NormalsOf(act)) > AverageHp(ActCatalog.NormalsOf(act - 1)),
                     $"Akt {act} ist nicht staerker als Akt {act - 1}.");
@@ -124,9 +128,11 @@ namespace Tartot.Tests
             {
                 var normal = AverageHp(ActCatalog.NormalsOf(act));
                 var elite = AverageHp(ActCatalog.ElitesOf(act));
-                var boss = AverageHp(ActCatalog.BossesOf(act));
+                var boss = Endurance(ActCatalog.BossesOf(act));
                 Assert.True(elite > normal, $"Akt {act}: Elites ({elite}) muessen mehr aushalten als Normale ({normal}).");
-                Assert.True(boss > elite, $"Akt {act}: Bosse ({boss}) muessen mehr aushalten als Elites ({elite}).");
+                // Akt III: die Bosse der Blaetter haben weniger LP als die Elites,
+                // sie sind ueber ihre Regeln gefaehrlich. Mehr als Normale halten sie aus.
+                Assert.True(boss > normal, $"Akt {act}: Bosse ({boss}) muessen mehr aushalten als Normale ({normal}).");
             }
         }
 

@@ -163,6 +163,8 @@ namespace Tartot.Core
             Run.ActBosses.Clear();
             for (var act = 1; act <= ActCatalog.ActCount; act++)
                 Run.ActBosses.Add(_rng.Pick(ActCatalog.BossesOf(act)).Id);
+            // Akt IV: Die Welt oder die rote Sonne - ebenfalls von Anfang an bekannt.
+            Run.ActBosses.Add(_rng.Pick(ActCatalog.Finales).Id);
 
             Combat = null;
             LastVictory = null;
@@ -181,7 +183,7 @@ namespace Tartot.Core
         public EnemyDefinition UpcomingBoss()
         {
             var act = Run.Act;
-            if (act == 4) return ActCatalog.Finale;
+            if (act == 4) return FinaleOfRun();
             if (act < 1 || act > Run.ActBosses.Count) return null;
             return ActCatalog.Find(Run.ActBosses[act - 1]);
         }
@@ -799,6 +801,14 @@ namespace Tartot.Core
             return _rng.Pick(fresh.Count > 0 ? fresh : pool);
         }
 
+        /// <summary>Der Endgegner dieses Runs. Alte Spielstaende kennen nur Die Welt.</summary>
+        public EnemyDefinition FinaleOfRun()
+        {
+            var id = Run.ActBosses.Count > ActCatalog.ActCount ? Run.ActBosses[ActCatalog.ActCount] : null;
+            var finale = ActCatalog.Find(id);
+            return finale != null && finale.Tier == EnemyTier.Finale ? finale : ActCatalog.Finale;
+        }
+
         private EnemyDefinition BuildEnemy()
         {
             var index = Run.FightIndex;
@@ -815,6 +825,8 @@ namespace Tartot.Core
 
             if (pending != null)
                 template = pending.Clone();
+            else if (ActCatalog.IsFinale(index) && FinaleOfRun() != ActCatalog.Finale)
+                template = FinaleOfRun().Clone();
             else if (ActCatalog.IsFinale(index))
             {
                 template = ActCatalog.Finale.Clone();
@@ -897,6 +909,7 @@ namespace Tartot.Core
             if (Run.Veil >= 2 && strong)
             {
                 enemy.MaxHp = (int)Math.Round(enemy.MaxHp * 1.2f);
+                enemy.PhaseHp = (int)Math.Round(enemy.PhaseHp * 1.2f);
                 enemy.MaxStance = (int)Math.Round(enemy.MaxStance * 1.2f);
             }
             // Die harten Stufen greifen erst ab Akt II: sie sollen den ganzen

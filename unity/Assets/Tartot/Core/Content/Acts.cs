@@ -69,12 +69,15 @@ namespace Tartot.Core
         public static readonly List<EnemyDefinition> Elites = BuildElites();
         public static readonly List<EnemyDefinition> Bosses = BuildBosses();
         public static readonly EnemyDefinition Finale = BuildFinale();
+        public static readonly EnemyDefinition Sun = BuildSun();
+        /// <summary>Moegliche Endgegner in Akt IV. Der Run legt sich zu Beginn fest.</summary>
+        public static readonly List<EnemyDefinition> Finales = new List<EnemyDefinition> { Finale, Sun };
         public static readonly EnemyDefinition SpiralBoss = BuildSpiralBoss();
         /// <summary>Gegner, die nur ein Ereignis herbeiruft.</summary>
         public static readonly List<EnemyDefinition> Specials = BuildSpecials();
 
         public static IEnumerable<EnemyDefinition> All =>
-            Normals.Concat(Elites).Concat(Bosses).Concat(new[] { Finale, SpiralBoss }).Concat(Specials);
+            Normals.Concat(Elites).Concat(Bosses).Concat(new[] { Finale, Sun, SpiralBoss }).Concat(Specials);
 
         public static EnemyDefinition Find(string id) =>
             string.IsNullOrEmpty(id) ? null : All.FirstOrDefault(e => e.Id == id);
@@ -112,6 +115,17 @@ namespace Tartot.Core
                     return weakened ? "Der Gehängte: jede 2. Runde ist die Legung gespiegelt."
                         : phase >= 1 ? "Der Gehängte: Legung gespiegelt, eine Handkarte weniger."
                         : "Der Gehängte: Vergangenheit und Zukunft tauschen die Rollen.";
+                case BossRule.Temperance:
+                    return weakened ? "Die Mäßigkeit: Wasser- und Feuerrunden wechseln sich ab."
+                        : phase >= 1 ? "Die Mäßigkeit mischt: ohne Stab UND Kelch spiegelt sie 15 % deines Treffers zurück."
+                        : "Die Mäßigkeit: Wasserrunden schwächen Stäbe, Feuerrunden schwächen Kelche (−35 %).";
+                case BossRule.Hierophant:
+                    return weakened ? "Der Hierophant: jede 3. Runde ein Akolyth (höchstens 2), jeder segnet ihn mit Schild."
+                        : phase >= 1 ? "Der Hierophant ruft jede Runde Akolythen (bis 5). Jeder segnet und schlägt härter."
+                        : "Der Hierophant: jede 2. Runde ein Akolyth (bis 3). Jeder segnet ihn mit 4 Schild. Haltung brechen vertreibt sie.";
+                case BossRule.Sun:
+                    return phase >= 1 ? "Die rote Sonne: jede Runde zwei neue Sonnen. Bei vier: SUPERNOVA."
+                        : "Die rote Sonne: jede Runde eine neue Sonne. Bei vier: SUPERNOVA, je Sonne 3 Schaden. Haltung brechen löscht sie.";
                 default:
                     return string.Empty;
             }
@@ -194,8 +208,8 @@ namespace Tartot.Core
                     "Es bestraft lange Kämpfe und spuckt am Ende alles aus, was es gefressen hat."),
                 E("henker_verkehrt", "Der Henker (umgekehrt)", EnemyTier.Elite, 3, 598, 72, 24, 1, "FAGA",
                     "Derselbe Hals, dasselbe Grinsen - aber der Strick hält jetzt ihn."),
-                E("rote_sonne", "Die rote Sonne", EnemyTier.Elite, 3, 624, 72, 23, 1, "ADFH",
-                    "Sie geht nicht unter. Sie wartet nur, bis du müde wirst.")
+                E("sonnenkind", "Das Sonnenkind", EnemyTier.Elite, 3, 624, 72, 23, 1, "ADFH",
+                    "Ein Splitter der roten Sonne. Er wartet nur, bis du müde wirst.")
             };
             // Die Ratte und das Maul tragen, was sie gefressen haben.
             list.First(e => e.Id == "fette_ratte").GoldFactor = 2.5f;
@@ -204,29 +218,50 @@ namespace Tartot.Core
         }
 
         private static EnemyDefinition Boss(string id, string name, int act, int hp, int stance, int attack,
-            int sigils, string pattern, BossRule rule, int omen, string flavor)
+            int sigils, string pattern, BossRule rule, int omen, string flavor, int phaseHp = 0, string stage = "")
         {
             var boss = E(id, name, EnemyTier.Boss, act, hp, stance, attack, sigils, pattern, flavor);
             boss.Rules.Add(rule);
             boss.OmenCardId = $"major_{omen}";
+            boss.PhaseHp = phaseHp;
+            boss.Stage = stage;
             return boss;
         }
 
+        // Bosse mit eigenem Blatt (Hierophant, Mond, Teufel, Maessigkeit, rote
+        // Sonne) tragen die Werte ihres Blatts: Lebenskraft der ersten und der
+        // zweiten Phase, Akt und Buehne.
         private static List<EnemyDefinition> BuildBosses() => new List<EnemyDefinition>
         {
             Boss("boss_turm", "XVI · Der Turm", 1, 323, 44, 20, 1, "AAGF", BossRule.Tower, 16,
-                "Er wächst hinter dir hoch. Jeder Blitz nimmt dir eine Möglichkeit."),
-            Boss("boss_mond", "XVIII · Der Mond", 1, 360, 44, 21, 1, "HADA", BossRule.Moon, 18,
-                "Du siehst sein Grinsen. Sonst siehst du nichts - nicht einmal deine eigenen Karten."),
+                "Er wächst hinter dir hoch. Jeder Blitz nimmt dir eine Möglichkeit.", stage: "Jahrmarkt der Omen"),
+            Boss("boss_hierophant", "V · Der Hierophant", 1, 240, 44, 19, 1, "AGAH", BossRule.Hierophant, 5,
+                "Glaube verbindet. Und fesselt.", 320, "Kathedrale der Stimmen"),
             Boss("boss_tod", "XIII · Der Tod", 2, 510, 64, 22, 1, "AHAD", BossRule.Death, 13,
-                "Ein weißes Gesicht, ein roter Schnitt. Er nimmt nicht dich - er nimmt deine Karten."),
+                "Ein weißes Gesicht, ein roter Schnitt. Er nimmt nicht dich - er nimmt deine Karten.", stage: "Haus der Spiegel"),
             Boss("boss_rad", "X · Rad des Schicksals", 2, 495, 60, 22, 1, "AFGA", BossRule.Wheel, 10,
-                "Es dreht. Deine Positionen bleiben nicht, wo du sie gelegt hast."),
-            Boss("boss_teufel", "XV · Der Teufel", 3, 640, 72, 20, 1, "ADAF", BossRule.Devil, 15,
-                "Er kämpft nicht gern. Er verhandelt. Und er gewinnt fast immer."),
+                "Es dreht. Deine Positionen bleiben nicht, wo du sie gelegt hast.", stage: "Haus der Spiegel"),
+            Boss("boss_teufel", "XV · Der Teufel", 3, 240, 72, 20, 1, "ADAF", BossRule.Devil, 15,
+                "Ein kleines Spielchen, nur ein einziges ...", 320, "Verbotenes Casino"),
             Boss("boss_gehaengter", "XII · Der Gehängte", 3, 650, 79, 22, 1, "GAAH", BossRule.HangedMan, 12,
-                "Er hängt verkehrt. Von seiner Seite aus liegt deine Zukunft links.")
+                "Er hängt verkehrt. Von seiner Seite aus liegt deine Zukunft links.", stage: "Die Schwarze Messe"),
+            Boss("boss_mond", "XVIII · Der Mond", 3, 220, 72, 21, 1, "HADA", BossRule.Moon, 18,
+                "Nicht alles, was du siehst, ist wahr.", 320, "Spiegelsee"),
+            Boss("boss_maessigkeit", "XIV · Die Mäßigkeit", 3, 220, 70, 21, 1, "AAHF", BossRule.Temperance, 14,
+                "Nicht zu viel. Nicht zu wenig. Genau richtig.", 300, "Brücke der Elemente")
         };
+
+        /// <summary>Die rote Sonne: das zweite moegliche Finale (Akt IV).</summary>
+        private static EnemyDefinition BuildSun()
+        {
+            var sun = E("boss_sonne", "XIX · Die rote Sonne", EnemyTier.Finale, 4, 300, 65, 24, 1, "AFAG",
+                "Sie brennt, um alles sichtbar zu machen - auch deinen Hochmut.");
+            sun.OmenCardId = "major_19";
+            sun.Rules.Add(BossRule.Sun);
+            sun.PhaseHp = 420;
+            sun.Stage = "Himmelszirkus";
+            return sun;
+        }
 
         private static EnemyDefinition BuildFinale()
         {
