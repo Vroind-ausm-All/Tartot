@@ -62,6 +62,10 @@ namespace UnityEngine
         public static float Clamp01(float v) => v < 0f ? 0f : (v > 1f ? 1f : v);
     }
 
+    public enum FilterMode { Point, Bilinear, Trilinear }
+    public class TextAsset : Object { public string text => string.Empty; }
+    public class Texture2D : Object { }
+
     public static class Resources
     {
         public static T Load<T>(string path) where T : Object => null;
@@ -91,18 +95,51 @@ namespace UnityEngine.UIElements
         public Rotate(float angle) { }
     }
 
+    public struct StyleLength
+    {
+        public static implicit operator StyleLength(float v) => new StyleLength();
+        public static implicit operator StyleLength(Length v) => new StyleLength();
+    }
+
+    public struct StyleBackground
+    {
+        public StyleBackground(UnityEngine.Texture2D texture) { }
+    }
+
     public interface IStyle
     {
         DisplayStyle display { get; set; }
-        Length width { get; set; }
+        StyleLength width { get; set; }
+        StyleLength height { get; set; }
+        StyleLength left { get; set; }
+        StyleBackground backgroundImage { get; set; }
         Rotate rotate { get; set; }
     }
 
     internal sealed class StyleStub : IStyle
     {
         public DisplayStyle display { get; set; }
-        public Length width { get; set; }
+        public StyleLength width { get; set; }
+        public StyleLength height { get; set; }
+        public StyleLength left { get; set; }
+        public StyleBackground backgroundImage { get; set; }
         public Rotate rotate { get; set; }
+    }
+
+    public interface IVisualElementScheduledItem
+    {
+        IVisualElementScheduledItem Every(long intervalMs);
+    }
+
+    public interface IVisualElementScheduler
+    {
+        IVisualElementScheduledItem Execute(Action timerUpdateEvent);
+    }
+
+    internal sealed class SchedulerStub : IVisualElementScheduler, IVisualElementScheduledItem
+    {
+        public IVisualElementScheduledItem Execute(Action timerUpdateEvent) => this;
+        public IVisualElementScheduledItem Every(long intervalMs) => this;
     }
 
     public class EventBase { }
@@ -111,6 +148,7 @@ namespace UnityEngine.UIElements
     public class VisualElement
     {
         public IStyle style { get; } = new StyleStub();
+        public IVisualElementScheduler schedule { get; } = new SchedulerStub();
         public void Add(VisualElement child) { }
         public void Clear() { }
         public void AddToClassList(string className) { }
@@ -180,6 +218,25 @@ namespace UnityEngine.UIElements
 namespace UnityEditor
 {
     using System;
+
+    public class AssetImporter : UnityEngine.Object { }
+    public enum TextureImporterType { Default, Sprite }
+    public enum TextureImporterCompression { Uncompressed, Compressed }
+    public enum TextureImporterNPOTScale { None, ToNearest }
+    public class TextureImporter : AssetImporter
+    {
+        public TextureImporterType textureType { get; set; }
+        public UnityEngine.FilterMode filterMode { get; set; }
+        public TextureImporterCompression textureCompression { get; set; }
+        public bool mipmapEnabled { get; set; }
+        public TextureImporterNPOTScale npotScale { get; set; }
+        public bool alphaIsTransparency { get; set; }
+    }
+    public class AssetPostprocessor
+    {
+        public string assetPath => string.Empty;
+        public AssetImporter assetImporter => null;
+    }
 
     public sealed class MenuItem : Attribute
     {
