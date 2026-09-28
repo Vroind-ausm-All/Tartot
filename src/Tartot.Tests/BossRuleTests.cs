@@ -48,6 +48,20 @@ namespace Tartot.Tests
         }
 
         [Fact]
+        public void Tower_HintsDoNotSuggestACollapsedSlot()
+        {
+            // Zwei Karten liegen, der dritte Platz ist eingestuerzt: dann darf
+            // die Vorschau keine dritte Karte fuer DIE WELT vorschlagen.
+            var (run, combat, sys) = TestWorld.Fight(TestWorld.Boss(BossRule.Tower), 1, "swords_10", "wands_4", "cups_7");
+            combat.BlockedSlot = SlotPosition.Future;
+            TestWorld.Place(sys, combat, "swords_10", SlotPosition.Past);
+            TestWorld.Place(sys, combat, "wands_4", SlotPosition.Present);
+
+            var preview = sys.PreviewScore(run, combat);
+            Assert.DoesNotContain(preview.Hints, h => h.Contains("DIE WELT"));
+        }
+
+        [Fact]
         public void Tower_CollapsesFasterAfterASigil()
         {
             var (run, combat, sys) = BossFight(BossRule.Tower);

@@ -518,7 +518,10 @@ namespace Tartot.Core
             if (score.Veiled) return;
             var ranks = entries.Select(e => e.Card.Definition.Rank).OrderBy(r => r).ToList();
             var hand = combat.Hand.Where(c => !combat.VeiledCards.Contains(c.InstanceId)).ToList();
-            var freeSlot = entries.Count < 3 && combat.Slots.Count < 3;
+            // Ein eingestuerzter Platz (Der Turm) ist kein freier Platz - sonst
+            // schlaegt die Vorschau eine dritte Karte vor, die nirgends hinpasst.
+            var openSlots = 3 - combat.Slots.Count - (combat.BlockedSlot.HasValue ? 1 : 0);
+            var freeSlot = entries.Count < 3 && openSlots > 0;
 
             if (entries.Count == 2 && freeSlot)
             {
