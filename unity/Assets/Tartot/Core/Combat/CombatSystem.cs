@@ -27,6 +27,8 @@ namespace Tartot.Core
         public bool Supernova;
         /// <summary>Die Maessigkeit hat einen Teil des Treffers zurueckgespiegelt.</summary>
         public int Reflected;
+        /// <summary>Glaeserne Karten, die in diesem Zug zersprungen sind (Namen).</summary>
+        public readonly List<string> Shattered = new List<string>();
     }
 
     public sealed partial class CombatSystem
@@ -249,6 +251,14 @@ namespace Tartot.Core
                 TakePlayerDamage(run, combat, result.Reflected, result);
             }
 
+            // Brennende Karten: der Gegner faengt Feuer, du verbrennst dir die Finger.
+            foreach (var entry in entries.Where(e => e.Card.Edition == CardEdition.Burning))
+            {
+                combat.Enemy.Burn += CardEditions.BurnBrand;
+                run.Hp = Math.Max(1, run.Hp - CardEditions.BurnSelfDamage);
+                result.Log.Add($"{entry.Card.Definition.Name} brennt: +{CardEditions.BurnBrand} Brand, −{CardEditions.BurnSelfDamage} LP.");
+            }
+
             var immediate = entries.Where(x => x.Effective != SlotPosition.Future).ToList();
             var future = entries.Where(x => x.Effective == SlotPosition.Future).ToList();
 
@@ -274,7 +284,19 @@ namespace Tartot.Core
             }
 
             foreach (var entry in entries)
+            {
+                // Glas zerspringt nach dem Zug - dann ist die Karte fuer den Run verloren.
+                if (entry.Card.Edition == CardEdition.Glass && !entry.Card.IsCopy
+                    && run.Deck.Count > GameCatalog.MinimumDeckSize
+                    && _rng.Chance(CardEditions.GlassShatterChance))
+                {
+                    run.Deck.Remove(entry.Card);
+                    result.Shattered.Add(entry.Card.Definition.Name);
+                    result.Log.Add($"{entry.Card.Definition.Name} zerspringt.");
+                    continue;
+                }
                 combat.DiscardPile.Add(entry.Card);
+            }
             combat.Slots.Clear();
 
             if (combat.PlayerWon)
@@ -380,8 +402,10 @@ namespace Tartot.Core
 
             var reversedMult = run.DeuterRule == DeuterRule.BloodReader ? .15f : .10f;
             var darkChips = run.Darkness / 20;
+            var editionX = 1f;
             foreach (var card in cards)
             {
+                var multBefore = score.Multiplier;
                 var chips = card.EffectiveRank;
                 if (card.Definition.Suit == Suit.Swords)
                     chips += CharmStacks(run, CharmEffectType.SwordsChips) * 2;
@@ -403,7 +427,20 @@ namespace Tartot.Core
                     chips = (int)Math.Round(chips * 1.5f);
                     score.Notes.Add($"{card.Definition.Name} ist in Raserei (+50% Chips). ");
                 }
+                // Editionen: flach auf Chips und Mult, der Faktor kommt ganz am Ende.
+                chips += CardEditions.Chips(card.Edition);
+                score.Multiplier += CardEditions.MultAdd(card.Edition);
+                editionX *= CardEditions.MultX(card.Edition);
                 score.Chips += chips;
+                score.Steps.Add(new ScoreStep
+                {
+                    InstanceId = card.InstanceId,
+                    Label = card.Definition.Name,
+                    Chips = chips,
+                    MultAdd = score.Multiplier - multBefore,
+                    MultX = CardEditions.MultX(card.Edition),
+                    Edition = card.Edition
+                });
             }
 
             if (entries.Any(e => e.Effective == SlotPosition.Present)) score.Multiplier += .15f;
@@ -526,6 +563,22 @@ namespace Tartot.Core
                     combat.LastComboSignature = signature;
                     combat.SameComboRepeats = 0;
                 }
+            }
+
+            // Muster, Positionen, Kette, Charms: alles, was nach den Karten auf den Mult kam.
+            var cardMult = 1f + score.Steps.Sum(s => s.MultAdd);
+            var cardChips = score.Steps.Sum(s => s.Chips);
+            if (score.Multiplier - cardMult > .001f || score.Chips > cardChips)
+                score.Steps.Add(new ScoreStep
+                {
+                    Label = score.ComboName,
+                    Chips = score.Chips - cardChips,
+                    MultAdd = score.Multiplier - cardMult
+                });
+            if (Math.Abs(editionX - 1f) > .001f)
+            {
+                score.Multiplier *= editionX;
+                score.Notes.Add($"Editionen ×{editionX:0.00}.");
             }
 
             var pact = 1f + combat.FateBonus;

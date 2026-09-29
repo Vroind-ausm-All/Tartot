@@ -75,6 +75,8 @@ namespace Tartot.Core
         /// sieht, was fast geht.
         /// </summary>
         public List<string> Hints = new List<string>();
+        /// <summary>Die Wertung Schritt fuer Schritt - erst jede Karte, dann Muster und Editionen.</summary>
+        public List<ScoreStep> Steps = new List<ScoreStep>();
     }
 
     public sealed class CombatState
@@ -149,6 +151,7 @@ namespace Tartot.Core
         public int CardLevel = 1;
         public Shimmer CardShimmer = Shimmer.Matte;
         public Orientation CardOrientation = Orientation.Upright;
+        public CardEdition CardEdition = CardEdition.None;
     }
 
     /// <summary>

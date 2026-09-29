@@ -1,0 +1,833 @@
+{
+  "quelle": "Tartot.Core - erzeugt mit: dotnet run --project src/Tartot.Sim -- --export-cards=<pfad>",
+  "cards": [
+    {
+      "id": "swords_1",
+      "name": "Ass der Schwerter",
+      "suit": "Swords",
+      "rank": 1,
+      "number": "1",
+      "rarity": "Common",
+      "power": 4,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_2",
+      "name": "2 der Schwerter",
+      "suit": "Swords",
+      "rank": 2,
+      "number": "2",
+      "rarity": "Common",
+      "power": 5,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_3",
+      "name": "3 der Schwerter",
+      "suit": "Swords",
+      "rank": 3,
+      "number": "3",
+      "rarity": "Common",
+      "power": 6,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_4",
+      "name": "4 der Schwerter",
+      "suit": "Swords",
+      "rank": 4,
+      "number": "4",
+      "rarity": "Common",
+      "power": 7,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_5",
+      "name": "5 der Schwerter",
+      "suit": "Swords",
+      "rank": 5,
+      "number": "5",
+      "rarity": "Common",
+      "power": 8,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_6",
+      "name": "6 der Schwerter",
+      "suit": "Swords",
+      "rank": 6,
+      "number": "6",
+      "rarity": "Common",
+      "power": 9,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_7",
+      "name": "7 der Schwerter",
+      "suit": "Swords",
+      "rank": 7,
+      "number": "7",
+      "rarity": "Common",
+      "power": 10,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_8",
+      "name": "8 der Schwerter",
+      "suit": "Swords",
+      "rank": 8,
+      "number": "8",
+      "rarity": "Common",
+      "power": 11,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_9",
+      "name": "9 der Schwerter",
+      "suit": "Swords",
+      "rank": 9,
+      "number": "9",
+      "rarity": "Common",
+      "power": 12,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_10",
+      "name": "10 der Schwerter",
+      "suit": "Swords",
+      "rank": 10,
+      "number": "10",
+      "rarity": "Common",
+      "power": 13,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_11",
+      "name": "Bube der Schwerter",
+      "suit": "Swords",
+      "rank": 11,
+      "number": "11",
+      "rarity": "Uncommon",
+      "power": 14,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_12",
+      "name": "Ritter der Schwerter",
+      "suit": "Swords",
+      "rank": 12,
+      "number": "12",
+      "rarity": "Uncommon",
+      "power": 15,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_13",
+      "name": "Königin der Schwerter",
+      "suit": "Swords",
+      "rank": 13,
+      "number": "13",
+      "rarity": "Uncommon",
+      "power": 16,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "swords_14",
+      "name": "König der Schwerter",
+      "suit": "Swords",
+      "rank": 14,
+      "number": "14",
+      "rarity": "Uncommon",
+      "power": 17,
+      "text": "Direkter Schaden. Höhere Werte brechen Haltung schneller."
+    },
+    {
+      "id": "wands_1",
+      "name": "Ass der Stäbe",
+      "suit": "Wands",
+      "rank": 1,
+      "number": "1",
+      "rarity": "Common",
+      "power": 3,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_2",
+      "name": "2 der Stäbe",
+      "suit": "Wands",
+      "rank": 2,
+      "number": "2",
+      "rarity": "Common",
+      "power": 4,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_3",
+      "name": "3 der Stäbe",
+      "suit": "Wands",
+      "rank": 3,
+      "number": "3",
+      "rarity": "Common",
+      "power": 5,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_4",
+      "name": "4 der Stäbe",
+      "suit": "Wands",
+      "rank": 4,
+      "number": "4",
+      "rarity": "Common",
+      "power": 6,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_5",
+      "name": "5 der Stäbe",
+      "suit": "Wands",
+      "rank": 5,
+      "number": "5",
+      "rarity": "Common",
+      "power": 7,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_6",
+      "name": "6 der Stäbe",
+      "suit": "Wands",
+      "rank": 6,
+      "number": "6",
+      "rarity": "Common",
+      "power": 8,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_7",
+      "name": "7 der Stäbe",
+      "suit": "Wands",
+      "rank": 7,
+      "number": "7",
+      "rarity": "Common",
+      "power": 9,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_8",
+      "name": "8 der Stäbe",
+      "suit": "Wands",
+      "rank": 8,
+      "number": "8",
+      "rarity": "Common",
+      "power": 10,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_9",
+      "name": "9 der Stäbe",
+      "suit": "Wands",
+      "rank": 9,
+      "number": "9",
+      "rarity": "Common",
+      "power": 11,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_10",
+      "name": "10 der Stäbe",
+      "suit": "Wands",
+      "rank": 10,
+      "number": "10",
+      "rarity": "Common",
+      "power": 12,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_11",
+      "name": "Bube der Stäbe",
+      "suit": "Wands",
+      "rank": 11,
+      "number": "11",
+      "rarity": "Uncommon",
+      "power": 13,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_12",
+      "name": "Ritter der Stäbe",
+      "suit": "Wands",
+      "rank": 12,
+      "number": "12",
+      "rarity": "Uncommon",
+      "power": 14,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_13",
+      "name": "Königin der Stäbe",
+      "suit": "Wands",
+      "rank": 13,
+      "number": "13",
+      "rarity": "Uncommon",
+      "power": 15,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "wands_14",
+      "name": "König der Stäbe",
+      "suit": "Wands",
+      "rank": 14,
+      "number": "14",
+      "rarity": "Uncommon",
+      "power": 16,
+      "text": "Brand und Combo. Aufeinanderfolgende Stäbe verstärken sich."
+    },
+    {
+      "id": "cups_1",
+      "name": "Ass der Kelche",
+      "suit": "Cups",
+      "rank": 1,
+      "number": "1",
+      "rarity": "Common",
+      "power": 3,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_2",
+      "name": "2 der Kelche",
+      "suit": "Cups",
+      "rank": 2,
+      "number": "2",
+      "rarity": "Common",
+      "power": 4,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_3",
+      "name": "3 der Kelche",
+      "suit": "Cups",
+      "rank": 3,
+      "number": "3",
+      "rarity": "Common",
+      "power": 5,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_4",
+      "name": "4 der Kelche",
+      "suit": "Cups",
+      "rank": 4,
+      "number": "4",
+      "rarity": "Common",
+      "power": 6,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_5",
+      "name": "5 der Kelche",
+      "suit": "Cups",
+      "rank": 5,
+      "number": "5",
+      "rarity": "Common",
+      "power": 7,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_6",
+      "name": "6 der Kelche",
+      "suit": "Cups",
+      "rank": 6,
+      "number": "6",
+      "rarity": "Common",
+      "power": 8,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_7",
+      "name": "7 der Kelche",
+      "suit": "Cups",
+      "rank": 7,
+      "number": "7",
+      "rarity": "Common",
+      "power": 9,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_8",
+      "name": "8 der Kelche",
+      "suit": "Cups",
+      "rank": 8,
+      "number": "8",
+      "rarity": "Common",
+      "power": 10,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_9",
+      "name": "9 der Kelche",
+      "suit": "Cups",
+      "rank": 9,
+      "number": "9",
+      "rarity": "Common",
+      "power": 11,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_10",
+      "name": "10 der Kelche",
+      "suit": "Cups",
+      "rank": 10,
+      "number": "10",
+      "rarity": "Common",
+      "power": 12,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_11",
+      "name": "Bube der Kelche",
+      "suit": "Cups",
+      "rank": 11,
+      "number": "11",
+      "rarity": "Uncommon",
+      "power": 13,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_12",
+      "name": "Ritter der Kelche",
+      "suit": "Cups",
+      "rank": 12,
+      "number": "12",
+      "rarity": "Uncommon",
+      "power": 14,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_13",
+      "name": "Königin der Kelche",
+      "suit": "Cups",
+      "rank": 13,
+      "number": "13",
+      "rarity": "Uncommon",
+      "power": 15,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "cups_14",
+      "name": "König der Kelche",
+      "suit": "Cups",
+      "rank": 14,
+      "number": "14",
+      "rarity": "Uncommon",
+      "power": 16,
+      "text": "Heilung und Traum. Umgekehrt wird Heilung riskanter, aber stärker."
+    },
+    {
+      "id": "pentacles_1",
+      "name": "Ass der Münzen",
+      "suit": "Pentacles",
+      "rank": 1,
+      "number": "1",
+      "rarity": "Common",
+      "power": 3,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_2",
+      "name": "2 der Münzen",
+      "suit": "Pentacles",
+      "rank": 2,
+      "number": "2",
+      "rarity": "Common",
+      "power": 4,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_3",
+      "name": "3 der Münzen",
+      "suit": "Pentacles",
+      "rank": 3,
+      "number": "3",
+      "rarity": "Common",
+      "power": 5,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_4",
+      "name": "4 der Münzen",
+      "suit": "Pentacles",
+      "rank": 4,
+      "number": "4",
+      "rarity": "Common",
+      "power": 6,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_5",
+      "name": "5 der Münzen",
+      "suit": "Pentacles",
+      "rank": 5,
+      "number": "5",
+      "rarity": "Common",
+      "power": 7,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_6",
+      "name": "6 der Münzen",
+      "suit": "Pentacles",
+      "rank": 6,
+      "number": "6",
+      "rarity": "Common",
+      "power": 8,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_7",
+      "name": "7 der Münzen",
+      "suit": "Pentacles",
+      "rank": 7,
+      "number": "7",
+      "rarity": "Common",
+      "power": 9,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_8",
+      "name": "8 der Münzen",
+      "suit": "Pentacles",
+      "rank": 8,
+      "number": "8",
+      "rarity": "Common",
+      "power": 10,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_9",
+      "name": "9 der Münzen",
+      "suit": "Pentacles",
+      "rank": 9,
+      "number": "9",
+      "rarity": "Common",
+      "power": 11,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_10",
+      "name": "10 der Münzen",
+      "suit": "Pentacles",
+      "rank": 10,
+      "number": "10",
+      "rarity": "Common",
+      "power": 12,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_11",
+      "name": "Bube der Münzen",
+      "suit": "Pentacles",
+      "rank": 11,
+      "number": "11",
+      "rarity": "Uncommon",
+      "power": 13,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_12",
+      "name": "Ritter der Münzen",
+      "suit": "Pentacles",
+      "rank": 12,
+      "number": "12",
+      "rarity": "Uncommon",
+      "power": 14,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_13",
+      "name": "Königin der Münzen",
+      "suit": "Pentacles",
+      "rank": 13,
+      "number": "13",
+      "rarity": "Uncommon",
+      "power": 15,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "pentacles_14",
+      "name": "König der Münzen",
+      "suit": "Pentacles",
+      "rank": 14,
+      "number": "14",
+      "rarity": "Uncommon",
+      "power": 16,
+      "text": "Schild, Gold und Vorbereitung. Zukunftseffekte sind besonders stark."
+    },
+    {
+      "id": "major_0",
+      "name": "Der Narr",
+      "suit": "Major",
+      "rank": 1,
+      "number": "",
+      "rarity": "Legendary",
+      "power": 4,
+      "text": "Ziehe zusätzliche Karten; umgekehrt riskanter, aber mit Luck."
+    },
+    {
+      "id": "major_1",
+      "name": "Der Magier",
+      "suit": "Major",
+      "rank": 1,
+      "number": "I",
+      "rarity": "Rare",
+      "power": 4,
+      "text": "Wiederholt die letzte Karte oder erzeugt eine temporäre Kopie."
+    },
+    {
+      "id": "major_2",
+      "name": "Die Hohepriesterin",
+      "suit": "Major",
+      "rank": 2,
+      "number": "II",
+      "rarity": "Rare",
+      "power": 4,
+      "text": "Ordnet kommende Karten und enthüllt Gegnerabsichten."
+    },
+    {
+      "id": "major_3",
+      "name": "Die Herrscherin",
+      "suit": "Major",
+      "rank": 3,
+      "number": "III",
+      "rarity": "Rare",
+      "power": 5,
+      "text": "Heilt und verstärkt die nächsten Karten; umgekehrt gegen Lebensopfer."
+    },
+    {
+      "id": "major_4",
+      "name": "Der Herrscher",
+      "suit": "Major",
+      "rank": 4,
+      "number": "IV",
+      "rarity": "Rare",
+      "power": 5,
+      "text": "Erzeugt starken Schild, der nicht sofort verfällt."
+    },
+    {
+      "id": "major_5",
+      "name": "Der Hierophant",
+      "suit": "Major",
+      "rank": 5,
+      "number": "V",
+      "rarity": "Rare",
+      "power": 5,
+      "text": "Verbessert eine Karte im Kampf oder erschöpft sie für stärkere Wirkung."
+    },
+    {
+      "id": "major_6",
+      "name": "Die Liebenden",
+      "suit": "Major",
+      "rank": 6,
+      "number": "VI",
+      "rarity": "Rare",
+      "power": 6,
+      "text": "Verbindet zwei Karten, sodass Effekte gemeinsam ausgelöst werden."
+    },
+    {
+      "id": "major_7",
+      "name": "Der Wagen",
+      "suit": "Major",
+      "rank": 7,
+      "number": "VII",
+      "rarity": "Rare",
+      "power": 6,
+      "text": "Belohnt die dritte Karte einer Legung mit Wiederholung."
+    },
+    {
+      "id": "major_8",
+      "name": "Kraft",
+      "suit": "Major",
+      "rank": 8,
+      "number": "VIII",
+      "rarity": "Rare",
+      "power": 6,
+      "text": "Verdoppelt die nächste Angriffskraft; umgekehrt mit Selbstschaden."
+    },
+    {
+      "id": "major_9",
+      "name": "Der Eremit",
+      "suit": "Major",
+      "rank": 9,
+      "number": "IX",
+      "rarity": "Rare",
+      "power": 7,
+      "text": "Entfernt Karten temporär aus dem Kampf und verdünnt den Draw-Pile."
+    },
+    {
+      "id": "major_10",
+      "name": "Rad des Schicksals",
+      "suit": "Major",
+      "rank": 10,
+      "number": "X",
+      "rarity": "Legendary",
+      "power": 7,
+      "text": "Ersetzt oder wählt Karten neu; starker Luck-Effekt."
+    },
+    {
+      "id": "major_11",
+      "name": "Gerechtigkeit",
+      "suit": "Major",
+      "rank": 11,
+      "number": "11",
+      "rarity": "Rare",
+      "power": 7,
+      "text": "Entfernt Debuffs oder überträgt sie auf den Gegner."
+    },
+    {
+      "id": "major_12",
+      "name": "Der Gehängte",
+      "suit": "Major",
+      "rank": 12,
+      "number": "12",
+      "rarity": "Rare",
+      "power": 8,
+      "text": "Opfert Aktionen für einen explosiven Folgeturn."
+    },
+    {
+      "id": "major_13",
+      "name": "Der Tod",
+      "suit": "Major",
+      "rank": 13,
+      "number": "13",
+      "rarity": "Rare",
+      "power": 8,
+      "text": "Vernichtet Karten temporär; kann nach dem Kampf permanentes Löschen auslösen."
+    },
+    {
+      "id": "major_14",
+      "name": "Mäßigkeit",
+      "suit": "Major",
+      "rank": 14,
+      "number": "14",
+      "rarity": "Rare",
+      "power": 8,
+      "text": "Mischt die Wirkung zweier Karten und belohnt hybride Builds."
+    },
+    {
+      "id": "major_15",
+      "name": "Der Teufel",
+      "suit": "Major",
+      "rank": 15,
+      "number": "15",
+      "rarity": "Rare",
+      "power": 9,
+      "text": "Verdoppelt Macht gegen einen Fluch oder stärkt umgekehrte Karten."
+    },
+    {
+      "id": "major_16",
+      "name": "Der Turm",
+      "suit": "Major",
+      "rank": 16,
+      "number": "16",
+      "rarity": "Rare",
+      "power": 9,
+      "text": "Zerstört Schild und verursacht massiven Burst."
+    },
+    {
+      "id": "major_17",
+      "name": "Der Stern",
+      "suit": "Major",
+      "rank": 17,
+      "number": "17",
+      "rarity": "Rare",
+      "power": 9,
+      "text": "Heilt, zieht und erzeugt Luck."
+    },
+    {
+      "id": "major_18",
+      "name": "Der Mond",
+      "suit": "Major",
+      "rank": 18,
+      "number": "18",
+      "rarity": "Rare",
+      "power": 10,
+      "text": "Verstärkt umgekehrte Karten, verbirgt aber Informationen."
+    },
+    {
+      "id": "major_19",
+      "name": "Die Sonne",
+      "suit": "Major",
+      "rank": 19,
+      "number": "19",
+      "rarity": "Rare",
+      "power": 10,
+      "text": "Schaden, Heilung und Kartenziehen in einem Zug."
+    },
+    {
+      "id": "major_20",
+      "name": "Das Gericht",
+      "suit": "Major",
+      "rank": 20,
+      "number": "20",
+      "rarity": "Rare",
+      "power": 10,
+      "text": "Holt bereits gespielte oder erschöpfte Karten zurück."
+    },
+    {
+      "id": "major_21",
+      "name": "Die Welt",
+      "suit": "Major",
+      "rank": 21,
+      "number": "21",
+      "rarity": "Legendary",
+      "power": 11,
+      "text": "Belohnt alle vier Farben und Summe 21 mit einem massiven Fate-Schub."
+    }
+  ],
+  "rarities": {
+    "Common": {
+      "name": "Gewöhnlich",
+      "color": "#8F7A5A"
+    },
+    "Uncommon": {
+      "name": "Ungewöhnlich",
+      "color": "#3B4A8C"
+    },
+    "Rare": {
+      "name": "Selten",
+      "color": "#B3262B"
+    },
+    "Legendary": {
+      "name": "Legendär",
+      "color": "#E3A83B"
+    }
+  },
+  "editions": {
+    "Shimmering": {
+      "name": "Schimmernd",
+      "text": "+6 Chips",
+      "chips": 6,
+      "mult": 0,
+      "xmult": 1
+    },
+    "Glowing": {
+      "name": "Leuchtend",
+      "text": "+0,4 Mult",
+      "chips": 0,
+      "mult": 0.4,
+      "xmult": 1
+    },
+    "Burning": {
+      "name": "Brennend",
+      "text": "×1,4 Mult, +3 Brand beim Gegner, kostet 2 LP",
+      "chips": 0,
+      "mult": 0,
+      "xmult": 1.4
+    },
+    "Glass": {
+      "name": "Gläsern",
+      "text": "×1,8 Mult, zerspringt zu 25 %",
+      "chips": 0,
+      "mult": 0,
+      "xmult": 1.8
+    }
+  }
+}

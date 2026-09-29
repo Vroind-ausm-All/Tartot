@@ -19,6 +19,9 @@ namespace Tartot.Core
 
         public bool IsMajor => Suit == Suit.Major;
 
+        /// <summary>Gewoehnlich (Zahlen), ungewoehnlich (Hof), selten (Arkana), legendaer (Narr, Rad, Welt).</summary>
+        public Rarity Rarity => Rarities.Of(this);
+
         /// <summary>
         /// Die Zahl, die auf der Karte steht.
         /// </summary>
@@ -42,6 +45,8 @@ namespace Tartot.Core
         public int Experience;
         public int VictoryMarks;
         public int Rage;
+        /// <summary>Veredelung dieser einen Karte: schimmernd, leuchtend, brennend, glaesern.</summary>
+        public CardEdition Edition = CardEdition.None;
 
         public CardInstance(CardDefinition definition, bool isCopy = false)
         {

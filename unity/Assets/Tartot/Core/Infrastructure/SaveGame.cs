@@ -162,7 +162,8 @@ namespace Tartot.Core
             .Set("copy", card.IsCopy)
             .Set("xp", card.Experience)
             .Set("marks", card.VictoryMarks)
-            .Set("rage", card.Rage);
+            .Set("rage", card.Rage)
+            .Set("edition", card.Edition.ToString());
 
         private static CardInstance ReadCard(JsonValue node)
         {
@@ -177,7 +178,8 @@ namespace Tartot.Core
                 Orientation = node.GetEnum("orientation", Orientation.Upright),
                 Experience = node.GetInt("xp"),
                 VictoryMarks = node.GetInt("marks"),
-                Rage = node.GetInt("rage")
+                Rage = node.GetInt("rage"),
+                Edition = node.GetEnum("edition", CardEdition.None)
             };
         }
 

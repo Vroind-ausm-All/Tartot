@@ -29,7 +29,12 @@ public static class Program
 
         // Zustandsabzug fuer die Bildschirmdarstellung - kein Balancing-Lauf.
         foreach (var arg in args)
-            if (arg.StartsWith("--snapshot=", StringComparison.Ordinal))
+            if (arg.StartsWith("--export-cards=", StringComparison.Ordinal))
+            {
+                CardExport.Write(arg.Substring("--export-cards=".Length));
+                return;
+            }
+            else if (arg.StartsWith("--snapshot=", StringComparison.Ordinal))
             {
                 Snapshot.Write(arg.Substring("--snapshot=".Length));
                 return;

@@ -151,11 +151,15 @@ namespace Tartot.Core
                     var shimmer = _rng.Chance(rareChance) ? Shimmer.Indigo : Shimmer.Matte;
                     var upgraded = _rng.Chance(upgradedChance);
                     var reversed = _rng.Chance(reversedChance);
+                    var edition = RollEdition(run);
+                    var editionTitle = edition == CardEdition.None ? string.Empty : CardEditions.Name(edition) + ": ";
+                    var editionText = edition == CardEdition.None ? string.Empty : $" {CardEditions.Name(edition)}: {CardEditions.Text(edition)}.";
                     rewards.Add(new RewardOption
                     {
                         Type = RewardType.Card,
-                        Title = (reversed ? "↕ " : string.Empty) + (upgraded ? $"{card.Name}+" : card.Name),
-                        Description = $"{(shimmer == Shimmer.Indigo ? "Indigo-Schimmer" : "Matt")}{(reversed ? ", umgekehrt" : string.Empty)}. {card.Description}",
+                        Title = editionTitle + (reversed ? "↕ " : string.Empty) + (upgraded ? $"{card.Name}+" : card.Name),
+                        Description = $"{Rarities.Name(card.Rarity)} · {(shimmer == Shimmer.Indigo ? "Indigo-Schimmer" : "Matt")}{(reversed ? ", umgekehrt" : string.Empty)}.{editionText} {card.Description}",
+                        CardEdition = edition,
                         Card = card,
                         CardLevel = upgraded ? 2 : 1,
                         CardShimmer = shimmer,
@@ -192,6 +196,7 @@ namespace Tartot.Core
                     {
                         Level = Math.Max(1, reward.CardLevel),
                         Shimmer = reward.CardShimmer,
+                        Edition = reward.CardEdition,
                         Orientation = reward.CardOrientation
                     };
                     run.Deck.Add(instance);
@@ -405,8 +410,28 @@ namespace Tartot.Core
         {
             var majors = GameCatalog.Cards.Where(c => c.IsMajor).ToList();
             var minors = GameCatalog.Cards.Where(c => !c.IsMajor).ToList();
-            if (_rng.Chance(Math.Min(.30f, rareChance))) return _rng.Pick(majors);
+            if (_rng.Chance(Math.Min(.30f, rareChance)))
+            {
+                // Legendaere Arkana kommen seltener als die uebrigen.
+                var legendary = majors.Where(c => c.Rarity == Rarity.Legendary).ToList();
+                return _rng.Chance(LegendaryShare) ? _rng.Pick(legendary) : _rng.Pick(majors.Except(legendary).ToList());
+            }
             return _rng.Pick(minors);
+        }
+
+        /// <summary>Anteil legendaerer Karten unter den gezogenen Arkana (3 von 22 waeren 14 %).</summary>
+        public const float LegendaryShare = .05f;
+
+        /// <summary>Wuerfelt die Edition einer Belohnungskarte. Der Katzenzahn macht sie wahrscheinlicher.</summary>
+        private CardEdition RollEdition(RunState run)
+        {
+            var roll = _rng.Next(1000) - CharmStacks(run, CharmEffectType.RareChance) * 10;
+            foreach (var edition in CardEditions.All)
+            {
+                roll -= CardEditions.RewardPermille[edition];
+                if (roll < 0) return edition;
+            }
+            return CardEdition.None;
         }
 
         private int CharmStacks(RunState run, CharmEffectType effect)

@@ -58,6 +58,9 @@ namespace Tartot.Unity
             AddToClassList(ShimmerClass(card.Shimmer));
             if (IsDark(card)) AddToClassList("karte--dunkel");
             if (deathMark > 0) AddToClassList("karte--gezeichnet");
+            AddToClassList("karte--selten-" + card.Definition.Rarity.ToString().ToLowerInvariant());
+            if (card.Edition != CardEdition.None)
+                AddToClassList("karte--edition-" + card.Edition.ToString().ToLowerInvariant());
 
             _head = new Label { text = HeadText(card) };
             _head.AddToClassList("karte__kopf");
@@ -82,7 +85,20 @@ namespace Tartot.Unity
             _rage.AddToClassList("karte__rage");
             Add(_rage);
 
-            _text = new Label { text = card.Definition.Description };
+            // Seltenheit und Edition stehen wie bei Balatro als Plakette unter dem Text.
+            var badge = new Label
+            {
+                text = Rarities.Name(card.Definition.Rarity)
+                       + (card.Edition != CardEdition.None ? " · " + CardEditions.Name(card.Edition) : string.Empty)
+            };
+            badge.AddToClassList("karte__plakette");
+            Add(badge);
+
+            _text = new Label
+            {
+                text = card.Definition.Description
+                       + (card.Edition != CardEdition.None ? "\n" + CardEditions.Text(card.Edition) : string.Empty)
+            };
             _text.AddToClassList("karte__text");
             Add(_text);
 

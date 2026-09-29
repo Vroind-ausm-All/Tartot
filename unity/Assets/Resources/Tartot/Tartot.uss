@@ -470,3 +470,24 @@
     -unity-text-align: middle-center;
     letter-spacing: 12px;
 }
+
+/* Seltenheit: Plakette in der Farbe der Stufe (Balatro-Prinzip, TARTOT-Palette). */
+.karte__plakette {
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    color: #EFE3C8;
+    background-color: #8F7A5A;
+    border-radius: 6px;
+    margin: 2px 6px;
+    padding: 0 4px;
+}
+.karte--selten-uncommon .karte__plakette { background-color: #3B4A8C; }
+.karte--selten-rare .karte__plakette { background-color: #B3262B; }
+.karte--selten-legendary .karte__plakette { background-color: #E3A83B; color: #1A1412; }
+
+/* Editionen: UI Toolkit kann keine Shader - hier nur Rahmen und Toenung.
+   Die animierten Effekte (Glanz, Leuchten, Brennen, Glas) zeigt das Godot-Addon. */
+.karte--edition-shimmering { border-color: #F4D27A; border-width: 3px; }
+.karte--edition-glowing { border-color: #7F8FD0; border-width: 3px; }
+.karte--edition-burning { border-color: #E0543A; border-width: 3px; }
+.karte--edition-glass { border-color: #EFE3C8; border-width: 3px; opacity: 0.82; }

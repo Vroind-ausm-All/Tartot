@@ -368,7 +368,7 @@ namespace Tartot.Core.Simulation
                 case RewardType.Card:
                     if (reward.Card == null) return 0f;
                     var value = reward.Card.Rank + (reward.Card.IsMajor ? 10f : 0f);
-                    return value + (reward.CardLevel - 1) * 4f + (int)reward.CardShimmer * 2f;
+                    return value + (reward.CardLevel - 1) * 4f + (int)reward.CardShimmer * 2f + (reward.CardEdition != CardEdition.None ? 6f : 0f);
                 default: return 0f;
             }
         }
