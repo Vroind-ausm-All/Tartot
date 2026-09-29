@@ -566,7 +566,7 @@
       "name": "Der Narr",
       "suit": "Major",
       "rank": 1,
-      "number": "",
+      "number": "0",
       "rarity": "Legendary",
       "power": 4,
       "text": "Ziehe zusätzliche Karten; umgekehrt riskanter, aber mit Luck."
@@ -676,7 +676,7 @@
       "name": "Gerechtigkeit",
       "suit": "Major",
       "rank": 11,
-      "number": "11",
+      "number": "XI",
       "rarity": "Rare",
       "power": 7,
       "text": "Entfernt Debuffs oder überträgt sie auf den Gegner."
@@ -686,7 +686,7 @@
       "name": "Der Gehängte",
       "suit": "Major",
       "rank": 12,
-      "number": "12",
+      "number": "XII",
       "rarity": "Rare",
       "power": 8,
       "text": "Opfert Aktionen für einen explosiven Folgeturn."
@@ -696,7 +696,7 @@
       "name": "Der Tod",
       "suit": "Major",
       "rank": 13,
-      "number": "13",
+      "number": "XIII",
       "rarity": "Rare",
       "power": 8,
       "text": "Vernichtet Karten temporär; kann nach dem Kampf permanentes Löschen auslösen."
@@ -706,7 +706,7 @@
       "name": "Mäßigkeit",
       "suit": "Major",
       "rank": 14,
-      "number": "14",
+      "number": "XIV",
       "rarity": "Rare",
       "power": 8,
       "text": "Mischt die Wirkung zweier Karten und belohnt hybride Builds."
@@ -716,7 +716,7 @@
       "name": "Der Teufel",
       "suit": "Major",
       "rank": 15,
-      "number": "15",
+      "number": "XV",
       "rarity": "Rare",
       "power": 9,
       "text": "Verdoppelt Macht gegen einen Fluch oder stärkt umgekehrte Karten."
@@ -726,7 +726,7 @@
       "name": "Der Turm",
       "suit": "Major",
       "rank": 16,
-      "number": "16",
+      "number": "XVI",
       "rarity": "Rare",
       "power": 9,
       "text": "Zerstört Schild und verursacht massiven Burst."
@@ -736,7 +736,7 @@
       "name": "Der Stern",
       "suit": "Major",
       "rank": 17,
-      "number": "17",
+      "number": "XVII",
       "rarity": "Rare",
       "power": 9,
       "text": "Heilt, zieht und erzeugt Luck."
@@ -746,7 +746,7 @@
       "name": "Der Mond",
       "suit": "Major",
       "rank": 18,
-      "number": "18",
+      "number": "XVIII",
       "rarity": "Rare",
       "power": 10,
       "text": "Verstärkt umgekehrte Karten, verbirgt aber Informationen."
@@ -756,7 +756,7 @@
       "name": "Die Sonne",
       "suit": "Major",
       "rank": 19,
-      "number": "19",
+      "number": "XIX",
       "rarity": "Rare",
       "power": 10,
       "text": "Schaden, Heilung und Kartenziehen in einem Zug."
@@ -766,7 +766,7 @@
       "name": "Das Gericht",
       "suit": "Major",
       "rank": 20,
-      "number": "20",
+      "number": "XX",
       "rarity": "Rare",
       "power": 10,
       "text": "Holt bereits gespielte oder erschöpfte Karten zurück."
@@ -776,7 +776,7 @@
       "name": "Die Welt",
       "suit": "Major",
       "rank": 21,
-      "number": "21",
+      "number": "XXI",
       "rarity": "Legendary",
       "power": 11,
       "text": "Belohnt alle vier Farben und Summe 21 mit einem massiven Fate-Schub."

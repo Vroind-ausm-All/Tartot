@@ -355,10 +355,20 @@ namespace Tartot.Core
             report.NearMisses.AddRange(near.OrderByDescending(n => n.Progress).Take(3));
         }
 
+        /// <summary>Roemische Zahl; 0 bleibt "0" (Der Narr), Akte und Arkana bis XXI.</summary>
         public static string Roman(int value)
         {
-            var numerals = new[] { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
-            return value >= 0 && value < numerals.Length ? numerals[value] : value.ToString();
+            if (value <= 0 || value >= 4000) return value.ToString();
+            var values = new[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
+            var symbols = new[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
+            var sb = new System.Text.StringBuilder();
+            for (var i = 0; i < values.Length; i++)
+                while (value >= values[i])
+                {
+                    sb.Append(symbols[i]);
+                    value -= values[i];
+                }
+            return sb.ToString();
         }
 
         /// <summary>Tageskarte: derselbe Seed fuer alle Spieler an einem Tag (UTC).</summary>

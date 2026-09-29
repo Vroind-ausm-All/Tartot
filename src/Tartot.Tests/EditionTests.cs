@@ -31,6 +31,15 @@ namespace Tartot.Tests
             Assert.Equal(3, GameCatalog.Cards.Count(c => c.Rarity == Rarity.Legendary));
         }
 
+        [Theory]
+        [InlineData(0, "0")]
+        [InlineData(4, "IV")]
+        [InlineData(14, "XIV")]
+        [InlineData(19, "XIX")]
+        [InlineData(21, "XXI")]
+        public void Roman_CoversAllArcana(int value, string expected) =>
+            Assert.Equal(expected, MetaProgress.Roman(value));
+
         [Fact]
         public void Shimmering_AddsChips_Glowing_AddsMult()
         {
