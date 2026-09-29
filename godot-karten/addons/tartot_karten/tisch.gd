@@ -87,6 +87,7 @@ func austeilen(karte: TarotKarte, von: Vector2, verzoegerung := 0.0) -> void:
 		karte.visible = false
 		await get_tree().create_timer(verzoegerung).timeout
 		karte.visible = true
+	KartenKlang.spielen("austeilen")
 	# erst fliegen, dann aufdecken - wie ein Croupier
 	await get_tree().create_timer(0.22).timeout
 	if is_instance_valid(karte):
@@ -141,6 +142,7 @@ func _antippen(karte: TarotKarte) -> void:
 	if karte in hand:
 		karte.gewaehlt = not karte.gewaehlt
 		karte.stossen(0.08)
+		KartenKlang.spielen("waehlen", 1.0 if karte.gewaehlt else 0.8)
 	else:
 		# Karte auf einem Platz antippen: zurueck auf die Hand
 		_zurueck_auf_hand(karte, hand.size())
@@ -152,6 +154,7 @@ func _aufnehmen(karte: TarotKarte) -> void:
 	karte.gewaehlt = false
 	_zug_versatz = karte.global_position - zeiger
 	karte.stossen(0.1)
+	KartenKlang.spielen("nehmen")
 	for platz in plaetze:
 		if platz.karte == karte:
 			platz.karte = null
@@ -172,9 +175,11 @@ func _ablegen() -> void:
 		karte.ziel_position = ziel.global_position
 		karte.ziel_rotation = 0.0
 		karte.stossen(0.16)
+		KartenKlang.spielen("ablegen")
 		legung_geaendert.emit()
 	else:
 		_zurueck_auf_hand(karte, _einfuege_index(zeiger.x, karte))
+		KartenKlang.spielen("ablegen", 1.25, -6.0)
 	for platz in plaetze:
 		platz.markiert = false
 
@@ -230,6 +235,7 @@ func _schweben_aktualisieren() -> void:
 		if neu != null:
 			neu.schwebt = true
 			neu.stossen(0.06)
+			KartenKlang.spielen("schweben", 1.0, -8.0, 0.1)
 		schwebt_ueber.emit(neu)
 	if _schwebend != null:
 		_schwebend.zeiger_setzen(zeiger)

@@ -247,6 +247,19 @@ namespace Tartot.Core.Simulation
         }
 
         /// <summary>
+        /// Die beste Legung als Vorschlag, ohne den Tisch zu veraendern: was
+        /// vorher lag, liegt danach wieder da. Fuer Hinweise und Vorfuehrungen.
+        /// </summary>
+        public List<(string InstanceId, SlotPosition Slot)> SuggestLayout(GameController game)
+        {
+            var before = game.Combat.Slots.Select(kv => (kv.Value.InstanceId, kv.Key)).ToList();
+            var best = BestLayout(game);
+            foreach (var (instanceId, slot) in before)
+                game.CombatSystem.PlaceCard(game.Combat, instanceId, slot);
+            return best;
+        }
+
+        /// <summary>
         /// Probiert alle Karten-/Positions-Kombinationen durch und nimmt die mit
         /// der besten Vorschau. Bei fuenf Handkarten und drei Plaetzen sind das
         /// wenige hundert Faelle - billig genug fuer Brute Force.

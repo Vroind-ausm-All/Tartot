@@ -128,7 +128,10 @@ func _anzeigen() -> void:
 
 
 ## Spielt die Schritte ab. karten: instance_id -> TarotKarte. Gibt den Treffer zurueck.
-func abspielen(schritte: Array, karten: Dictionary, gegner_lp: int) -> int:
+## endwerte (optional, vom Kern): "schicksal" ersetzt Chips × Mult, wenn
+## Wiederholung oder Pakt noch daran drehen; "toedlich" entscheidet ueber
+## den goldenen Schluss (sonst: Summe >= gegner_lp).
+func abspielen(schritte: Array, karten: Dictionary, gegner_lp: int, endwerte := {}) -> int:
 	chips = 0
 	mult = 1.0
 	_summe.text = ""
@@ -146,10 +149,12 @@ func abspielen(schritte: Array, karten: Dictionary, gegner_lp: int) -> int:
 			_muster.pivot_offset = _muster.size * 0.5
 			_hupfen(_muster, 1.25)
 		if int(s["chips"]) > 0:
+			KartenKlang.spielen("zaehlen", KartenKlang.leiter(i), 0.0, 0.0)
 			chips += int(s["chips"])
 			_fliegen("+%d" % int(s["chips"]), BLAU, ort + Vector2(-50, 0))
 			_hupfen(_chips_label.get_parent(), 1.12)
 		if float(s["mult"]) > 0.0:
+			KartenKlang.spielen("mult", KartenKlang.leiter(i), -2.0, 0.0)
 			mult += float(s["mult"])
 			_fliegen("+%s Mult" % _komma(float(s["mult"])), ROT, ort + Vector2(60, -40))
 			_hupfen(_mult_label.get_parent(), 1.12)
@@ -168,6 +173,7 @@ func abspielen(schritte: Array, karten: Dictionary, gegner_lp: int) -> int:
 			karte.stossen(0.32)
 			ort = karte.global_position + Vector2(0, -TarotKarte.GROESSE.y * 0.5)
 		mult *= float(s["xmult"])
+		KartenKlang.spielen("faktor")
 		_fliegen("×%s Mult" % _komma(float(s["xmult"])), ROT, ort + Vector2(0, -60), 1.4)
 		_hupfen(_mult_label.get_parent(), 1.35)
 		wackeln.emit(8.0)
@@ -176,12 +182,15 @@ func abspielen(schritte: Array, karten: Dictionary, gegner_lp: int) -> int:
 
 	# Chips × Mult: die Zahl zaehlt hoch und wird dabei groesser.
 	var ziel := maxi(1, roundi(chips * mult))
+	if endwerte.has("schicksal"):
+		ziel = int(endwerte["schicksal"])
 	var t := create_tween()
 	t.tween_method(func(w): _summe.text = str(roundi(w)), 0.0, float(ziel), 0.7).set_ease(Tween.EASE_OUT)
 	t.parallel().tween_property(_summe, "scale", Vector2(1.35, 1.35), 0.7)
 	await t.finished
-	var toedlich := ziel >= gegner_lp
+	var toedlich: bool = endwerte.get("toedlich", ziel >= gegner_lp)
 	wackeln.emit(clampf(log(float(ziel)) * 3.0, 4.0, 22.0) * (1.6 if toedlich else 1.0))
+	KartenKlang.spielen("toedlich" if toedlich else "treffer")
 	if toedlich:
 		_summe.add_theme_color_override("font_color", Color("F4D27A"))
 		_funken.restart()

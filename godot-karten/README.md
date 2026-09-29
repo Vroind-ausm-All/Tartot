@@ -2,7 +2,7 @@
 
 Die Karten von TARTOT als Godot-Addon: deine Kartenvorlage, Bewegung wie bei
 Balatro, Seltenheit, vier Editionen als Shader und die Zähl-Kaskade.
-**Godot 4.4 · GDScript · GL Compatibility · Hochformat 1080 × 1920** — also
+**Godot 4.4 .NET · GDScript + C#-Regelkern · GL Compatibility · Hochformat 1080 × 1920** — also
 dieselben Einstellungen wie der Godot-Port auf `chatgpt/godot-celluloid-port`.
 
 ![Kartentisch](bilder/kartentisch.png)
@@ -11,6 +11,39 @@ dieselben Einstellungen wie der Godot-Port auf `chatgpt/godot-celluloid-port`.
 die Glaskarte zerspringt.*
 
 <img src="bilder/galerie.png" width="360" alt="Editionen und Seltenheit">
+
+## Regelkern in Godot
+
+Der Kartentisch rechnet nichts selbst. `kern/TartotKern.cs` (Autoload
+`Kern`) verbindet GDScript mit dem C#-Regelkern. `TartotKartentisch.csproj`
+verlinkt die Quellen aus `unity/Assets/Tartot/Core`: Unity, Godot, Tests und
+Simulation nutzen also eine einzige Kopie der Regeln.
+
+| Aufruf | Liefert |
+|---|---|
+| `NeuerRun(saat)` | startet einen Run, der erste Kampf steht bereit |
+| `Kampf()` | Gegner (Leben, Haltung, Absicht, Sprite), Spieler, Hand, Plätze, gesperrter Platz |
+| `Legen(instanz, platz)`, `Zuruecknehmen(platz)`, `Abraeumen()` | legt Karten in den Kern |
+| `Vorschau()` | Chips, Mult, Wert, Muster, Beinahe-Hinweise, tödlich? |
+| `Ausfuehren()` | Wertungsschritte für die Kaskade, angekommener Schaden, Gegner-Animationen, Sieg/Niederlage, zersprungene Karten |
+| `Vorschlag()` | die beste Legung laut Autopilot |
+| `Weiter()` | nach dem Sieg bis zum nächsten Kampf (Belohnung, Weg, Laden entscheidet vorerst der Autopilot) |
+
+Nötig ist **Godot 4.4 mit .NET** und das .NET-8-SDK. Ohne .NET zeigt der
+Tisch einen Hinweis; die Galerie läuft auch ohne.
+
+## Klang
+
+`addons/tartot_karten/klang.gd` (`KartenKlang`) spielt 16 prozedural
+erzeugte Klänge (`tools/klang/klaenge.py`): Papier beim Nehmen, Ablegen,
+Austeilen und Umdrehen, ein Holz-Tick beim Drüberfahren, eine Spieluhr für
+Chips und Mult. Dazu kommen ein Schlag mit Blech für jeden ×-Faktor, ein
+Dur-Arpeggio bei tödlichen Treffern, Glas, Feuer und ein leises
+Projektorrattern.
+
+Die Kaskade steigt **je Schritt einen Halbton**, wie bei Balatro, gedeckelt
+bei einer Oktave. Eigene Aufnahmen mit gleichem Dateinamen ersetzen die
+erzeugten Klänge. Ohne `KartenKlang`-Knoten bleibt es still.
 
 ## Starten
 
@@ -42,7 +75,7 @@ addons/tartot_karten/
   info.gd           KartenInfo   Info-Fenster mit Seltenheits- und Editions-Pille
   kaskade.gd        WertungsKaskade  Chips × Mult, Karte für Karte, Faktoren zuletzt
   karten_daten.gd   KartenDaten  liest daten/karten.json (aus dem Spielkern exportiert)
-  demo_wertung.gd   DemoWertung  vereinfachte Wertung nur für die Vorführung
+  klang.gd          KartenKlang  Klänge, Tonleiter der Kaskade
   handschuh.gd      Zeigehand für Vorführungen
   shader/           Neigung (2D-Perspektive), Editionen, Glas, Auflösen, Schatten
   kunst/            Rahmen, Rückseite, Farbsymbole, Motive, Vorlage
@@ -97,11 +130,9 @@ Wertungsschritte. Übernehmen:
 1. `addons/tartot_karten/` nach `godot/addons/tartot_karten/` kopieren.
 2. Für Karten `TarotKarte.erzeugen(id, edition)` benutzen und für die Hand
    einen `KartenTisch` mit drei `KartenPlatz`-Knoten.
-3. Die Schritte der echten Wertung an `WertungsKaskade.abspielen` geben, im
-   Format `{id, label, chips, mult, xmult}`, wie `DemoWertung` sie erzeugt.
-
-`demo_wertung.gd` rechnet nur so viel nach, wie die Vorführung braucht. Die
-geltende Wertung ist `CombatSystem.CalculateScore` im C#-Kern.
+3. Den Autoload `Kern` (`kern/TartotKern.cs`) und die Kern-Verlinkung aus
+   `TartotKartentisch.csproj` übernehmen. `demo/demo.gd` zeigt, wie Tisch,
+   Kaskade und Kern zusammenspielen.
 
 ## Daten
 
@@ -118,7 +149,8 @@ dotnet run --project src/Tartot.Sim -- --export-cards=godot-karten/addons/tartot
 - Nur 20 der 78 Karten haben ein Beispielmotiv. Es ist aus deinen
   Entwürfen ausgeschnitten. Die übrigen zeigen das Farbsymbol als
   Platzhalter, bis du sie malst.
-- Die Vorführung nutzt eine vereinfachte Wertung. Positionen,
-  Haltung und Charms des echten Kampfs fehlen dort.
+- Für Belohnung, Wegwahl, Laden und Ereignisse gibt es am Tisch noch
+  keine Oberfläche. Nach einem Sieg entscheidet dort der Autopilot.
+- Die Demo gibt der ersten Hand je eine Edition (Vorführdeck).
 - Geprüft ist das Addon unter Linux mit Software-Rendering
   (llvmpipe, GL Compatibility). Auf Geräten fehlt die Prüfung noch.

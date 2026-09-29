@@ -35,6 +35,8 @@ const FARBEN := {"Swords": "schwerter", "Cups": "kelche", "Pentacles": "muenzen"
 @export var max_neigung := 22.0
 
 var id := ""
+## Instanz-Id aus dem Regelkern (leer, wenn die Karte ohne Kern lebt).
+var instanz := ""
 var daten := {}
 var edition := ""
 var aufgedeckt := true
@@ -292,6 +294,9 @@ func umdrehen(offen := true) -> void:
 		_rueckseite.visible = not offen
 		# Editionen gehoeren zur Vorderseite: verdeckt brennt und glaenzt nichts.
 		_mat.set_shader_parameter("edition", KartenDaten.edition_nummer(edition) if offen else 0)
+		KartenKlang.spielen("umdrehen")
+		if offen and edition != "":
+			KartenKlang.spielen("brennen" if edition == "Burning" else "schimmer", 1.0, -10.0)
 		_neu_zeichnen_lassen())
 	t.tween_property(self, "_wendung", 1.0, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 

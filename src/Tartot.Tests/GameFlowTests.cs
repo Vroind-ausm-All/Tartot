@@ -24,6 +24,23 @@ namespace Tartot.Tests
         }
 
         [Fact]
+        public void SuggestLayout_LeavesTheTableAsItWas()
+        {
+            var game = new GameController(3);
+            var hand = game.Combat.Hand;
+            game.CombatSystem.PlaceCard(game.Combat, hand[0].InstanceId, SlotPosition.Present);
+            var before = game.Combat.Slots.ToDictionary(kv => kv.Key, kv => kv.Value.InstanceId);
+
+            var layout = new Autopilot().SuggestLayout(game);
+
+            Assert.InRange(layout.Count, 1, 3);
+            Assert.Equal(layout.Count, layout.Select(l => l.InstanceId).Distinct().Count());
+            var all = game.Combat.Hand.Concat(game.Combat.Slots.Values).Select(c => c.InstanceId).ToHashSet();
+            Assert.All(layout, l => Assert.Contains(l.InstanceId, all));
+            Assert.Equal(before, game.Combat.Slots.ToDictionary(kv => kv.Key, kv => kv.Value.InstanceId));
+        }
+
+        [Fact]
         public void WinningAFight_LeadsToRewardThenPath()
         {
             var game = new GameController(5);
