@@ -14,8 +14,9 @@ unity/UserSettings/
 unity/[Mm]emoryCaptures/
 *.csproj.user
 
-# Godot-Referenz
+# Godot
 reference/godot/.godot/
+godot-karten/.godot/
 
 # Werkzeuge
 __pycache__/
