@@ -14,7 +14,7 @@ const ORDNER := "res://addons/tartot_karten/klang/"
 const STIMMEN := 12
 
 ## Gesamtlautstaerke in dB.
-@export var lautstaerke_db := -4.0
+@export var lautstaerke_db := -6.0
 ## Leises Projektorrattern im Hintergrund.
 @export var projektor := true
 
@@ -24,6 +24,7 @@ var _spieler: Array[AudioStreamPlayer] = []
 var _naechster := 0
 var _klaenge := {}
 var _zuletzt := {}
+var _letzte_variante := {}
 
 
 func _enter_tree() -> void:
@@ -52,9 +53,32 @@ func _ready() -> void:
 
 
 func _laden(name: String) -> AudioStream:
+	var liste := _varianten(name)
+	if liste.is_empty():
+		return null
+	if liste.size() == 1:
+		return liste[0]
+	# Varianten: zufaellig, aber nie dieselbe zweimal hintereinander.
+	var letzte: int = _letzte_variante.get(name, -1)
+	var i := randi() % liste.size()
+	if i == letzte:
+		i = (i + 1) % liste.size()
+	_letzte_variante[name] = i
+	return liste[i]
+
+
+## name.wav oder name_1.wav, name_2.wav ... - einmal geladen, dann gemerkt.
+func _varianten(name: String) -> Array:
 	if not _klaenge.has(name):
+		var liste := []
 		var pfad := ORDNER + name + ".wav"
-		_klaenge[name] = load(pfad) if ResourceLoader.exists(pfad) else null
+		if ResourceLoader.exists(pfad):
+			liste.append(load(pfad))
+		var i := 1
+		while ResourceLoader.exists(ORDNER + "%s_%d.wav" % [name, i]):
+			liste.append(load(ORDNER + "%s_%d.wav" % [name, i]))
+			i += 1
+		_klaenge[name] = liste
 	return _klaenge[name]
 
 

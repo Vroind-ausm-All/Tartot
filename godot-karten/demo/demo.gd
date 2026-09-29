@@ -26,6 +26,8 @@ var _kampf := {}
 var _karten := {}          # Instanz-Id -> TarotKarte
 var _anim := {}
 var _gegner_sprite := ""
+var _kampf_nummer := -1
+var _mischungen := 0
 
 var _welt: Node2D
 var _tisch: KartenTisch
@@ -269,6 +271,20 @@ func _abgleichen() -> void:
 	for i in 3:
 		_tisch.plaetze[i].gesperrt = i == int(_kampf["gesperrt"])
 
+	# Mischen hoeren, bevor ausgeteilt wird: zu Kampfbeginn das ganze
+	# Riffle, beim Nachmischen der Ablage ein halbes.
+	var verzug := 0.0
+	var nummer := int(_kampf["kampf"]) * 1000 + int(_kampf["akt"])
+	if nummer != _kampf_nummer:
+		_kampf_nummer = nummer
+		_mischungen = int(_kampf["mischungen"])
+		KartenKlang.spielen("mischen", 1.0, 0.0, 0.02)
+		verzug = 1.45
+	elif int(_kampf["mischungen"]) > _mischungen:
+		_mischungen = int(_kampf["mischungen"])
+		KartenKlang.spielen("mischen_kurz", 1.0, -2.0, 0.02)
+		verzug = 0.55
+
 	var neu := 0
 	for d in _kampf["hand"]:
 		var instanz: String = d["instanz"]
@@ -277,7 +293,7 @@ func _abgleichen() -> void:
 		var karte := TarotKarte.erzeugen(d["id"], d["edition"])
 		karte.instanz = instanz
 		_karten[instanz] = karte
-		_tisch.austeilen(karte, STAPEL, neu * 0.09)
+		_tisch.austeilen(karte, STAPEL, verzug + neu * 0.11)
 		neu += 1
 	_legung_an_kern()
 
@@ -310,6 +326,22 @@ func _roemisch(n: int) -> String:
 
 
 # ------------------------------------------------------------------ Zug
+## Der Angriff klingt nach dem, was der Gegner tut: Hieb, Raserei,
+## Aussaugen, Fluch, Abwehr - Beschwoeren und Supernova haben eigene.
+## Bosse klingen tiefer und schwerer.
+func _angriff_hoeren(bild: String, ergebnis: Dictionary) -> void:
+	var boss: bool = ergebnis.get("boss", false)
+	var hoehe := 0.82 if boss else 1.0
+	var laut := 2.0 if boss else 0.0
+	if bild == "supernova":
+		KartenKlang.spielen("supernova", 1.0, 3.0, 0.0)
+	elif bild == "summon":
+		KartenKlang.spielen("beschwoeren", hoehe, laut)
+	else:
+		var art := str(ergebnis.get("angriff", "Attack")).to_lower()
+		KartenKlang.spielen("angriff_" + art, hoehe, laut, 0.03)
+
+
 func _ausfuehren() -> void:
 	var legung := _tisch.legung()
 	if _beschaeftigt or legung.is_empty() or _kern == null:
@@ -336,6 +368,9 @@ func _ausfuehren() -> void:
 		_gegner_spielen(bild)
 		if bild == "hit":
 			var an := int(ergebnis["angekommen"])
+			# je haerter der Treffer, desto tiefer und lauter
+			var wucht := clampf(float(an) / 60.0, 0.0, 1.0)
+			KartenKlang.spielen("gegner_getroffen", lerpf(1.15, 0.8, wucht), lerpf(-8.0, 2.0, wucht) if an > 0 else -12.0)
 			_schweben_text("−%d" % an if an > 0 else "GEBLOCKT", _gegner.global_position + Vector2(150, -140), Color("E0543A"))
 			if an < int(ergebnis["schicksal"]) and not ergebnis["sieg"]:
 				_schweben_text("HALTUNG DECKELT", _gegner.global_position + Vector2(-150, 60), Color("C9B48E"))
@@ -344,9 +379,11 @@ func _ausfuehren() -> void:
 		elif bild == "phase2":
 			_schweben_text("DAS SIEGEL BRICHT", _gegner.global_position, Color("E3A83B"))
 		elif bild.begins_with("attack") or bild == "summon" or bild == "supernova":
-			KartenKlang.spielen("treffer", 0.7)
-			_wackeln = maxf(_wackeln, 10.0)
+			_angriff_hoeren(bild, ergebnis)
+			_wackeln = maxf(_wackeln, 22.0 if bild == "supernova" else 10.0)
 			if int(ergebnis["lp_verlust"]) > 0:
+				get_tree().create_timer(0.24).timeout.connect(func():
+					KartenKlang.spielen("spieler_getroffen", 1.0, lerpf(-6.0, 2.0, clampf(float(ergebnis["lp_verlust"]) / 20.0, 0.0, 1.0))))
 				_schweben_text("−%d LP" % int(ergebnis["lp_verlust"]), Vector2(800, 660), Color("E0543A"))
 		await _warte(0.55)
 
@@ -456,7 +493,7 @@ func _vorfuehren() -> void:
 	_tisch.skript_modus = true
 	_handschuh.visible = true
 	_tisch.zeiger_bewegen(Vector2(900, 1300))
-	await _warte(1.6)
+	await _warte(2.6)
 
 	# ueber die Hand streichen: Neigung, Info, Seltenheit, Editionen
 	for k in _tisch.hand.duplicate():

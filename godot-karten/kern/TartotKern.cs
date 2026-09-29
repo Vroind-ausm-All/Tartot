@@ -83,6 +83,8 @@ public partial class TartotKern : Node
             ["plaetze"] = plaetze,
             ["gesperrt"] = k.BlockedSlot.HasValue ? (int)k.BlockedSlot.Value : -1,
             ["stapel"] = k.DrawPile.Count,
+            // Wie oft die Ablage schon zurueck in den Stapel gemischt wurde.
+            ["mischungen"] = k.Reshuffles,
             ["ablage"] = k.DiscardPile.Count,
         };
     }
@@ -212,6 +214,9 @@ public partial class TartotKern : Node
         var bilder = new GArray();
         foreach (var b in AnimationCues.ForTurn(zug, gegner, absicht, zugNummer)) bilder.Add(b);
         ergebnis["animationen"] = bilder;
+        // Die Absicht, die der Gegner in diesem Zug ausgefuehrt hat - danach klingt der Angriff.
+        ergebnis["angriff"] = absicht.ToString();
+        ergebnis["boss"] = gegner.Definition.IsBoss;
         return ergebnis;
     }
 

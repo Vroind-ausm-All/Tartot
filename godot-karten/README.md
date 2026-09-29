@@ -34,16 +34,41 @@ Tisch einen Hinweis; die Galerie läuft auch ohne.
 
 ## Klang
 
-`addons/tartot_karten/klang.gd` (`KartenKlang`) spielt 16 prozedural
-erzeugte Klänge (`tools/klang/klaenge.py`): Papier beim Nehmen, Ablegen,
-Austeilen und Umdrehen, ein Holz-Tick beim Drüberfahren, eine Spieluhr für
-Chips und Mult. Dazu kommen ein Schlag mit Blech für jeden ×-Faktor, ein
-Dur-Arpeggio bei tödlichen Treffern, Glas, Feuer und ein leises
-Projektorrattern.
+`addons/tartot_karten/klang.gd` (`KartenKlang`) spielt 40 prozedural
+erzeugte Klänge (`tools/klang/klaenge.py`, nur numpy). Sie sind wie Foley
+gebaut, in drei Schichten: das **Blatt** (gefilterter Kartonschnapp mit
+Resonanz), der **Körper** (Hand, Filz, Tisch) und der **Raum** (kurzer
+Faltungshall).
 
-Die Kaskade steigt **je Schritt einen Halbton**, wie bei Balatro, gedeckelt
-bei einer Oktave. Eigene Aufnahmen mit gleichem Dateinamen ersetzen die
-erzeugten Klänge. Ohne `KartenKlang`-Knoten bleibt es still.
+- **Mischen:** ein echtes Riffle. 52 Blätter schnappen erst schnell, dann
+  langsamer ineinander, danach fällt die Brücke zurück, und der Stapel
+  klopft zweimal auf den Tisch. Das volle Riffle kommt zu Kampfbeginn, ein
+  halbes, wenn die Ablage nachgemischt wird.
+- **Karten:** Nehmen, Ablegen, Austeilen, Umdrehen, Drüberfahren und Wählen
+  gibt es in 2 bis 4 Varianten. `KartenKlang` wählt zufällig und nie
+  dieselbe zweimal hintereinander.
+- **Angriffe nach Absicht:**
+
+  | Absicht | Klang |
+  |---|---|
+  | Angriff | Hieb durch die Luft, dann Aufprall |
+  | Raserei | drei schnelle Hiebe, der letzte am härtesten |
+  | Aussaugen | feuchtes Schlürfen, das nach unten zieht, Herzschlag |
+  | Fluch | Tritonus-Chor, der anschwillt, dazu Flüstern |
+  | Abwehr | Holzschild |
+
+  Beschwören und Supernova haben eigene Klänge. Bosse klingen tiefer und
+  schwerer. Getroffene Gegner und du selbst habt eigene Treffer-Klänge,
+  deren Wucht mit dem Schaden wächst.
+- **Kaskade:** eine Spieluhr, die je Schritt einen Halbton steigt (höchstens
+  eine Oktave), dazu ein Paukenschlag mit Blech bei jedem ×-Faktor und ein
+  Arpeggio mit Gong beim tödlichen Treffer.
+- **Editionen:** Glas zerspringt und rieselt, Feuer faucht und knackt, der
+  Schimmer glitzert. Darunter liegt leises Projektorrattern als Schleife.
+
+Die Klänge liegen als unkomprimiertes PCM vor (`compress/mode=0` in den
+`.import`-Dateien). Eigene Aufnahmen mit gleichem Dateinamen ersetzen die
+erzeugten. Varianten heißen `name_1.wav`, `name_2.wav` und so weiter.
 
 ## Starten
 
