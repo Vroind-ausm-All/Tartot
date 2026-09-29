@@ -374,3 +374,26 @@ Tod je Begegnung: Hierophant 17 %, Mäßigkeit 38 %, Teufel 24 %, Mond 5 %, Sonn
 Die Mäßigkeit trifft den Autopiloten hart, weil er nicht auf Stab und Kelch achtet; ein
 Mensch liest die Regel. Die Regelwerte sind nach einer ersten Messung schon gesenkt
 (Schwächung 35 %, Spiegelung 15 %, Segen 4 Schild, Supernova 3 je Sonne).
+
+## Seltenheit und Editionen
+
+Editionen kommen in gut 5 % der Kartenbelohnungen vor: schimmernd 2,5 %,
+leuchtend 1,5 %, brennend 0,8 %, gläsern 0,7 %. Legendäre Karten machen 5 %
+der Kartenangebote aus. 400 Runs, Schleier 0:
+
+| | vor den Editionen | mit Editionen |
+|---|---|---|
+| Siege | 30 % | 31,3 % |
+| Tode Akt I / II / III / Finale | 16 / 11 / 21 / 23 % | 16 / 9 / 22 / 22 % |
+
+Die Editionen sind selten genug, dass sie einen Run würzen, ohne ihn zu
+tragen. Glaskarten zerspringen im Schnitt nach vier Einsätzen.
+
+Schleier-Kurve mit Bossblättern und Editionen (400 Runs je Stufe):
+
+| Schleier | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|---|
+| Sieg | 31 % | 34 % | 29 % | 26 % | 19 % | 11 % | 12 % | 8 % | 5 % |
+
+Schleier 1 liegt wieder über 0. Der Grund steht oben: der Autopilot hat
+genug Gold, und Schleier 1 nimmt nur Gold weg.

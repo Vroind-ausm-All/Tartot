@@ -51,8 +51,12 @@ der Run-Bericht endet mit dem, was *fast* geklappt hätte („Der Tod hatte noch
 230 HP“). **19 Prophezeiungen** schalten Charms und drei weitere Deuter frei,
 **Schleier 0–8** machen es schwerer, die **Tageskarte** ist für alle gleich.
 
-Gemessen: 34 % Siege auf Schleier 0, Tode verteilt über alle Akte, 5 % auf
+Gemessen: 31 % Siege auf Schleier 0, Tode verteilt über alle Akte, 5 % auf
 Schleier 8. Das ganze Design in [`docs/SUCHT.md`](docs/SUCHT.md).
+
+Wie sich ein einzelner Zug anfühlen soll — Kaskade, Kartenbewegung, Seltenheit,
+Editionen —, steht in [`docs/SPASS.md`](docs/SPASS.md); der Kartentisch dazu liegt
+als Godot-Addon in [`godot-karten/`](godot-karten/README.md).
 
 ---
 
@@ -65,11 +69,13 @@ unity/Assets/Tartot/
   Scripts/         Bootstrap
 src/
   Tartot.Core/     csproj, das dieselben Core-Quellen verlinkt (eine Kopie!)
-  Tartot.Tests/    xunit — 265 Tests
+  Tartot.Tests/    xunit — 278 Tests
   Tartot.Sim/      Balancing-Simulation
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
   blender/              Blockouts aller Gegner und Charms (headless, Pixel-Render)
+  karten/               erzeugt Rahmen, Rückseite und Mal-Vorlage der Karten
+godot-karten/      Godot-Addon: Kartenvorlage, Balatro-Bewegung, Editionen, Kaskade
 assets/blockout/   gerenderte Sprites, Kontaktbögen, .blend-Bibliotheken
 reference/godot/   frühere Godot-Umsetzung, dient als Regelreferenz
 docs/
@@ -88,7 +94,7 @@ auseinanderlaufen.
 # Alles bauen
 dotnet build
 
-# Tests (265)
+# Tests (278)
 dotnet test src/Tartot.Tests
 
 # Balancing: 400 komplette Runs spielen, Kurve je Kampf und Statistik
@@ -116,16 +122,19 @@ inklusive Weg von Hand und was ungeprüft ist, in
 | | |
 |---|---|
 | [`docs/SUCHT.md`](docs/SUCHT.md) | Die Sucht-Architektur: Zug, Run, Laufbahn |
+| [`docs/SPASS.md`](docs/SPASS.md) | Was TARTOT von Balatro und Inscryption lernt, priorisierte Vorschläge |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Entscheidungen und warum |
 | [`docs/BALANCING.md`](docs/BALANCING.md) | Formeln, gemessene Zahlen, Befunde |
 | [`docs/UNITY.md`](docs/UNITY.md) | Unity-Einrichtung und was ungeprüft ist |
 | [`tools/blender/README.md`](tools/blender/README.md) | Blender-Blockouts: Baukasten, Pixel-Render, Konturen |
 | [`docs/entwuerfe/`](docs/entwuerfe/) | UI-Entwürfe im Pixellook (Kampf gegen den Turm, Omen-Beute) |
-| [`reference/godot/README.md`](reference/godot/ README.md) | frühere Godot-Umsetzung |
+| [`godot-karten/README.md`](godot-karten/README.md) | Kartentisch in Godot: Bewegung, Seltenheit, Editionen, Kaskade |
+| [`godot-karten/addons/tartot_karten/VORLAGE.md`](godot-karten/addons/tartot_karten/VORLAGE.md) | Karten selbst malen: Maße, Dateinamen, Stellschrauben |
+| [`reference/godot/README.md`](reference/godot/README.md) | frühere Godot-Umsetzung |
 
 ## Stand
 
-Der Regelkern ist geprüft: **265 Tests**, 400 Runs ohne Absturz, Speichern
+Der Regelkern ist geprüft: **278 Tests**, 400 Runs ohne Absturz, Speichern
 und Laden mitten im Bosskampf und mitten in einer Szene, reproduzierbare
 Seeds. Was fehlt, ist überwiegend Kunst, Animation und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).
