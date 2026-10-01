@@ -516,11 +516,332 @@ def projektor():
     return s
 
 
+# ------------------------------------------------------------------ Angriffe je Boss
+def _gleiten(f0, f1, dauer, vib=0.0, vib_hz=6.0, form="exp"):
+    x = t(dauer)
+    if form == "exp":
+        f = f0 * (f1 / f0) ** (x / dauer)
+    else:
+        f = f0 + (f1 - f0) * x / dauer
+    f = f * (1 + vib * np.sin(2 * np.pi * vib_hz * x))
+    return np.sin(2 * np.pi * np.cumsum(f) / SR)
+
+
+def _metall(f, dauer, ab=0.25):
+    return ton(f, dauer, ab, ((1, 1.0), (2.41, 0.6), (3.88, 0.4), (5.33, 0.25), (7.1, 0.12)))
+
+
+def _vokal(freqs, dauer, formanten=((800, 1.0), (1150, 0.6), (2900, 0.25))):
+    """Chor-Vokal "aah": Saegezahnstimmen durch Formanten."""
+    n = n_of(dauer)
+    x = t(dauer)
+    s = np.zeros(n)
+    for f in freqs:
+        for verstimmt in (0.996, 1.0, 1.005):
+            vib = 1 + 0.005 * np.sin(2 * np.pi * rng.uniform(4.5, 6) * x + rng.uniform(0, 6))
+            ph = 2 * np.pi * np.cumsum(f * verstimmt * vib) / SR
+            s += sum(np.sin(k * ph) / k for k in range(1, 18))
+    aus = np.zeros(n)
+    for ff, g in formanten:
+        aus += band(s, ff * 0.8, ff * 1.25) * g
+    return aus / (len(freqs) * 3)
+
+
+def angriff_steine():
+    s = np.zeros(n_of(2.0))
+    grollen = band(rauschen(n_of(2.0)), 30, 260) * fenster_bogen(n_of(2.0), 0.8)
+    s += grollen * 0.9
+    for i in range(7):
+        ein(s, aufprall(rng.uniform(0.6, 1.0)), 0.15 + i * 0.17 + rng.uniform(0, 0.08), rng.uniform(0.5, 0.9))
+        ein(s, band(rauschen(n_of(0.15)), 900, 3500) * huelle(n_of(0.15), 0.001, 0.03), 0.17 + i * 0.17, 0.5)
+    return hall(s, 0.6, 0.15)
+
+
+def angriff_blitz():
+    s = np.zeros(n_of(2.6))
+    ein(s, band(rauschen(n_of(0.06)), 1500, 12000) * huelle(n_of(0.06), 0.0003, 0.012), 0.0, 1.2)
+    for i in range(14):
+        ein(s, band(rauschen(n_of(0.02)), 2000, 9000) * huelle(n_of(0.02), 0.0003, 0.004), rng.uniform(0.0, 0.25), rng.uniform(0.3, 0.8))
+    donner = band(rauschen(n_of(2.4)), 25, 220)
+    x = t(2.4)
+    donner *= (np.minimum(1, x / 0.08) * np.exp(-x * 1.6)) * (0.6 + 0.4 * np.abs(np.sin(2 * np.pi * 2.3 * x)))
+    ein(s, donner, 0.05, 2.2)
+    return hall(saettigung(s, 1.8), 0.9, 0.2)
+
+
+def angriff_segen():
+    s = np.zeros(n_of(2.2))
+    ein(s, _vokal([261.6, 329.6, 392.0, 523.3], 1.8) * fenster_bogen(n_of(1.8), 0.6), 0.0, 0.9)
+    for i, f in enumerate((1046.5, 1318.5, 1568.0, 2093.0)):
+        ein(s, spieluhr(f, 1.2, 0.5), 0.25 + i * 0.09, 0.45)
+    return hall(s, 1.2, 0.3, 6000)
+
+
+def angriff_chor():
+    s = _vokal([220.0, 261.6, 329.6, 110.0], 2.2, ((650, 1.0), (1080, 0.5), (2650, 0.2))) * fenster_bogen(n_of(2.2), 0.5)
+    s = plus(s, ton(196.0, 2.0, 1.0, ((1, 1.0), (2.76, 0.4), (5.4, 0.2))) * 0.6)
+    return hall(s, 1.4, 0.32, 5000)
+
+
+def angriff_wasser():
+    s = wandernder_band(1.3, 250, 2800, 0.8, 0.7) * fenster_bogen(n_of(1.3), 0.6)
+    for i in range(26):
+        f0 = rng.uniform(300, 900)
+        b = _gleiten(f0, f0 * 2.4, 0.05) * huelle(n_of(0.05), 0.001, 0.02)
+        ein(s, b, rng.uniform(0.1, 1.1), rng.uniform(0.15, 0.4))
+    ein(s, band(rauschen(n_of(0.4)), 300, 6000) * huelle(n_of(0.4), 0.002, 0.12), 0.35, 0.9)
+    return hall(s, 0.7, 0.2)
+
+
+def angriff_feuer():
+    s = wandernder_band(1.4, 160, 1500, 0.9, 0.5) * fenster_bogen(n_of(1.4), 0.5) * 1.2
+    s = plus(s, band(rauschen(n_of(1.4)), 40, 200) * fenster_bogen(n_of(1.4), 1.0) * 0.8)
+    for _ in range(40):
+        ein(s, band(rauschen(120), 1500, 9000) * np.exp(-np.arange(120) / 14), rng.uniform(0.05, 1.3), rng.uniform(0.2, 0.7))
+    return hall(saettigung(s, 1.5), 0.5, 0.15)
+
+
+def angriff_wuerfel():
+    s = np.zeros(n_of(1.4))
+    for i in range(30):
+        klick = resonanz(band(rauschen(n_of(0.02)), 1500, 7000), rng.uniform(2500, 4500), 400, 3.0) * huelle(n_of(0.02), 0.0003, 0.004)
+        ein(s, klick, i * 0.018 + rng.uniform(0, 0.01), rng.uniform(0.3, 0.7))
+    for i, bei in enumerate((0.7, 0.86, 0.97, 1.05)):
+        ein(s, plus(koerper(220, 0.02, 0.2) * 0.6, band(rauschen(n_of(0.03)), 1200, 6000) * huelle(n_of(0.03), 0.0005, 0.006)), bei, 0.9 - i * 0.18)
+    return hall(s, 0.4, 0.14)
+
+
+def angriff_kette():
+    s = wandernder_band(0.6, 300, 1800, 0.7) * fenster_bogen(n_of(0.6), 1.0) * 0.5
+    s = plus(s, np.zeros(n_of(1.2)))
+    for i in range(36):
+        ein(s, _metall(rng.uniform(2200, 5200), 0.25, 0.05), 0.08 + i * 0.02 + rng.uniform(0, 0.015), rng.uniform(0.1, 0.35))
+    ein(s, aufprall(0.7), 0.45, 0.7)
+    return hall(s, 0.5, 0.16)
+
+
+def angriff_orakel():
+    s = np.zeros(n_of(2.0))
+    ein(s, wandernder_band(0.8, 600, 6000, 0.4, 2.0) * np.linspace(0, 1, n_of(0.8)) ** 2 * 0.4, 0.0)
+    for i, f in enumerate((1318.5, 1760.0, 2093.0, 2637.0, 3136.0, 3520.0)):
+        g = ton(f, 1.0, 0.45, ((1, 1.0), (2.0, 0.15)), glide=0.0) * (1 + 0.0 * i)
+        ein(s, g, 0.7 + i * 0.07, 0.35)
+    return hall(s, 1.1, 0.3, 9000)
+
+
+def angriff_schleier():
+    s = wandernder_band(1.4, 350, 2600, 0.5, 1.0) * fenster_bogen(n_of(1.4), 1.2) * 0.8
+    for i in range(10):
+        ein(s, ton(rng.uniform(2500, 4200), 0.4, 0.15), rng.uniform(0.3, 1.2), 0.08)
+    return hall(s, 1.0, 0.3, 7000)
+
+
+def angriff_strahlen():
+    s = band(rauschen(n_of(1.4)), 3000, 9000) * fenster_bogen(n_of(1.4), 0.8) * (0.6 + 0.4 * np.sin(2 * np.pi * 30 * t(1.4))) * 0.5
+    s = plus(s, _gleiten(300, 1200, 0.9) * fenster_bogen(n_of(0.9), 1.0) * 0.4, _vokal([392.0, 523.3, 659.3], 1.4) * fenster_bogen(n_of(1.4), 0.7) * 0.6)
+    return hall(s, 0.9, 0.25)
+
+
+def angriff_rotation():
+    s = np.zeros(n_of(1.4))
+    for i in range(5):
+        ein(s, wandernder_band(0.28, 500, 2500, 0.6) * fenster_bogen(n_of(0.28), 1.4), i * 0.22, 0.7)
+    ein(s, _gleiten(220, 660, 1.1, 0.03, 9) * fenster_bogen(n_of(1.1), 1.0) * 0.35, 0.0)
+    return hall(s, 0.5, 0.15)
+
+
+def angriff_rad():
+    """Gluecksrad: Ratsche, die langsamer wird, dann der Zeiger klackt ein."""
+    s = np.zeros(n_of(2.2))
+    bei, abstand = 0.0, 0.035
+    while bei < 1.9:
+        klick = resonanz(band(rauschen(n_of(0.015)), 1000, 6000), 2200, 300, 4.0) * huelle(n_of(0.015), 0.0003, 0.004)
+        ein(s, plus(klick, koerper(380, 0.006, 0.0) * 0.5), bei, 0.7)
+        bei += abstand
+        abstand *= 1.09
+    ein(s, ton(880, 0.8, 0.4, ((1, 1.0), (2.76, 0.4))), bei, 0.5)
+    return hall(s, 0.5, 0.15)
+
+
+def angriff_sense():
+    s = np.zeros(n_of(1.6))
+    ein(s, hieb(0.35, 0.8), 0.0, 1.0)
+    ein(s, plus(_metall(2400, 1.3, 0.6) * 0.6, _metall(3610, 1.0, 0.4) * 0.3), 0.3, 0.7)
+    return hall(s, 0.9, 0.2)
+
+
+def angriff_geister():
+    s = np.zeros(n_of(2.4))
+    for i in range(3):
+        x = t(1.6)
+        f = 520 * (1 + 0.3 * np.sin(2 * np.pi * 0.6 * x + i)) * (1 + 0.012 * np.sin(2 * np.pi * 5.5 * x))
+        stimme = np.sin(2 * np.pi * np.cumsum(f * (1 + 0.15 * i)) / SR) * fenster_bogen(n_of(1.6), 1.0)
+        ein(s, stimme, i * 0.3, 0.3)
+    ein(s, wandernder_band(2.2, 300, 900, 0.8, 1.0) * fenster_bogen(n_of(2.2), 1.0) * 0.6, 0.0)
+    return hall(s, 1.5, 0.35, 4000)
+
+
+def angriff_zauber():
+    s = np.zeros(n_of(1.4))
+    ein(s, _gleiten(400, 2400, 0.3) * huelle(n_of(0.3), 0.005, 0.3) * 0.5, 0.0)
+    for i in range(8):
+        ein(s, spieluhr(rng.choice([1568.0, 2093.0, 2637.0, 3136.0]), 0.6, 0.2), 0.2 + i * 0.06, 0.3)
+    ein(s, band(rauschen(n_of(0.2)), 3000, 10000) * huelle(n_of(0.2), 0.001, 0.05), 0.28, 0.5)
+    return hall(s, 0.8, 0.25, 9000)
+
+
+def angriff_schwert():
+    s = np.zeros(n_of(1.4))
+    ein(s, hieb(0.2, 1.3), 0.0, 1.0)
+    ein(s, _metall(3200, 1.1, 0.5) * 0.5, 0.16, 0.8)
+    ein(s, aufprall(0.6), 0.2, 0.5)
+    return hall(s, 0.6, 0.18)
+
+
+def angriff_muenzen():
+    s = np.zeros(n_of(1.8))
+    for i in range(40):
+        ein(s, _metall(rng.uniform(3000, 6500), 0.35, 0.08), rng.uniform(0.0, 1.2) ** 1.4, rng.uniform(0.15, 0.4))
+    return hall(s, 0.6, 0.18, 9000)
+
+
+def angriff_ranken():
+    s = np.zeros(n_of(1.8))
+    knarzen = np.zeros(n_of(1.4))
+    bei, rate = 0.0, 0.012
+    while bei < 1.35:
+        ein(knarzen, band(rauschen(n_of(0.006)), 300, 1600) * huelle(n_of(0.006), 0.0005, 0.002), bei, 1.0)
+        bei += rate * rng.uniform(0.8, 1.3)
+        rate = 0.008 + 0.01 * abs(np.sin(bei * 4))
+    ein(s, resonanz(knarzen, 420, 120, 3.0) * fenster_bogen(n_of(1.4), 0.5), 0.0, 0.9)
+    ein(s, band(rauschen(n_of(1.6)), 1500, 6000) * fenster_bogen(n_of(1.6), 1.2) * 0.25, 0.1)
+    return hall(s, 0.6, 0.18)
+
+
+def angriff_fruechte():
+    s = np.zeros(n_of(1.6))
+    for i in range(9):
+        plopp = plus(sweep(260, 80, 0.12, 0.04, 40), band(rauschen(n_of(0.02)), 800, 4000) * huelle(n_of(0.02), 0.0005, 0.005) * 0.6)
+        ein(s, plopp, 0.1 + i * 0.13 + rng.uniform(0, 0.05), rng.uniform(0.5, 0.9))
+    return hall(s, 0.4, 0.14)
+
+
+def angriff_galopp():
+    s = np.zeros(n_of(2.0))
+    for takt in range(5):
+        for j, versatz in enumerate((0.0, 0.08, 0.2)):
+            huf = resonanz(band(rauschen(n_of(0.05)), 300, 3000), 900, 200, 4.0) * huelle(n_of(0.05), 0.0005, 0.012)
+            ein(s, plus(huf, koerper(140, 0.015, 0.2) * 0.6), takt * 0.34 + versatz, 0.9 - j * 0.15)
+    s = plus(s, band(rauschen(n_of(2.0)), 40, 220) * fenster_bogen(n_of(2.0), 0.8) * 0.5)
+    ein(s, aufprall(1.0), 1.6, 1.0)
+    return hall(s, 0.5, 0.14)
+
+
+def angriff_peitsche():
+    s = np.zeros(n_of(1.0))
+    ein(s, wandernder_band(0.22, 300, 4000, 0.5, 2.0) * np.linspace(0.1, 1, n_of(0.22)) ** 2, 0.0, 0.8)
+    knall = band(rauschen(n_of(0.012)), 800, 14000) * huelle(n_of(0.012), 0.0001, 0.002)
+    ein(s, knall, 0.22, 1.6)
+    return hall(saettigung(s, 2.0), 0.5, 0.18)
+
+
+def angriff_bruellen():
+    d = 1.8
+    x = t(d)
+    f = 95 * (1 + 0.35 * np.sin(np.pi * x / d)) * (1 + 0.04 * rng.standard_normal(len(x)).cumsum() / np.sqrt(len(x)))
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    stimme = sum(np.sin(k * ph) / k for k in range(1, 30))
+    s = band(stimme, 80, 700) * 1.0 + band(stimme, 900, 1300) * 0.5 + band(rauschen(len(x)), 300, 2500) * 0.4
+    s *= fenster_bogen(len(x), 0.6) * (0.7 + 0.3 * np.abs(np.sin(2 * np.pi * 11 * x)))
+    return hall(saettigung(s, 2.5), 0.7, 0.2)
+
+
+# ------------------------------------------------------------------ Zeichentrick-Foley
+def ausholen():
+    """Lotterpfeife nach oben: der Gegner holt aus."""
+    return hall(_gleiten(520, 1560, 0.36, 0.012, 7) * huelle(n_of(0.36), 0.02, 0.3, 1.0) * fenster_bogen(n_of(0.36), 0.3), 0.3, 0.1)
+
+
+def sprung():
+    """Boing."""
+    x = t(0.5)
+    f = 170 + 260 * (1 - np.exp(-x * 9)) + 60 * np.sin(2 * np.pi * 16 * x) * np.exp(-x * 5)
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-x * 5)
+    return hall(s, 0.3, 0.1)
+
+
+def landen():
+    return hall(saettigung(plus(sweep(110, 35, 0.6, 0.18, 18), band(rauschen(n_of(0.4)), 60, 900) * huelle(n_of(0.4), 0.001, 0.07)), 2.0), 0.5, 0.14)
+
+
+def drehung():
+    s = _gleiten(700, 1700, 0.25, 0.0) * fenster_bogen(n_of(0.25), 1.0)
+    s = np.concatenate([s, _gleiten(1700, 700, 0.25) * fenster_bogen(n_of(0.25), 1.0)])
+    return hall(plus(s * 0.5, wandernder_band(0.5, 400, 2400, 0.6) * fenster_bogen(n_of(0.5), 1.0)), 0.4, 0.14)
+
+
+def recken():
+    s = np.zeros(n_of(1.0))
+    for i, f in enumerate((523.3, 659.3, 784.0, 1046.5)):
+        ein(s, ton(f, 0.8, 0.35, ((1, 1.0), (2.0, 0.3))) * np.linspace(0.3, 1, n_of(0.8)), i * 0.06, 0.25)
+    ein(s, wandernder_band(0.6, 800, 5000, 0.5, 2.0) * np.linspace(0, 1, n_of(0.6)) ** 2 * 0.4, 0.0)
+    return hall(s, 0.8, 0.25, 8000)
+
+
+def auftritt():
+    """Beckenwirbel, Tusch, Plopp."""
+    s = np.zeros(n_of(2.2))
+    becken = band(rauschen(n_of(1.0)), 4000, 12000) * np.linspace(0, 1, n_of(1.0)) ** 2 * 0.5
+    ein(s, becken, 0.0)
+    for note, bei in ((392.0, 1.0), (523.3, 1.12)):
+        x = t(0.9 if bei > 1.1 else 0.11)
+        ph = 2 * np.pi * note * x
+        blech = band(sum(np.sin(k * ph) / k for k in range(1, 14)), 120, 3500) * huelle(len(x), 0.01, 0.2, 0.8)
+        ein(s, np.tanh(blech * 2), bei, 0.7)
+    ein(s, sweep(600, 180, 0.12, 0.05, 30), 1.0, 0.6)
+    ein(s, band(rauschen(n_of(1.0)), 3000, 12000) * huelle(n_of(1.0), 0.002, 0.4) * 0.6, 1.12)
+    return hall(s, 0.9, 0.22)
+
+
+def phase():
+    """Gong, Gebruell, schiefe Posaunen: die wahre Gestalt."""
+    s = np.zeros(n_of(3.0))
+    gong = ton(98, 3.0, 1.6, ((1, 1.0), (1.47, 0.6), (2.09, 0.5), (2.76, 0.35), (3.9, 0.2), (5.4, 0.1)))
+    ein(s, gong, 0.0, 1.0)
+    ein(s, angriff_bruellen()[: n_of(1.8)] * 0.6, 0.15)
+    for f in (110.0, 116.5, 155.6):
+        x = t(1.6)
+        ph = 2 * np.pi * f * x
+        ein(s, np.tanh(band(sum(np.sin(k * ph) / k for k in range(1, 12)), 60, 1500) * 1.6) * fenster_bogen(len(x), 0.5) * 0.25, 0.2)
+    return hall(s, 1.4, 0.25)
+
+
+def tod():
+    """Absteigende Pfeife, Krach, Rauch-Puff."""
+    s = np.zeros(n_of(2.6))
+    ein(s, _gleiten(1500, 260, 1.1, 0.015, 7) * fenster_bogen(n_of(1.1), 0.4) * 0.5, 0.0)
+    ein(s, aufprall(1.2) * 1.0, 1.05)
+    ein(s, band(rauschen(n_of(1.2)), 3000, 11000) * huelle(n_of(1.2), 0.001, 0.4) * 0.5, 1.05)
+    for i in range(6):
+        ein(s, koerper(rng.uniform(180, 400), 0.03, 0.2) * 0.4, 1.15 + i * 0.07)
+    ein(s, wandernder_band(0.6, 1200, 300, 0.8) * fenster_bogen(n_of(0.6), 1.0) * 0.5, 1.4)
+    return hall(s, 0.9, 0.22)
+
+
+def iris():
+    """Projektor: Surren und der Schlag der Blende."""
+    x = t(0.7)
+    surren = (band(rauschen(len(x)), 200, 1500) * 0.3 + np.sin(2 * np.pi * 96 * x) * 0.2) * fenster_bogen(len(x), 0.6)
+    s = plus(surren, np.zeros(n_of(0.8)))
+    ein(s, resonanz(band(rauschen(n_of(0.03)), 500, 5000), 1800, 300, 3.0) * huelle(n_of(0.03), 0.0005, 0.008), 0.62, 0.8)
+    return hall(s, 0.4, 0.12)
+
+
 # ------------------------------------------------------------------ Ausgabe
 def main():
     os.makedirs(OUT, exist_ok=True)
     for alt in os.listdir(OUT):
-        if alt.endswith(".wav"):
+        if alt.endswith(".wav") and not alt.startswith(("musik_", "sieg", "niederlage")):
             os.remove(os.path.join(OUT, alt))
     einzeln = {
         "mischen": (mischen, 0.85), "mischen_kurz": (mischen_kurz, 0.8),
@@ -528,11 +849,26 @@ def main():
         "toedlich": (toedlich, 0.9), "treffer": (treffer, 0.85),
         "angriff_attack": (angriff_attack, 0.9), "angriff_frenzy": (angriff_frenzy, 0.9),
         "angriff_drain": (angriff_drain, 0.85), "angriff_hex": (angriff_hex, 0.8),
-        "angriff_guard": (angriff_guard, 0.8), "beschwoeren": (beschwoeren, 0.8),
-        "supernova": (supernova, 0.95), "gegner_getroffen": (gegner_getroffen, 0.85),
+        "angriff_guard": (angriff_guard, 0.8), "gegner_getroffen": (gegner_getroffen, 0.85),
         "spieler_getroffen": (spieler_getroffen, 0.9),
         "glas": (glas, 0.85), "brennen": (brennen, 0.8), "schimmer": (schimmer, 0.6),
         "knopf": (knopf, 0.7), "projektor": (projektor, 0.35),
+        "angriff_beschwoeren": (beschwoeren, 0.8), "angriff_supernova": (supernova, 0.95),
+        "angriff_steine": (angriff_steine, 0.9), "angriff_blitz": (angriff_blitz, 0.95),
+        "angriff_segen": (angriff_segen, 0.8), "angriff_chor": (angriff_chor, 0.8),
+        "angriff_wasser": (angriff_wasser, 0.85), "angriff_feuer": (angriff_feuer, 0.85),
+        "angriff_wuerfel": (angriff_wuerfel, 0.85), "angriff_kette": (angriff_kette, 0.85),
+        "angriff_orakel": (angriff_orakel, 0.75), "angriff_schleier": (angriff_schleier, 0.75),
+        "angriff_strahlen": (angriff_strahlen, 0.85), "angriff_rotation": (angriff_rotation, 0.8),
+        "angriff_rad": (angriff_rad, 0.8), "angriff_sense": (angriff_sense, 0.9),
+        "angriff_geister": (angriff_geister, 0.8), "angriff_zauber": (angriff_zauber, 0.8),
+        "angriff_schwert": (angriff_schwert, 0.9), "angriff_muenzen": (angriff_muenzen, 0.8),
+        "angriff_ranken": (angriff_ranken, 0.8), "angriff_fruechte": (angriff_fruechte, 0.85),
+        "angriff_galopp": (angriff_galopp, 0.9), "angriff_peitsche": (angriff_peitsche, 0.95),
+        "angriff_bruellen": (angriff_bruellen, 0.95),
+        "ausholen": (ausholen, 0.6), "sprung": (sprung, 0.75), "landen": (landen, 0.9),
+        "drehung": (drehung, 0.7), "recken": (recken, 0.7), "auftritt": (auftritt, 0.85),
+        "phase": (phase, 0.95), "tod": (tod, 0.9), "iris": (iris, 0.6),
     }
     varianten = {
         "nehmen": (nehmen, 0.7, 3), "ablegen": (ablegen, 0.8, 4), "austeilen": (austeilen, 0.7, 4),
