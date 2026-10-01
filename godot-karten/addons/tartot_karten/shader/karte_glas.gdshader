@@ -55,6 +55,7 @@ void fragment() {
 		vec3 farbe = mix(glas, c.rgb, bleibt * 0.9) + streif + kante;
 		vec4 ergebnis = vec4(farbe, c.a);
 		// Legendaer-Glanz und Aufloesen (Zerspringen) gelten auch fuer Glas.
+		ergebnis = papierlicht(ergebnis, cuv);
 		ergebnis = editionen(ergebnis, cuv, d, TIME);
 		COLOR = aufloesen_anwenden(ergebnis, cuv) * modul;
 	}

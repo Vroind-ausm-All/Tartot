@@ -13,12 +13,14 @@ extends Node2D
 
 const GROESSE := Vector2(240, 360)
 const LUFT := 24
+## Die Vorderseite wird doppelt so fein gezeichnet, wie sie im Spiel steht:
+## die Malerei der Motive soll auch auf grossen Handys scharf bleiben.
+const AUFL := 2
 const MOTIV := Rect2(34, 52, 172, 208)
-const ZAHL := Rect2(0, 12, 240, 36)
-const NAME := Rect2(28, 268, 184, 60)
-const SELTENHEIT := Vector2(120, 340)
+const ZAHL := Rect2(20, 12, 200, 30)
+const NAME := Rect2(24, 278, 192, 58)
+const SELTENHEIT := Vector2(120, 345)
 const KUNST := "res://addons/tartot_karten/kunst/"
-const SCHRIFT := "res://addons/tartot_karten/schrift/"
 const TINTE := Color("1A1412")
 const PAPIER := Color("EFE3C8")
 
@@ -33,6 +35,8 @@ const FARBEN := {"Swords": "schwerter", "Cups": "kelche", "Pentacles": "muenzen"
 @export var schwung := 0.0011
 ## Hoechste Neigung in Grad.
 @export var max_neigung := 22.0
+## Grundgroesse am Tisch (die Hand zeigt die Karten etwas kleiner als 240 x 360).
+var basis := 1.0
 
 var id := ""
 ## Instanz-Id aus dem Regelkern (leer, wenn die Karte ohne Kern lebt).
@@ -86,22 +90,24 @@ func _ready() -> void:
 # ------------------------------------------------------------------ Aufbau
 func _bauen() -> void:
 	_viewport = SubViewport.new()
-	_viewport.size = Vector2i(GROESSE) + Vector2i(LUFT * 2, LUFT * 2)
+	_viewport.size = (Vector2i(GROESSE) + Vector2i(LUFT * 2, LUFT * 2)) * AUFL
 	_viewport.transparent_bg = true
 	_viewport.disable_3d = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR
 	add_child(_viewport)
 
 	_vorderseite = Control.new()
-	_vorderseite.position = Vector2(LUFT, LUFT)
-	_vorderseite.size = GROESSE
+	_vorderseite.position = Vector2(LUFT, LUFT) * AUFL
+	_vorderseite.size = GROESSE * AUFL
 	_viewport.add_child(_vorderseite)
 	_vorderseite_fuellen(_vorderseite)
 
 	_rueckseite = TextureRect.new()
 	_rueckseite.texture = load(KUNST + "rueckseite.png")
-	_rueckseite.position = Vector2(LUFT, LUFT)
+	_rueckseite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_rueckseite.position = Vector2(LUFT, LUFT) * AUFL
+	_rueckseite.size = GROESSE * AUFL
 	_viewport.add_child(_rueckseite)
 	_rueckseite.visible = not aufgedeckt
 	_vorderseite.visible = aufgedeckt
@@ -138,6 +144,8 @@ func _bauen() -> void:
 	# Innen Pixel, aussen weich: gekippt und gedreht soll die Karte nicht flimmern.
 	_bild.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_schatten.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_bild.scale = Vector2.ONE / AUFL
+	_schatten.scale = Vector2.ONE / AUFL
 
 
 func _vorderseite_fuellen(wurzel: Control) -> void:
@@ -145,75 +153,89 @@ func _vorderseite_fuellen(wurzel: Control) -> void:
 	# Nur die Seltenheitsraute kommt noch darauf (siehe VORLAGE.md).
 	var ganz_pfad := KUNST + "karten/%s.png" % id
 	if ResourceLoader.exists(ganz_pfad):
-		var ganz := TextureRect.new()
-		ganz.texture = load(ganz_pfad)
-		ganz.size = GROESSE
-		ganz.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		wurzel.add_child(ganz)
+		wurzel.add_child(_bild_in(load(ganz_pfad), Rect2(Vector2.ZERO, GROESSE), false))
 		_seltenheit_zeichnen(wurzel)
 		return
 
-	var rahmen := TextureRect.new()
-	rahmen.texture = load(KUNST + "rahmen.png")
-	wurzel.add_child(rahmen)
-
-	var motiv_pfad := KUNST + "motive/%s.png" % id
-	if ResourceLoader.exists(motiv_pfad):
-		var motiv := TextureRect.new()
-		motiv.texture = load(motiv_pfad)
-		motiv.position = MOTIV.position
-		motiv.size = MOTIV.size
-		motiv.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		motiv.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		wurzel.add_child(motiv)
+	# Motiv zuerst, der Rahmen liegt darueber (sein Fenster ist offen).
+	var motiv_pfad := _motiv_pfad()
+	if motiv_pfad != "":
+		wurzel.add_child(_bild_in(load(motiv_pfad), MOTIV, true))
 	else:
-		# Platzhalter, bis du ein Motiv zeichnest: grosses Farbsymbol.
-		var platzhalter := TextureRect.new()
-		platzhalter.texture = load(KUNST + "farben/%s.png" % FARBEN.get(daten.get("suit", "Major"), "arkana"))
-		platzhalter.position = MOTIV.position + Vector2(38, 56)
-		platzhalter.size = Vector2(96, 96)
-		platzhalter.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		platzhalter.modulate = Color(1, 1, 1, 0.55)
+		# Noch kein Motiv: das Sinnbild der Rueckseite als Platzhalter.
+		var platzhalter := _bild_in(load(KUNST + "rueckseite.png"), MOTIV, true)
+		platzhalter.modulate = Color(1, 1, 1, 0.85)
 		wurzel.add_child(platzhalter)
+	wurzel.add_child(_bild_in(load(KUNST + "rahmen.png"), Rect2(Vector2.ZERO, GROESSE), false))
 
-	var zahl := _label(str(daten.get("number", "?")), "AbrilFatface.ttf", 26, ZAHL)
-	wurzel.add_child(zahl)
-	var name_label := _label(str(daten.get("name", id)).to_upper(), "AlfaSlabOne.ttf", 16, NAME)
+	var nummer := str(daten.get("number", "?"))
+	var zahl_label := _label(nummer, 27, ZAHL)
+	if nummer.is_valid_int():
+		zahl_label.add_theme_font_override("font", TarotStil.zahlen())
+		zahl_label.add_theme_font_size_override("font_size", 30 * AUFL)
+	wurzel.add_child(zahl_label)
+	var name_label := _label(str(daten.get("name", id)).to_upper(), 19, NAME)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.add_theme_constant_override("line_spacing", -6 * AUFL)
 	wurzel.add_child(name_label)
-
-	for ecke in [Vector2(14, 16), Vector2(GROESSE.x - 30, 16)]:
-		var farbe := TextureRect.new()
-		farbe.texture = load(KUNST + "farben/%s.png" % FARBEN.get(daten.get("suit", "Major"), "arkana"))
-		farbe.position = ecke
-		wurzel.add_child(farbe)
 	_seltenheit_zeichnen(wurzel)
+
+
+## Eigenes Motiv, sonst eines derselben Farbe mit naechstem Rang (Platzhalter),
+## sonst leer.
+func _motiv_pfad() -> String:
+	var eigen := KUNST + "motive/%s.png" % id
+	if ResourceLoader.exists(eigen):
+		return eigen
+	var farbe: String = daten.get("suit", "Major")
+	if farbe == "Major":
+		return ""
+	var rang := int(daten.get("rank", 1))
+	var vorsilbe := id.get_slice("_", 0)
+	for abstand in range(1, 14):
+		for r in [rang - abstand, rang + abstand]:
+			var p := KUNST + "motive/%s_%d.png" % [vorsilbe, r]
+			if r >= 1 and r <= 14 and ResourceLoader.exists(p):
+				return p
+	return ""
+
+
+func _bild_in(textur: Texture2D, rahmen: Rect2, fuellen: bool) -> TextureRect:
+	var t := TextureRect.new()
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED if fuellen else TextureRect.STRETCH_SCALE
+	t.texture = textur
+	t.position = rahmen.position * AUFL
+	t.size = rahmen.size * AUFL
+	t.clip_contents = true
+	return t
 
 
 ## Seltenheit: eine Raute in der Farbe der Stufe, wie ein Edelstein.
 func _seltenheit_zeichnen(wurzel: Control) -> void:
+	var form := PackedVector2Array([Vector2(0, -8), Vector2(7, 0), Vector2(0, 8), Vector2(-7, 0)])
 	var raute := Polygon2D.new()
-	raute.polygon = PackedVector2Array([Vector2(0, -8), Vector2(7, 0), Vector2(0, 8), Vector2(-7, 0)])
-	raute.position = SELTENHEIT
+	raute.polygon = form
+	raute.position = SELTENHEIT * AUFL
+	raute.scale = Vector2(AUFL, AUFL)
 	raute.color = Color(KartenDaten.seltenheit(daten.get("rarity", "Common"))["color"])
+	var glanz := Polygon2D.new()
+	glanz.polygon = PackedVector2Array([Vector2(0, -6), Vector2(3, -2), Vector2(0, 0), Vector2(-3, -2)])
+	glanz.color = Color(1, 1, 1, 0.35)
+	raute.add_child(glanz)
 	var kontur := Line2D.new()
-	kontur.points = PackedVector2Array([Vector2(0, -8), Vector2(7, 0), Vector2(0, 8), Vector2(-7, 0), Vector2(0, -8)])
-	kontur.width = 2.0
+	kontur.points = PackedVector2Array(Array(form) + [form[0]])
+	kontur.width = 1.6
 	kontur.default_color = TINTE
 	raute.add_child(kontur)
 	wurzel.add_child(raute)
 
 
-func _label(text: String, schrift: String, groesse: int, rahmen: Rect2) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.position = rahmen.position
-	l.size = rahmen.size
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_override("font", load(SCHRIFT + schrift))
-	l.add_theme_font_size_override("font_size", groesse)
-	l.add_theme_color_override("font_color", TINTE)
+func _label(text: String, groesse: int, rahmen: Rect2) -> Label:
+	var l := TarotStil.label(text, groesse * AUFL, TINTE, false, 0)
+	l.position = rahmen.position * AUFL
+	l.size = rahmen.size * AUFL
+	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0))
 	return l
 
 
@@ -241,7 +263,7 @@ func _process(delta: float) -> void:
 
 	# Groesse mit Stoss (Juice): kurzer Ausschlag, der gedaempft nachschwingt.
 	var stoss := _stoss * exp(-_stoss_alter * 7.0) * cos(_stoss_alter * 28.0)
-	var s := lerpf(scale.y, ziel_skala, 1.0 - exp(-16.0 * delta))
+	var s := lerpf(scale.y, ziel_skala * basis, 1.0 - exp(-16.0 * delta))
 	scale = Vector2(s * _wendung, s) + Vector2(stoss, stoss)
 
 	# Neigung: dem Zeiger entgegen, sonst sanftes Kreisen.
@@ -260,7 +282,7 @@ func _process(delta: float) -> void:
 		m.set_shader_parameter("x_rot", x_rot)
 
 	# Schatten: faellt weiter, je hoeher die Karte schwebt.
-	var hoehe := (scale.y - 1.0) * 60.0 + (18.0 if gezogen else 0.0)
+	var hoehe := (scale.y / maxf(basis, 0.01) - 1.0) * 60.0 + (18.0 if gezogen else 0.0)
 	_schatten.position = Vector2(6.0 - geschwindigkeit.x * 0.01, 10.0 + hoehe).rotated(-rotation) / max(scale.y, 0.01)
 
 

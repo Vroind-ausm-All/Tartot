@@ -1,25 +1,21 @@
-"""Erzeugt die Bildteile der Kartenvorlage fuer das Godot-Addon tartot_karten.
+"""Erzeugt die Mal-Vorlage und die Farbsymbole der Karten.
 
-    python3 tools/karten/vorlage.py [--motive <ordner mit den Boss-Blaettern>]
+    python3 tools/karten/ui.py         # zuerst: Rahmen, Rueckseite, Bedienelemente
+    python3 tools/karten/vorlage.py    # dann: Vorlage mit allen Massen, Farbsymbole
 
 Ausgabe nach godot-karten/addons/tartot_karten/kunst/:
-    rahmen.png          Vorderseite ohne Motiv, Zahl und Name (240 x 360)
-    rueckseite.png      Rueckseite
     farben/<farbe>.png  kleine Farbsymbole fuer die Ecken (16 x 16)
     vorlage_2x.png      Mal-Vorlage in doppelter Groesse mit allen Massen
-    motive/<id>.png     Beispielmotive (172 x 208), ausgeschnitten aus deinen
-                        Entwuerfen - nur mit --motive, die Quellbilder liegen
-                        nicht im Repository.
 
-Ganz selbst gemalte Karten (240 x 360) liegen in kunst/karten/<id>.png und
-ersetzen Rahmen, Motiv, Zahl und Name; dieses Skript fasst sie nicht an.
+Die Kartenmotive schneidet tools/buehne/zerlegen.py aus den Boss-Blaettern;
+eigene Motive (kunst/motive/<id>.png) und ganz gemalte Karten
+(kunst/karten/<id>.png) ersetzen sie.
 
 Alle Masse stehen in MASSE und in VORLAGE.md; das Godot-Addon liest sie aus
 karte.gd. Wer die Karte anders schneiden will, aendert beides.
 """
 
 import os
-import sys
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -57,63 +53,6 @@ def rounded(d, box, r, fill, outline=None, width=1):
     d.rounded_rectangle(box, r, fill=fill, outline=outline, width=width)
 
 
-def rahmen():
-    w, h = MASSE["karte"]
-    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    rounded(d, (0, 0, w - 1, h - 1), MASSE["ecke"], INK)
-    rounded(d, (3, 3, w - 4, h - 4), MASSE["ecke"] - 3, PAPER2)
-    rounded(d, (7, 7, w - 8, h - 8), MASSE["ecke"] - 6, PAPER)
-    # Lochstreifen: die Karte ist ein Filmbild
-    pw, ph, step = MASSE["perforation"]
-    for x in MASSE["perforation_x"]:
-        for y in range(30, h - 30, step):
-            rounded(d, (x, y, x + pw - 1, y + ph - 1), 2, S3)
-    # Motivfenster
-    mx, my, mw, mh = MASSE["motiv"]
-    d.rectangle((mx - 3, my - 3, mx + mw + 2, my + mh + 2), fill=INK)
-    d.rectangle((mx - 1, my - 1, mx + mw, my + mh), fill=S1)
-    d.rectangle((mx, my, mx + mw - 1, my + mh - 1), fill=PAPER2)
-    # Namensband mit zwei Linien
-    nx, ny, nw, nh = MASSE["name"]
-    d.line((nx, ny, nx + nw, ny), fill=INK, width=2)
-    d.line((nx + 16, ny + nh, nx + nw - 16, ny + nh), fill=S2, width=1)
-    # Zierlinien an der Zahl
-    zy = MASSE["zahl"][1] + MASSE["zahl"][3] // 2 + 2
-    d.line((30, zy, 84, zy), fill=S2, width=1)
-    d.line((156, zy, 210, zy), fill=S2, width=1)
-    return im
-
-
-def rueckseite():
-    w, h = MASSE["karte"]
-    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    rounded(d, (0, 0, w - 1, h - 1), MASSE["ecke"], INK)
-    rounded(d, (8, 8, w - 9, h - 9), MASSE["ecke"] - 8, INK2, outline=GOLD, width=2)
-    rounded(d, (16, 16, w - 17, h - 17), 4, None, outline=S3, width=1)
-    pw, ph, step = MASSE["perforation"]
-    for x in MASSE["perforation_x"]:
-        for y in range(30, h - 30, step):
-            rounded(d, (x, y, x + pw - 1, y + ph - 1), 2, S3)
-    cx, cy = w // 2, h // 2
-    d.polygon([(cx, cy - 70), (cx + 62, cy + 40), (cx - 62, cy + 40)], outline=GOLD, width=3)
-    d.ellipse((cx - 30, cy - 8, cx + 30, cy + 24), fill=PAPER, outline=GOLD, width=2)
-    d.ellipse((cx - 11, cy - 3, cx + 11, cy + 19), fill=INK)
-    d.pieslice((cx - 11, cy - 3, cx + 11, cy + 19), -80, -30, fill=PAPER)
-    for i in range(12):
-        import math
-        a = i * math.pi / 6
-        d.line((cx + math.cos(a) * 84, cy + 8 + math.sin(a) * 84, cx + math.cos(a) * 100, cy + 8 + math.sin(a) * 100),
-               fill=GOLD, width=2)
-    try:
-        f = ImageFont.truetype(os.path.join(FONTS, "AbrilFatface.ttf"), 22)
-        d.text((cx, h - 44), "TARTOT", font=f, fill=GOLD, anchor="mm")
-    except OSError:
-        pass
-    return im
-
-
 def farbe(name):
     im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -142,7 +81,8 @@ def vorlage():
     """Mal-Vorlage in doppelter Groesse: jede Zone farbig markiert und bemasst."""
     s = 2
     w, h = MASSE["karte"]
-    base = rahmen().resize((w * s, h * s), Image.NEAREST)
+    # Der Rahmen kommt aus tools/karten/ui.py und liegt schon in 2x vor.
+    base = Image.open(os.path.join(OUT, "rahmen.png")).convert("RGBA").resize((w * s, h * s), Image.LANCZOS)
     im = Image.new("RGBA", (w * s + 420, h * s + 40), (30, 26, 23, 255))
     im.alpha_composite(base, (20, 20))
     over = Image.new("RGBA", im.size, (0, 0, 0, 0))
@@ -188,50 +128,11 @@ def vorlage():
     return im
 
 
-def motive(quelle):
-    """Beispielmotive aus den Entwuerfen: (id, bild, x-mitte, y-oben, y-unten) im Streifen."""
-    s = 1.029
-    cuts = [
-        ('major_10', 3, 95, 55, 135), ('major_14', 3, 207, 45, 132), ('cups_2', 3, 325, 50, 135),
-        ('major_19', 3, 557, 62, 140), ('major_4', 4, 92, 72, 150), ('major_5', 4, 205, 72, 160),
-        ('wands_7', 4, 435, 72, 160), ('major_20', 4, 555, 78, 165), ('wands_5', 5, 95, 72, 157),
-        ('major_6', 5, 205, 72, 150), ('major_15', 5, 320, 68, 158), ('major_17', 6, 95, 70, 158),
-        ('major_18', 6, 206, 60, 160), ('major_13', 6, 305, 55, 150), ('swords_1', 6, 518, 68, 152),
-        ('major_21', 7, 430, 70, 156),
-    ]
-    mw, mh = MASSE["motiv"][2:]
-    os.makedirs(os.path.join(OUT, "motive"), exist_ok=True)
-    bilder = {}
-    for cid, n, xc, yt, yb in cuts:
-        img = bilder.setdefault(n, Image.open(os.path.join(quelle, f"{n}.webp")).convert("RGB"))
-        x, y1, y2 = xc * s, 780 + yt * s, 780 + yb * s
-        hh = y2 - y1
-        ww = hh * mw / mh
-        c = img.crop((int(x - ww / 2), int(y1), int(x + ww / 2), int(y2)))
-        speichern(c, cid)
-    # aus dem Kampfentwurf (941 x 1672): Hand und Legung
-    kampf = Image.open(os.path.join(quelle, "2.webp")).convert("RGB")
-    for cid, box in (("swords_7", (250, 1200, 375, 1350)), ("cups_3", (588, 1200, 700, 1336)),
-                     ("pentacles_10", (744, 1206, 862, 1349)), ("major_16", (426, 1208, 526, 1330))):
-        speichern(kampf.crop(box), cid)
-
-
-def speichern(img, cid):
-    """Auf halbe Motivgroesse, dann ohne Glaettung verdoppelt: Pixel wie im Spiel."""
-    mw, mh = MASSE["motiv"][2:]
-    klein = img.resize((mw // 2, mh // 2), Image.LANCZOS).quantize(48, method=Image.Quantize.MEDIANCUT).convert("RGBA")
-    klein.resize((mw, mh), Image.NEAREST).save(os.path.join(OUT, "motive", cid + ".png"))
-
-
 def main():
     os.makedirs(os.path.join(OUT, "farben"), exist_ok=True)
-    rahmen().save(os.path.join(OUT, "rahmen.png"))
-    rueckseite().save(os.path.join(OUT, "rueckseite.png"))
     for name in ("schwerter", "kelche", "muenzen", "staebe", "arkana"):
         farbe(name).save(os.path.join(OUT, "farben", name + ".png"))
     vorlage().save(os.path.join(OUT, "vorlage_2x.png"))
-    if "--motive" in sys.argv:
-        motive(sys.argv[sys.argv.index("--motive") + 1])
     print("Vorlage geschrieben nach", OUT)
 
 

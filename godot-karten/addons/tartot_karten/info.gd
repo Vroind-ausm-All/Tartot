@@ -3,7 +3,6 @@ extends PanelContainer
 ## Das Infofeld ueber einer Karte, wie bei Balatro: Name, Wirkung, und darunter
 ## farbige Plaketten fuer Seltenheit und Edition.
 
-const SCHRIFT := "res://addons/tartot_karten/schrift/"
 const EDITION_FARBEN := {
 	"Shimmering": Color("F4D27A"), "Glowing": Color("7F8FD0"),
 	"Burning": Color("E0543A"), "Glass": Color("C9D6E3"),
@@ -18,26 +17,19 @@ var _karte: TarotKarte
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var stil := StyleBoxFlat.new()
-	stil.bg_color = Color(0.10, 0.08, 0.07, 0.96)
-	stil.border_color = Color("8F7A5A")
-	stil.set_border_width_all(3)
-	stil.set_corner_radius_all(14)
-	stil.set_content_margin_all(16)
-	stil.shadow_color = Color(0, 0, 0, 0.45)
-	stil.shadow_size = 10
+	var stil := TarotStil.platte("tafel.png", Vector4(30, 30, 30, 30), Vector4(28, 22, 28, 24))
 	add_theme_stylebox_override("panel", stil)
 
 	var spalte := VBoxContainer.new()
 	spalte.add_theme_constant_override("separation", 6)
 	add_child(spalte)
-	_name = _label("AlfaSlabOne.ttf", 30, Color("EFE3C8"))
+	_name = _label(true, 36, Color("F0CD80"))
 	spalte.add_child(_name)
-	_text = _label("Jersey10.ttf", 30, Color("C9B48E"))
+	_text = _label(false, 30, Color("EFE3C8"))
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text.custom_minimum_size = Vector2(440, 0)
 	spalte.add_child(_text)
-	_edition_text = _label("Jersey10.ttf", 30, Color("F4D27A"))
+	_edition_text = _label(false, 30, Color("F4D27A"))
 	_edition_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_edition_text.custom_minimum_size = Vector2(440, 0)
 	spalte.add_child(_edition_text)
@@ -48,13 +40,8 @@ func _ready() -> void:
 	visible = false
 
 
-func _label(schrift: String, groesse: int, farbe: Color) -> Label:
-	var l := Label.new()
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_override("font", load(SCHRIFT + schrift))
-	l.add_theme_font_size_override("font_size", groesse)
-	l.add_theme_color_override("font_color", farbe)
-	return l
+func _label(titel: bool, groesse: int, farbe: Color) -> Label:
+	return TarotStil.label("", groesse, farbe, not titel, 4 if titel else 0)
 
 
 func _plakette(text: String, grund: Color, schrift_farbe: Color) -> PanelContainer:
@@ -67,7 +54,8 @@ func _plakette(text: String, grund: Color, schrift_farbe: Color) -> PanelContain
 	s.content_margin_top = 2
 	s.content_margin_bottom = 4
 	p.add_theme_stylebox_override("panel", s)
-	var l := _label("AlfaSlabOne.ttf", 22, schrift_farbe)
+	var l := _label(true, 24, schrift_farbe)
+	l.add_theme_constant_override("outline_size", 0)
 	l.text = text
 	p.add_child(l)
 	return p

@@ -32,6 +32,35 @@ public partial class TartotKern : Node
 
     public string Phase() => _spiel?.Phase.ToString() ?? "";
 
+    /// <summary>
+    /// Springt direkt in den Kampf gegen einen Gegner (Boss, Finale oder
+    /// normaler Gegner). Fuer Vorfuehrungen und zum Ausprobieren einzelner Bosse.
+    /// </summary>
+    public bool KampfGegen(string gegnerId)
+    {
+        var def = ActCatalog.Find(gegnerId);
+        if (_spiel == null || def == null) return false;
+        var run = _spiel.Run;
+        if (def.Tier == EnemyTier.Finale)
+        {
+            run.FightIndex = ActCatalog.FinaleIndex;
+            while (run.ActBosses.Count <= ActCatalog.ActCount) run.ActBosses.Add(def.Id);
+            run.ActBosses[ActCatalog.ActCount] = def.Id;
+        }
+        else if (def.Tier == EnemyTier.Boss)
+        {
+            var akt = System.Math.Max(1, System.Math.Min(ActCatalog.ActCount, def.Act));
+            run.FightIndex = (akt - 1) * ActCatalog.FightsPerAct + ActCatalog.FightsBeforeBoss;
+            run.ActBosses[akt - 1] = def.Id;
+        }
+        else
+        {
+            run.PendingEnemyId = def.Id;
+        }
+        _spiel.StartFight(false);
+        return true;
+    }
+
     public string Nachricht() => _spiel?.Message ?? "";
 
     // ------------------------------------------------------------ Zustand
@@ -52,6 +81,7 @@ public partial class TartotKern : Node
         return new GDict
         {
             ["akt"] = run.Act,
+            ["akt_name"] = ActCatalog.ActNames[System.Math.Min(run.Act, ActCatalog.ActNames.Length - 1)],
             ["kampf"] = run.FightIndex + 1,
             ["zug"] = k.Turn,
             ["gegner"] = new GDict

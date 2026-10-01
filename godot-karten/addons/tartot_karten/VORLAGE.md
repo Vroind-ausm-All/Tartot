@@ -1,7 +1,8 @@
 # Karten selbst gestalten
 
-Die Karte folgt deinem Entwurf: Pergament, Lochstreifen links und rechts wie
-ein Filmstreifen, oben die Zahl, in der Mitte das Motiv, unten der Name. Das
+Die Karte folgt den Handkarten deiner Boss-Blätter: Pergament mit Flecken und
+Altersrändern, doppelter Tintenrahmen mit Eckschnörkeln, oben die Zahl, in der
+Mitte das Motiv, unten der Name. Das
 Addon setzt sie aus Einzelteilen zusammen — du malst nur, was du ändern
 willst. Glanz, Leuchten, Feuer, Glas und die Neigung kommen aus dem Shader,
 die musst du nicht malen.
@@ -20,8 +21,9 @@ Namen bleiben übersetzbar. Weg B für Karten, die aus der Reihe fallen sollen
 (Der Narr, Die Welt, Bosskarten). Beides lässt sich mischen; liegt für eine
 Karte eine ganze Karte vor, gewinnt sie.
 
-Fehlt ein Motiv, zeigt die Karte das große Farbsymbol als Platzhalter — das
-Spiel läuft also auch mit halb fertiger Kunst.
+Fehlt ein Motiv, nimmt eine Zahlenkarte das Motiv derselben Farbe mit dem
+nächsten Rang, eine große Arkana das Sinnbild der Rückseite — das Spiel läuft
+also auch mit halb fertiger Kunst.
 
 ## Maße
 
@@ -30,23 +32,21 @@ skaliert wird). Die Vorlage `kunst/vorlage_2x.png` zeigt sie doppelt so groß.
 
 | Teil | Position | Größe | Datei |
 |---|---|---|---|
-| Karte | — | 240 × 360, Ecken r = 16, Rand 3 px Tinte | `kunst/rahmen.png` |
+| Karte | — | 240 × 360, Ecken r = 16, Rand 3 px Tinte (Datei in 2×: 480 × 720, Motivfenster offen) | `kunst/rahmen.png` |
 | Motiv | x 34, y 52 | 172 × 208 | `kunst/motive/<id>.png` |
 | Zahl | x 0, y 12 | 240 × 36 (zentriert) | setzt das Addon |
 | Name | x 28, y 268 | 184 × 60 (zweizeilig, zentriert) | setzt das Addon |
-| Farbsymbole | x 14 und x 210, y 16 | 16 × 16 | `kunst/farben/<farbe>.png` |
-| Lochstreifen | x 9 und x 225 | Loch 6 × 9, Abstand 18 | Teil von `rahmen.png` |
 | Seltenheit | Mitte x 120, y 340 | Raute 14 × 16 | setzt das Addon |
-| Rückseite | — | 240 × 360 | `kunst/rueckseite.png` |
+| Rückseite | — | 240 × 360 (Datei in 2×) | `kunst/rueckseite.png` |
 
 Bei Weg B: halte die Stelle der Raute (unten Mitte, etwa 20 × 20 um x 120,
 y 340) ruhig, sonst beißt sie sich mit deiner Zeichnung.
 
-**Pixel:** Die Vorderseite wird ohne Glättung gezeichnet. Male am besten in
-1×. Wer lieber in 2× malt (344 × 416 fürs Motiv, 480 × 720 für die ganze
-Karte), malt in 2 × 2-Blöcken — das Addon verkleinert auf 1× und nimmt jedes
-zweite Pixel. Transparenz ist erlaubt; was durchsichtig ist, zeigt den
-Rahmen dahinter.
+**Auflösung:** Die Karte wird doppelt so fein gezeichnet, wie sie im Spiel
+steht (480 × 720), und weich gefiltert, wie die Malerei der Blätter. Motive
+am besten in 2× (344 × 416) oder größer abgeben; sie werden eingepasst und
+mittig beschnitten. Transparenz ist erlaubt; was durchsichtig ist, zeigt
+das Pergament dahinter.
 
 **Farben:** die Palette von „Schicksal auf Zelluloid“ — Tinte `#1A1412`,
 Papier `#EFE3C8`, Sepia `#C9B48E`/`#8F7A5A`/`#4E4032`, Gold `#E3A83B`, Blut
@@ -119,12 +119,17 @@ von Glanz, Schein und Flammen ändern.
 
 ## Neu erzeugen
 
-Rahmen, Rückseite, Farbsymbole und die Vorlage entstehen aus einem Skript;
+Rahmen, Rückseite und Bedienelemente (Zierplatten, Knopf, Reiter, Icons)
+entstehen aus einem Skript, die Vorlage mit den Maßen aus einem zweiten;
 wer sie lieber von Hand malt, überschreibt einfach die PNGs.
 
 ```sh
-python3 tools/karten/vorlage.py              # braucht Pillow
+python3 tools/karten/ui.py         # Rahmen, Rückseite, kunst/ui/* (braucht numpy, Pillow)
+python3 tools/karten/vorlage.py    # Mal-Vorlage mit allen Maßen
 ```
+
+Die Kartenmotive und die Bühnen schneidet `tools/buehne/zerlegen.py` aus
+deinen Boss-Blättern (siehe `BUEHNE.md`).
 
 Den Kartenkatalog (Namen, Zahlen, Texte, Seltenheit, Editionen) erzeugt der
 Spielkern:
@@ -138,6 +143,8 @@ Neue PNGs importiert Godot beim Öffnen des Editors selbst (ohne Editor:
 
 ## Schriften
 
-Abril Fatface (Zahl), Alfa Slab One (Name, Info-Titel), Jersey 10 (Texte).
-Alle drei stehen unter der SIL Open Font License, die Lizenztexte liegen in
-`schrift/`.
+IM Fell DW Pica (Igino Marini) für Titel und Text — Bleisatz des
+17. Jahrhunderts, schmal und kräftiger gesetzt wie auf den Blättern — und
+Oranienbaum (Oleg Pospelov) für Zahlen, weil IM Fell Mediävalziffern hat.
+Beide stehen unter der SIL Open Font License, die Lizenztexte liegen in
+`schrift/`. Alles Weitere zum Stil steht in `stil.gd` (`TarotStil`).

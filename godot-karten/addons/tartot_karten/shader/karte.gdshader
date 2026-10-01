@@ -23,6 +23,7 @@ void fragment() {
 	if (schatten > 0.5) {
 		COLOR = vec4(0.0, 0.0, 0.0, c.a * 0.42 * modul.a);
 	} else {
+		c = papierlicht(c, cuv);
 		c = editionen(c, cuv, d, TIME);
 		COLOR = aufloesen_anwenden(c, cuv) * modul;
 	}

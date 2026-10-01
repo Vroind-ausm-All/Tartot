@@ -2,7 +2,6 @@ extends Node2D
 ## Galerie: dieselbe Vorlage in allen Editionen und Seltenheiten nebeneinander.
 ## godot --path godot-karten res://demo/galerie.tscn
 
-const SCHRIFT := "res://addons/tartot_karten/schrift/"
 const REIHEN := [
 	["EDITIONEN", [["major_19", ""], ["major_19", "Shimmering"], ["major_19", "Glowing"], ["major_19", "Burning"], ["major_19", "Glass"]],
 		["ohne", "Schimmernd", "Leuchtend", "Brennend", "Gläsern"]],
@@ -44,14 +43,9 @@ func _ready() -> void:
 
 
 func _label(text: String, groesse: int, pos: Vector2, breite := 1080.0) -> Label:
-	var l := Label.new()
-	l.text = text
+	var l := TarotStil.label(text, groesse, TarotStil.PAPIER, groesse <= 40)
 	l.position = pos + (Vector2(440, 0) if breite < 1080.0 else Vector2.ZERO)
 	l.size = Vector2(breite, groesse * 1.4)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_override("font", load(SCHRIFT + ("AbrilFatface.ttf" if groesse > 40 else "Jersey10.ttf")))
-	l.add_theme_font_size_override("font_size", groesse)
-	l.add_theme_color_override("font_color", Color("EFE3C8"))
 	return l
 
 

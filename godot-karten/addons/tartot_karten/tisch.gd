@@ -25,6 +25,8 @@ signal schwebt_ueber(karte: TarotKarte)
 @export var anheben_schweben := 60.0
 @export var anheben_gewaehlt := 40.0
 @export var zug_schwelle := 12.0
+## Grundgroesse der Karten auf diesem Tisch (siehe TarotKarte.basis).
+@export var karten_basis := 1.0
 
 var hand: Array[TarotKarte] = []
 var plaetze: Array[KartenPlatz] = []
@@ -80,6 +82,7 @@ func austeilen(karte: TarotKarte, von: Vector2, verzoegerung := 0.0) -> void:
 	karte.position = von
 	karte.rotation = -0.6
 	karte.verdeckt_beginnen()
+	karte.basis = karten_basis
 	add_child(karte)
 	karte.ziel_position = von
 	hand.append(karte)
@@ -143,6 +146,7 @@ func _antippen(karte: TarotKarte) -> void:
 		karte.gewaehlt = not karte.gewaehlt
 		karte.stossen(0.08)
 		KartenKlang.spielen("waehlen", 1.0 if karte.gewaehlt else 0.8)
+		KartenKlang.fuehlen(12, 0.35)
 	else:
 		# Karte auf einem Platz antippen: zurueck auf die Hand
 		_zurueck_auf_hand(karte, hand.size())
@@ -155,6 +159,7 @@ func _aufnehmen(karte: TarotKarte) -> void:
 	_zug_versatz = karte.global_position - zeiger
 	karte.stossen(0.1)
 	KartenKlang.spielen("nehmen")
+	KartenKlang.fuehlen(10, 0.3)
 	for platz in plaetze:
 		if platz.karte == karte:
 			platz.karte = null
@@ -176,6 +181,7 @@ func _ablegen() -> void:
 		karte.ziel_rotation = 0.0
 		karte.stossen(0.16)
 		KartenKlang.spielen("ablegen")
+		KartenKlang.fuehlen(28, 0.7)
 		legung_geaendert.emit()
 	else:
 		_zurueck_auf_hand(karte, _einfuege_index(zeiger.x, karte))
@@ -236,6 +242,7 @@ func _schweben_aktualisieren() -> void:
 			neu.schwebt = true
 			neu.stossen(0.06)
 			KartenKlang.spielen("schweben", 1.0, -8.0, 0.1)
+			KartenKlang.fuehlen(5, 0.15)
 		schwebt_ueber.emit(neu)
 	if _schwebend != null:
 		_schwebend.zeiger_setzen(zeiger)

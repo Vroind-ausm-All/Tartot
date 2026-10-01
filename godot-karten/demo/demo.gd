@@ -1,71 +1,91 @@
 extends Node2D
-## Ein echter Kampf am Kartentisch: Hand, Legung, Vorschau, Wertung,
-## Gegner, Sieg und naechster Kampf kommen aus dem C#-Regelkern
-## (Autoload "Kern", kern/TartotKern.cs). Hier wird nichts gerechnet.
+## Der Kampftisch - aufgebaut wie die Boss-Blaetter:
 ##
-## Spielen: Karten antippen oder auf Vergangenheit, Gegenwart, Zukunft
-## ziehen, dann SCHICKSAL AUSFUEHREN. Braucht Godot mit .NET.
-## Aufnehmen: godot --path godot-karten --write-movie out.png --fixed-fps 30 -- --autoplay
-## Dann spielt ein Handschuh mit den Vorschlaegen des Autopiloten.
+##   Kopf:    Akt | Name und Leben des Gegners | Runde
+##   Buehne:  der Gegner auf seiner Buehne (BossBuehne), Absicht, Haltung
+##   Plaetze: Vergangenheit, Gegenwart, Zukunft
+##   Hand:    die Karten (KartenTisch)
+##   Fuss:    Leben und Schild | SCHICKSAL AUSFUEHREN | Stapel, Glueck, Ton
 ##
-## Vorfuehrdeck: die erste Hand bekommt je eine Edition (glaesern,
-## brennend, schimmernd, leuchtend), damit man alle vier sieht.
+## Alles, was gerechnet wird, kommt aus dem C#-Regelkern (Autoload "Kern").
+## Hier wird nur gezeigt, bewegt und vertont.
+##
+## Spielen: Karten antippen oder auf die Plaetze ziehen, dann ausfuehren.
+## Aufnehmen: godot --path godot-karten --write-movie f.png --fixed-fps 30 -- --autoplay
+## Mit --gegner=boss_mond (o. ae.) beginnt der Kampf gegen diesen Gegner.
 
-const SCHRIFT := "res://addons/tartot_karten/schrift/"
-const GEGNER := "res://demo/gegner/"
-const STAPEL := Vector2(1180, 1560)
-const ABLAGE := Vector2(-260, 1100)
 const ABSICHTEN := {
 	"Attack": "ANGRIFF", "Guard": "ABWEHR", "Hex": "FLUCH", "Drain": "AUSSAUGEN",
-	"Frenzy": "RASEREI", "Verborgen": "???",
+	"Frenzy": "RASEREI", "Verborgen": "VERBORGEN",
 }
+const PLATZ_NAMEN := ["VERGANGENHEIT", "GEGENWART", "ZUKUNFT"]
+const PLATZ_WIRKUNG := ["×0,9 Wirkung", "Mult +0,15", "×1,5 · nach dem Gegner"]
+const PLATZ_X := [232.0, 540.0, 848.0]
+const PLATZ_Y := 1130.0
+const STAPEL := Vector2(900, 1720)
+const ABLAGE := Vector2(-200, 1400)
 const VORFUEHR_EDITIONEN := ["Glass", "Burning", "Shimmering", "Glowing"]
 
 var _kern: Node
 var _kampf := {}
-var _karten := {}          # Instanz-Id -> TarotKarte
-var _anim := {}
-var _gegner_sprite := ""
+var _karten := {}
 var _kampf_nummer := -1
 var _mischungen := 0
+var _beschaeftigt := false
+var _vorfuehrung := false
+var _offene_treffer := 0
+var _wackeln := 0.0
+var _rot := 0.0
 
 var _welt: Node2D
+var _buehne: BossBuehne
 var _tisch: KartenTisch
 var _kaskade: WertungsKaskade
 var _info: KartenInfo
-var _gegner: AnimatedSprite2D
-var _lp_fuellung: ColorRect
-var _lp_text: Label
-var _kopf: Label
-var _titel: Label
-var _absicht: Label
-var _spieler: Label
-var _hinweis: Label
-var _knopf: Button
 var _handschuh: ZeigeHandschuh
 var _schwebe: Node2D
-var _wackeln := 0.0
-var _beschaeftigt := false
-var _vorfuehrung := false
+var _projektor: ShaderMaterial
+
+var _akt: Label
+var _akt_name: Label
+var _name: Label
+var _lp_fuellung: NinePatchRect
+var _lp_text: Label
+var _runde: Label
+var _absicht: Label
+var _haltung: Label
+var _siegel: HBoxContainer
+var _hinweis: Label
+var _spieler_lp: Label
+var _spieler_schild: Label
+var _stapel: Label
+var _glueck: Label
+var _knopf: Button
+var _ton_an := true
 
 
 func _ready() -> void:
 	randomize()
 	_vorfuehrung = OS.get_cmdline_user_args().has("--autoplay")
-	_anim = JSON.parse_string(FileAccess.get_file_as_string(GEGNER + "anim.json"))
 	_bauen()
 	_kern = get_node_or_null("/root/Kern")
 	if _kern == null or not _kern.has_method("NeuerRun"):
-		_titel.text = "OHNE KERN"
-		_absicht.text = "Dieser Tisch braucht Godot mit .NET (C#-Regelkern)."
+		_name.text = "OHNE KERN"
+		_hinweis.text = "Dieser Tisch braucht Godot mit .NET (C#-Regelkern)."
 		return
-	_neuer_run(21 if _vorfuehrung else randi())
+	var gegner := "boss_turm" if _vorfuehrung else ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--gegner="):
+			gegner = arg.substr(9)
+	_neuer_run(21 if _vorfuehrung else randi(), gegner)
 	if _vorfuehrung:
 		_vorfuehren()
 
 
-func _neuer_run(saat: int) -> void:
+func _neuer_run(saat: int, gegner := "") -> void:
 	_kern.NeuerRun(saat)
+	if gegner != "":
+		_kern.KampfGegen(gegner)
 	# Vorfuehrdeck: jede Edition einmal in der ersten Hand.
 	var hand: Array = _kern.Kampf()["hand"]
 	for i in mini(hand.size(), VORFUEHR_EDITIONEN.size()):
@@ -75,122 +95,176 @@ func _neuer_run(saat: int) -> void:
 
 # ------------------------------------------------------------------ Aufbau
 func _bauen() -> void:
+	add_child(KartenKlang.new())
 	_welt = Node2D.new()
 	add_child(_welt)
+	_hintergrund()
 
-	var grund := ColorRect.new()
-	grund.size = Vector2(1080, 1920)
-	grund.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var shader := Shader.new()
-	shader.code = """
-shader_type canvas_item;
-void fragment() {
-	vec2 uv = UV;
-	float vign = smoothstep(0.95, 0.3, length((uv - 0.5) * vec2(1.0, 0.8)));
-	vec2 zelle = floor(FRAGCOORD.xy / 3.0) + floor(TIME * 12.0);
-	float korn = fract(sin(dot(zelle, vec2(12.9898, 78.233))) * 43758.5453);
-	vec3 c = vec3(0.14, 0.11, 0.09) * (0.5 + 0.7 * vign) + (korn - 0.5) * 0.03;
-	float px = uv.x * 1080.0;
-	float py = uv.y * 1920.0;
-	if (px < 34.0 || px > 1046.0) {
-		c = vec3(0.07, 0.055, 0.045);
-		float ly = mod(py, 48.0);
-		if (ly > 12.0 && ly < 36.0 && ((px > 8.0 && px < 26.0) || (px > 1054.0 && px < 1072.0)))
-			c = vec3(0.30, 0.25, 0.19);
-	}
-	COLOR = vec4(c, 1.0);
-}
-"""
-	var mat := ShaderMaterial.new()
-	mat.shader = shader
-	grund.material = mat
-	_welt.add_child(grund)
+	# --- Kopf
+	_welt.add_child(TarotStil.tafel_knoten(Vector2(48, 20), Vector2(206, 140)))
+	_akt = TarotStil.label("AKT I", 38, TarotStil.PAPIER)
+	_akt.position = Vector2(48, 30)
+	_akt.size = Vector2(206, 50)
+	_welt.add_child(_akt)
+	_akt_name = TarotStil.label("", 25, TarotStil.PAPIER_DUNKEL)
+	_akt_name.position = Vector2(62, 76)
+	_akt_name.size = Vector2(178, 70)
+	_akt_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_akt_name.add_theme_constant_override("line_spacing", -8)
+	_welt.add_child(_akt_name)
 
-	_kopf = _label("", "Jersey10.ttf", 38, Color("C9B48E"), Vector2(0, 26), 1080)
-	_welt.add_child(_kopf)
-	_titel = _label("", "AbrilFatface.ttf", 60, Color("EFE3C8"), Vector2(0, 62), 1080)
-	_welt.add_child(_titel)
+	_welt.add_child(TarotStil.tafel_knoten(Vector2(262, 20), Vector2(604, 140)))
+	_name = TarotStil.label("", 52, TarotStil.PAPIER)
+	_name.position = Vector2(262, 26)
+	_name.size = Vector2(604, 64)
+	_welt.add_child(_name)
+	var balken := NinePatchRect.new()
+	balken.texture = load(TarotStil.KUNST + "ui/balken.png")
+	balken.patch_margin_left = 14
+	balken.patch_margin_right = 14
+	balken.patch_margin_top = 14
+	balken.patch_margin_bottom = 14
+	balken.position = Vector2(296, 92)
+	balken.size = Vector2(536, 32)
+	_welt.add_child(balken)
+	_lp_fuellung = NinePatchRect.new()
+	_lp_fuellung.texture = load(TarotStil.KUNST + "ui/fuellung.png")
+	_lp_fuellung.patch_margin_left = 6
+	_lp_fuellung.patch_margin_right = 6
+	_lp_fuellung.patch_margin_top = 6
+	_lp_fuellung.patch_margin_bottom = 6
+	_lp_fuellung.position = Vector2(6, 5)
+	_lp_fuellung.size = Vector2(524, 22)
+	balken.add_child(_lp_fuellung)
+	_lp_text = TarotStil.zahl("", 30, TarotStil.PAPIER, 6)
+	_lp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_lp_text.position = Vector2(560, 118)
+	_lp_text.size = Vector2(272, 40)
+	_welt.add_child(_lp_text)
 
-	_gegner = AnimatedSprite2D.new()
-	_gegner.position = Vector2(540, 330)
-	_gegner.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_gegner.animation_finished.connect(func():
-		if _gegner.animation != "death":
-			_gegner.play("idle"))
-	_welt.add_child(_gegner)
+	_welt.add_child(TarotStil.bild("abzeichen.png", Vector2(876, 14), Vector2(152, 152)))
+	var runde_titel := TarotStil.label("RUNDE", 24, TarotStil.PAPIER)
+	runde_titel.position = Vector2(876, 34)
+	runde_titel.size = Vector2(152, 36)
+	_welt.add_child(runde_titel)
+	_runde = TarotStil.zahl("1", 70, TarotStil.PAPIER)
+	_runde.position = Vector2(876, 60)
+	_runde.size = Vector2(152, 90)
+	_welt.add_child(_runde)
 
-	var lp_grund := ColorRect.new()
-	lp_grund.color = Color("1A1412")
-	lp_grund.position = Vector2(150, 574)
-	lp_grund.size = Vector2(780, 38)
-	_welt.add_child(lp_grund)
-	_lp_fuellung = ColorRect.new()
-	_lp_fuellung.color = Color("B3262B")
-	_lp_fuellung.position = Vector2(4, 4)
-	_lp_fuellung.size = Vector2(772, 30)
-	lp_grund.add_child(_lp_fuellung)
-	_lp_text = _label("", "AlfaSlabOne.ttf", 26, Color("EFE3C8"), Vector2(0, 2), 780)
-	lp_grund.add_child(_lp_text)
-	_absicht = _label("", "Jersey10.ttf", 34, Color("E0543A"), Vector2(150, 620), 390)
-	_absicht.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# --- Buehne
+	_welt.add_child(TarotStil.tafel_knoten(Vector2(38, 170), Vector2(1004, 744)))
+	_buehne = BossBuehne.new()
+	_buehne.position = Vector2(52, 184)
+	_buehne.size = Vector2(976, 716)
+	_welt.add_child(_buehne)
+	_buehne.spieler_getroffen.connect(_spieler_getroffen)
+
+	var absicht_tafel := TarotStil.tafel_knoten(Vector2(64, 196), Vector2(300, 64))
+	absicht_tafel.modulate = Color(1, 1, 1, 0.93)
+	_welt.add_child(absicht_tafel)
+	_absicht = TarotStil.zahl("", 32, TarotStil.GLUT)
+	_absicht.position = Vector2(64, 200)
+	_absicht.size = Vector2(300, 58)
 	_welt.add_child(_absicht)
-	_spieler = _label("", "Jersey10.ttf", 34, Color("C9B48E"), Vector2(540, 620), 390)
-	_spieler.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_welt.add_child(_spieler)
+	var haltung_tafel := TarotStil.tafel_knoten(Vector2(716, 196), Vector2(300, 64))
+	haltung_tafel.modulate = Color(1, 1, 1, 0.93)
+	_welt.add_child(haltung_tafel)
+	_welt.add_child(TarotStil.bild("schild.png", Vector2(730, 204), Vector2(48, 48)))
+	_haltung = TarotStil.zahl("", 32, TarotStil.PAPIER)
+	_haltung.position = Vector2(780, 200)
+	_haltung.size = Vector2(226, 58)
+	_welt.add_child(_haltung)
+	_siegel = HBoxContainer.new()
+	_siegel.position = Vector2(724, 266)
+	_siegel.add_theme_constant_override("separation", 2)
+	_welt.add_child(_siegel)
+	_hinweis = TarotStil.label("", 28, TarotStil.GOLD_HELL, true, 6)
+	_hinweis.position = Vector2(380, 196)
+	_hinweis.size = Vector2(320, 90)
+	_hinweis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_welt.add_child(_hinweis)
 
+	# --- Plaetze und Hand
 	_tisch = KartenTisch.new()
-	_tisch.hand_breite = 760.0
-	_tisch.max_abstand = 150.0
+	_tisch.hand_mitte = Vector2(540, 1468)
+	_tisch.hand_breite = 820.0
+	_tisch.max_abstand = 172.0
+	_tisch.karten_basis = 0.8
 	_welt.add_child(_tisch)
-	var titel := ["VERGANGENHEIT", "GEGENWART", "ZUKUNFT"]
-	var wirkung := ["Wirkung ×0,9", "Mult +0,15", "×1,5 · nach dem Gegner"]
 	for i in 3:
 		var platz := KartenPlatz.new()
-		platz.titel = titel[i]
-		platz.wirkung = wirkung[i]
-		platz.position = Vector2(200 + 340 * i, 912)
+		platz.titel = PLATZ_NAMEN[i]
+		platz.wirkung = PLATZ_WIRKUNG[i]
+		platz.position = Vector2(PLATZ_X[i], PLATZ_Y)
 		_tisch.add_child(platz)
 		_tisch.plaetze.append(platz)
 	_tisch.legung_geaendert.connect(_legung_an_kern)
 
 	_kaskade = WertungsKaskade.new()
-	_kaskade.position = Vector2(60, 1162)
-	_kaskade.size = Vector2(620, 230)
+	_kaskade.position = Vector2(230, 780)
+	_kaskade.size = Vector2(620, 140)
 	_kaskade.z_index = 250
 	_welt.add_child(_kaskade)
 	_kaskade.wackeln.connect(func(s): _wackeln = maxf(_wackeln, s))
 
-	_hinweis = _label("", "Jersey10.ttf", 30, Color("E3A83B"), Vector2(40, 1392), 1000)
-	_welt.add_child(_hinweis)
+	# --- Fuss
+	_welt.add_child(TarotStil.tafel_knoten(Vector2(40, 1652), Vector2(232, 208)))
+	_welt.add_child(TarotStil.bild("herz.png", Vector2(62, 1680), Vector2(64, 64)))
+	_spieler_lp = TarotStil.zahl("", 50, TarotStil.PAPIER)
+	_spieler_lp.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_spieler_lp.position = Vector2(132, 1680)
+	_spieler_lp.size = Vector2(140, 64)
+	_welt.add_child(_spieler_lp)
+	_welt.add_child(TarotStil.bild("schild.png", Vector2(64, 1764), Vector2(60, 60)))
+	_spieler_schild = TarotStil.zahl("", 46, TarotStil.PAPIER)
+	_spieler_schild.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_spieler_schild.position = Vector2(132, 1762)
+	_spieler_schild.size = Vector2(140, 64)
+	_welt.add_child(_spieler_schild)
 
 	_knopf = Button.new()
 	_knopf.text = "SCHICKSAL\nAUSFÜHREN"
-	_knopf.position = Vector2(716, 1190)
-	_knopf.size = Vector2(304, 150)
+	_knopf.position = Vector2(286, 1660)
+	_knopf.size = Vector2(508, 192)
 	_knopf.z_index = 250
-	_knopf.add_theme_font_override("font", load(SCHRIFT + "AlfaSlabOne.ttf"))
-	_knopf.add_theme_font_size_override("font_size", 34)
-	for zustand in ["normal", "hover", "pressed", "focus", "disabled"]:
-		var s := StyleBoxFlat.new()
-		s.bg_color = Color("7E1B1F") if zustand in ["pressed", "disabled"] else Color("B3262B")
-		s.border_color = Color("1A1412")
-		s.set_border_width_all(5)
-		s.set_corner_radius_all(16)
-		s.shadow_color = Color(0, 0, 0, 0.5)
-		s.shadow_size = 6
-		s.shadow_offset = Vector2(0, 6)
-		_knopf.add_theme_stylebox_override(zustand, s)
+	TarotStil.knopf_stil(_knopf, 62)
+	_knopf.add_theme_constant_override("line_spacing", -14)
 	_knopf.pressed.connect(func():
 		KartenKlang.spielen("knopf")
+		KartenKlang.fuehlen(30, 0.7)
 		_ausfuehren())
 	_welt.add_child(_knopf)
+
+	_welt.add_child(TarotStil.tafel_knoten(Vector2(808, 1652), Vector2(232, 208)))
+	_welt.add_child(TarotStil.bild("stapel.png", Vector2(830, 1672), Vector2(58, 58)))
+	_stapel = TarotStil.zahl("", 44, TarotStil.PAPIER)
+	_stapel.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_stapel.position = Vector2(900, 1670)
+	_stapel.size = Vector2(120, 60)
+	_welt.add_child(_stapel)
+	_welt.add_child(TarotStil.bild("glueck.png", Vector2(832, 1734), Vector2(54, 54)))
+	_glueck = TarotStil.zahl("", 44, TarotStil.PAPIER)
+	_glueck.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_glueck.position = Vector2(900, 1730)
+	_glueck.size = Vector2(120, 60)
+	_welt.add_child(_glueck)
+	var ton := TextureButton.new()
+	ton.texture_normal = load(TarotStil.KUNST + "ui/zahnrad.png")
+	ton.ignore_texture_size = true
+	ton.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	ton.position = Vector2(896, 1792)
+	ton.size = Vector2(56, 56)
+	ton.pressed.connect(func():
+		_ton_an = not _ton_an
+		AudioServer.set_bus_mute(0, not _ton_an)
+		ton.modulate = Color.WHITE if _ton_an else Color(0.5, 0.45, 0.4))
+	_welt.add_child(ton)
 
 	_schwebe = Node2D.new()
 	_schwebe.z_index = 400
 	_welt.add_child(_schwebe)
 	_kaskade.schwebe_ebene_setzen(_schwebe)
-
-	add_child(KartenKlang.new())
 
 	var oben := CanvasLayer.new()
 	oben.layer = 10
@@ -202,84 +276,84 @@ void fragment() {
 	_handschuh.visible = false
 	oben.add_child(_handschuh)
 
-
-func _label(text: String, schrift: String, groesse: int, farbe: Color, pos: Vector2, breite: float) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.position = pos
-	l.size = Vector2(breite, groesse * 1.3)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	l.add_theme_font_override("font", load(SCHRIFT + schrift))
-	l.add_theme_font_size_override("font_size", groesse)
-	l.add_theme_color_override("font_color", farbe)
-	l.add_theme_color_override("font_outline_color", Color("1A1412"))
-	l.add_theme_constant_override("outline_size", 6)
-	return l
+	var film := CanvasLayer.new()
+	film.layer = 20
+	add_child(film)
+	var schicht := ColorRect.new()
+	schicht.size = Vector2(1080, 1920)
+	schicht.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_projektor = ShaderMaterial.new()
+	_projektor.shader = load("res://addons/tartot_karten/shader/projektor.gdshader")
+	schicht.material = _projektor
+	film.add_child(schicht)
 
 
-## Sprite-Streifen des Gegners aus demo/gegner (dieselben wie in Unity).
-func _gegner_laden(sprite: String) -> void:
-	if sprite == _gegner_sprite:
-		return
-	_gegner_sprite = sprite
-	var eintrag: Dictionary = _anim.get(sprite, {})
-	var bilder := SpriteFrames.new()
-	bilder.remove_animation("default")
-	var groesse := int(eintrag.get("size", 120))
-	for zustand in eintrag.get("states", {}):
-		var streifen: Texture2D = load(GEGNER + "%s_%s.png" % [sprite, zustand])
-		if streifen == null:
-			continue
-		bilder.add_animation(zustand)
-		bilder.set_animation_speed(zustand, float(eintrag.get("fps", 12)))
-		bilder.set_animation_loop(zustand, zustand == "idle")
-		for i in int(eintrag["states"][zustand]):
-			var ausschnitt := AtlasTexture.new()
-			ausschnitt.atlas = streifen
-			ausschnitt.region = Rect2(i * groesse, 0, groesse, groesse)
-			bilder.add_frame(zustand, ausschnitt)
-	_gegner.sprite_frames = bilder
-	var s := 600.0 / groesse
-	_gegner.scale = Vector2(s, s)
-	if bilder.has_animation("idle"):
-		_gegner.play("idle")
+func _hintergrund() -> void:
+	var grund := ColorRect.new()
+	grund.size = Vector2(1080, 1920)
+	grund.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+void fragment() {
+	vec2 px = UV * vec2(1080.0, 1920.0);
+	vec3 c = vec3(0.075, 0.058, 0.048) * (0.85 + 0.3 * h(floor(px / 3.0)));
+	// Filmstreifen links und rechts: Perforation wie auf den Blaettern
+	if (px.x < 36.0 || px.x > 1044.0) {
+		c = vec3(0.035, 0.028, 0.024);
+		float lx = px.x < 36.0 ? px.x : px.x - 1044.0;
+		float ly = mod(px.y, 46.0);
+		vec2 q = vec2(lx - 18.0, ly - 23.0);
+		vec2 b = abs(q) - vec2(9.0, 11.0);
+		float d = length(max(b, 0.0)) + min(max(b.x, b.y), 0.0) - 3.0;
+		if (d < 0.0) c = vec3(0.74, 0.62, 0.45) * (0.85 + 0.2 * h(floor(px / 2.0)));
+	}
+	COLOR = vec4(c, 1.0);
+}
+"""
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	grund.material = mat
+	_welt.add_child(grund)
 
 
-func _gegner_spielen(zustand: String) -> void:
-	if _gegner.sprite_frames and _gegner.sprite_frames.has_animation(zustand):
-		_gegner.play(zustand)
-	elif zustand.begins_with("attack") and _gegner.sprite_frames and _gegner.sprite_frames.has_animation("attack"):
-		_gegner.play("attack")
-
-
-# ------------------------------------------------------------------ Abgleich mit dem Kern
-## Zeigt den Zustand des Kerns: Gegner, Leben, Absicht, neue Handkarten.
+# ------------------------------------------------------------------ Abgleich
 func _abgleichen() -> void:
 	_kampf = _kern.Kampf()
 	var g: Dictionary = _kampf["gegner"]
 	var sp: Dictionary = _kampf["spieler"]
-	_kopf.text = "AKT %s · KAMPF %d · ZUG %d" % [_roemisch(int(_kampf["akt"])), int(_kampf["kampf"]), int(_kampf["zug"])]
-	_titel.text = str(g["name"]).to_upper()
-	_gegner_laden(str(g["sprite"]))
+	var akt := int(_kampf["akt"])
+	_akt.text = "AKT " + TarotStil.roemisch(akt)
+	_akt_name.text = str(_kampf.get("akt_name", "")).to_upper()
+	_name.text = str(g["name"]).to_upper()
+	_runde.text = str(int(_kampf["zug"]))
 	_lp_zeigen(int(g["lp"]), int(g["max_lp"]))
 	var absicht: String = ABSICHTEN.get(str(g["absicht"]), str(g["absicht"]))
-	_absicht.text = "ABSICHT: %s%s" % [absicht, (" %d" % int(g["absicht_wert"])) if int(g["absicht_wert"]) > 0 else ""]
-	if int(g["haltung"]) > 0:
-		_absicht.text += "  ·  HALTUNG %d" % int(g["haltung"])
-	_spieler.text = "DU %d/%d LP%s" % [int(sp["lp"]), int(sp["max_lp"]), ("  ·  SCHILD %d" % int(sp["schild"])) if int(sp["schild"]) > 0 else ""]
+	_absicht.text = absicht + ((" %d" % int(g["absicht_wert"])) if int(g["absicht_wert"]) > 0 else "")
+	_haltung.text = "HALTUNG %d" % int(g["haltung"]) if int(g["haltung"]) > 0 else "OFFEN"
+	for kind in _siegel.get_children():
+		kind.queue_free()
+	for i in int(g["siegel"]):
+		var s := TextureRect.new()
+		s.texture = load(TarotStil.KUNST + "ui/siegel.png")
+		s.custom_minimum_size = Vector2(40, 40)
+		s.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_siegel.add_child(s)
+	_spieler_lp.text = "%d/%d" % [int(sp["lp"]), int(sp["max_lp"])]
+	_spieler_schild.text = str(int(sp["schild"]))
+	_stapel.text = str(int(_kampf["stapel"]))
+	_glueck.text = str(int(sp["glueck"]))
 	for i in 3:
 		_tisch.plaetze[i].gesperrt = i == int(_kampf["gesperrt"])
 
-	# Mischen hoeren, bevor ausgeteilt wird: zu Kampfbeginn das ganze
-	# Riffle, beim Nachmischen der Ablage ein halbes.
 	var verzug := 0.0
-	var nummer := int(_kampf["kampf"]) * 1000 + int(_kampf["akt"])
+	var nummer := int(_kampf["kampf"]) * 1000 + akt
 	if nummer != _kampf_nummer:
 		_kampf_nummer = nummer
 		_mischungen = int(_kampf["mischungen"])
-		KartenKlang.spielen("mischen", 1.0, 0.0, 0.02)
-		verzug = 1.45
+		verzug = 1.5
+		_neuer_gegner(str(g["sprite"]), akt, bool(g["boss"]))
 	elif int(_kampf["mischungen"]) > _mischungen:
 		_mischungen = int(_kampf["mischungen"])
 		KartenKlang.spielen("mischen_kurz", 1.0, -2.0, 0.02)
@@ -292,19 +366,32 @@ func _abgleichen() -> void:
 			continue
 		var karte := TarotKarte.erzeugen(d["id"], d["edition"])
 		karte.instanz = instanz
+		karte.basis = _tisch.karten_basis
 		_karten[instanz] = karte
 		_tisch.austeilen(karte, STAPEL, verzug + neu * 0.11)
 		neu += 1
 	_legung_an_kern()
 
 
+func _neuer_gegner(sprite: String, akt: int, boss: bool) -> void:
+	_buehne.laden(sprite, akt)
+	var ordner := "res://buehnen/%s/" % (sprite if ResourceLoader.exists("res://buehnen/%s/platz_0.png" % sprite) else BossBuehne.AKT_BUEHNEN[clampi(akt, 0, 5)])
+	for i in 3:
+		_tisch.plaetze[i].bild_setzen(load(ordner + "platz_%d.png" % i))
+	KartenKlang.musik("walzer", boss)
+	KartenKlang.spielen("mischen", 1.0, 0.0, 0.02)
+	KartenKlang.fuehlen(60, 0.4)
+	_buehne.auftritt()
+
+
 func _lp_zeigen(lp: int, max_lp: int) -> void:
+	var anteil := clampf(float(lp) / maxf(1.0, max_lp), 0.0, 1.0)
 	var t := create_tween()
-	t.tween_property(_lp_fuellung, "size:x", 772.0 * clampf(float(lp) / maxf(1.0, max_lp), 0.0, 1.0), 0.5).set_ease(Tween.EASE_OUT)
-	_lp_text.text = "%d / %d" % [lp, max_lp]
+	t.tween_property(_lp_fuellung, "size:x", maxf(12.0, 524.0 * anteil), 0.5).set_ease(Tween.EASE_OUT)
+	_lp_fuellung.visible = lp > 0
+	_lp_text.text = "%d/%d" % [lp, max_lp]
 
 
-## Die Legung auf dem Tisch in den Kern schreiben und die Vorschau holen.
 func _legung_an_kern() -> void:
 	if _kern == null:
 		return
@@ -321,27 +408,7 @@ func _legung_an_kern() -> void:
 		_hinweis.text = "TÖDLICH – dieser Treffer beendet den Kampf."
 
 
-func _roemisch(n: int) -> String:
-	return ["0", "I", "II", "III", "IV", "V"][clampi(n, 0, 5)]
-
-
 # ------------------------------------------------------------------ Zug
-## Der Angriff klingt nach dem, was der Gegner tut: Hieb, Raserei,
-## Aussaugen, Fluch, Abwehr - Beschwoeren und Supernova haben eigene.
-## Bosse klingen tiefer und schwerer.
-func _angriff_hoeren(bild: String, ergebnis: Dictionary) -> void:
-	var boss: bool = ergebnis.get("boss", false)
-	var hoehe := 0.82 if boss else 1.0
-	var laut := 2.0 if boss else 0.0
-	if bild == "supernova":
-		KartenKlang.spielen("supernova", 1.0, 3.0, 0.0)
-	elif bild == "summon":
-		KartenKlang.spielen("beschwoeren", hoehe, laut)
-	else:
-		var art := str(ergebnis.get("angriff", "Attack")).to_lower()
-		KartenKlang.spielen("angriff_" + art, hoehe, laut, 0.03)
-
-
 func _ausfuehren() -> void:
 	var legung := _tisch.legung()
 	if _beschaeftigt or legung.is_empty() or _kern == null:
@@ -363,31 +430,32 @@ func _ausfuehren() -> void:
 	await _kaskade.abspielen(ergebnis["schritte"], karten, int(gegner_vorher["lp"]),
 		{"schicksal": ergebnis["schicksal"], "toedlich": ergebnis["sieg"]})
 
-	# Was der Gegner abbekommt (nach Haltung) und was er zurueckgibt.
+	_offene_treffer = int(ergebnis["lp_verlust"])
 	for bild in ergebnis["animationen"]:
-		_gegner_spielen(bild)
 		if bild == "hit":
 			var an := int(ergebnis["angekommen"])
-			# je haerter der Treffer, desto tiefer und lauter
-			var wucht := clampf(float(an) / 60.0, 0.0, 1.0)
-			KartenKlang.spielen("gegner_getroffen", lerpf(1.15, 0.8, wucht), lerpf(-8.0, 2.0, wucht) if an > 0 else -12.0)
-			_schweben_text("−%d" % an if an > 0 else "GEBLOCKT", _gegner.global_position + Vector2(150, -140), Color("E0543A"))
+			_buehne.treffer(clampf(float(an) / 60.0, 0.3, 1.0))
+			_lp_zeigen(maxi(0, int(gegner_vorher["lp"]) - an), int(gegner_vorher["max_lp"]))
+			_schweben_text("−%d" % an if an > 0 else "GEBLOCKT", Vector2(780, 420), TarotStil.GLUT)
 			if an < int(ergebnis["schicksal"]) and not ergebnis["sieg"]:
-				_schweben_text("HALTUNG DECKELT", _gegner.global_position + Vector2(-150, 60), Color("C9B48E"))
+				_schweben_text("HALTUNG DECKELT", Vector2(540, 560), TarotStil.PAPIER_DUNKEL)
 			if ergebnis["haltung_gebrochen"]:
-				_schweben_text("HALTUNG BRICHT", _gegner.global_position + Vector2(0, 60), Color("E3A83B"))
+				_schweben_text("HALTUNG BRICHT", Vector2(540, 640), TarotStil.GOLD_HELL)
+			await _warte(0.7)
 		elif bild == "phase2":
-			_schweben_text("DAS SIEGEL BRICHT", _gegner.global_position, Color("E3A83B"))
-		elif bild.begins_with("attack") or bild == "summon" or bild == "supernova":
-			_angriff_hoeren(bild, ergebnis)
-			_wackeln = maxf(_wackeln, 22.0 if bild == "supernova" else 10.0)
-			if int(ergebnis["lp_verlust"]) > 0:
-				get_tree().create_timer(0.24).timeout.connect(func():
-					KartenKlang.spielen("spieler_getroffen", 1.0, lerpf(-6.0, 2.0, clampf(float(ergebnis["lp_verlust"]) / 20.0, 0.0, 1.0))))
-				_schweben_text("−%d LP" % int(ergebnis["lp_verlust"]), Vector2(800, 660), Color("E0543A"))
-		await _warte(0.55)
+			_schweben_text("DAS SIEGEL BRICHT", Vector2(540, 500), TarotStil.GOLD_HELL)
+			await _buehne.zweite_phase()
+		elif bild == "death":
+			await _buehne.sterben()
+		elif bild == "idle":
+			pass
+		else:
+			_hinweis.text = _absicht.text
+			await _buehne.angreifen(bild)
+			await _warte(0.25)
+	if _offene_treffer > 0:
+		_spieler_getroffen(0.8)
 
-	# Gespielte Karten gehen ab: auf die Ablage - oder sie zerspringen.
 	for k in legung.values():
 		_tisch.entfernen(k)
 		_karten.erase(k.instanz)
@@ -399,29 +467,57 @@ func _ausfuehren() -> void:
 			k.ziel_position = ABLAGE + Vector2(0, randf() * 200)
 			k.ziel_rotation = -0.9
 			get_tree().create_timer(1.2).timeout.connect(k.queue_free)
-	await _warte(0.5)
+	await _warte(0.4)
 	_kaskade.zuruecksetzen()
 
 	if ergebnis["sieg"]:
-		_schweben_text("SIEG", Vector2(540, 760), Color("F4D27A"))
-		_lp_zeigen(0, int(gegner_vorher["max_lp"]))
-		await _warte(1.8)
+		_schweben_text("SIEG", Vector2(540, 520), Color("F4D27A"), 1.6)
+		KartenKlang.spielen("sieg")
+		KartenKlang.fuehlen(150, 1.0)
+		await _warte(2.0)
+		await _iris(false)
 		_hand_abraeumen()
 		if not _kern.Weiter():
-			_schweben_text("DER RUN IST VORBEI", Vector2(540, 760), Color("EFE3C8"))
-			await _warte(1.5)
 			_neuer_run(randi())
 		else:
 			_abgleichen()
+		await _iris(true)
 	elif ergebnis["niederlage"]:
-		_schweben_text("DER RUN ENDET", Vector2(540, 760), Color("E0543A"))
-		await _warte(2.0)
+		_schweben_text("DER RUN ENDET", Vector2(540, 520), TarotStil.GLUT, 1.4)
+		KartenKlang.spielen("niederlage")
+		await _warte(2.4)
+		await _iris(false)
 		_hand_abraeumen()
 		_neuer_run(randi())
+		await _iris(true)
 	else:
 		_abgleichen()
 	_knopf.disabled = false
 	_beschaeftigt = false
+
+
+## Was der Gegner dem Spieler antut - im Moment, in dem der Effekt ankommt.
+func _spieler_getroffen(staerke: float) -> void:
+	_rot = maxf(_rot, 0.5 + staerke * 0.5)
+	_wackeln = maxf(_wackeln, 8.0 + 14.0 * staerke)
+	KartenKlang.fuehlen(int(40 + 60 * staerke), staerke)
+	if _offene_treffer > 0:
+		KartenKlang.spielen("spieler_getroffen", 1.0, lerpf(-6.0, 2.0, clampf(_offene_treffer / 20.0, 0.0, 1.0)))
+		_schweben_text("−%d LP" % _offene_treffer, Vector2(160, 1600), TarotStil.GLUT)
+		_offene_treffer = 0
+		var sp: Dictionary = _kern.Kampf()["spieler"]
+		_spieler_lp.text = "%d/%d" % [int(sp["lp"]), int(sp["max_lp"])]
+		var t := create_tween()
+		_spieler_lp.pivot_offset = _spieler_lp.size * 0.5
+		t.tween_property(_spieler_lp, "scale", Vector2(1.35, 1.35), 0.06)
+		t.tween_property(_spieler_lp, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+func _iris(auf: bool) -> void:
+	var t := create_tween()
+	t.tween_method(func(w): _projektor.set_shader_parameter("iris", w), 0.0 if auf else 1.25, 1.25 if auf else 0.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	KartenKlang.spielen("iris", 1.0 if auf else 0.85, -4.0)
+	await t.finished
 
 
 func _hand_abraeumen() -> void:
@@ -433,22 +529,26 @@ func _hand_abraeumen() -> void:
 	_karten.clear()
 
 
-func _schweben_text(text: String, ort: Vector2, farbe: Color) -> void:
+func _schweben_text(text: String, ort: Vector2, farbe: Color, groesse := 1.0) -> void:
 	ort.x = clampf(ort.x, 290.0, 790.0)
-	var l := _label(text, "AlfaSlabOne.ttf", 56, farbe, ort - Vector2(260, 40), 520)
+	var l := TarotStil.zahl(text, int(64 * groesse), farbe, 10) if text.begins_with("−") else TarotStil.label(text, int(60 * groesse), farbe, false, 10)
+	l.position = ort - Vector2(300, 50)
+	l.size = Vector2(600, 100)
 	_schwebe.add_child(l)
-	l.pivot_offset = Vector2(260, 36)
+	l.pivot_offset = Vector2(300, 50)
 	l.scale = Vector2(0.4, 0.4)
 	var t := create_tween()
-	t.tween_property(l, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.parallel().tween_property(l, "position:y", l.position.y - 90.0, 1.1)
+	t.tween_property(l, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(l, "position:y", l.position.y - 90.0, 1.2)
 	t.tween_property(l, "modulate:a", 0.0, 0.3)
 	t.tween_callback(l.queue_free)
 
 
 func _process(delta: float) -> void:
 	_wackeln = maxf(0.0, _wackeln - delta * 40.0)
+	_rot = maxf(0.0, _rot - delta * 1.6)
 	_welt.position = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _wackeln
+	_projektor.set_shader_parameter("rot", _rot)
 	if _vorfuehrung:
 		_handschuh.position = _tisch.zeiger + _welt.position
 
@@ -467,10 +567,8 @@ func _zeiger_zu(ziel: Vector2, dauer: float, bogen := 0.0) -> void:
 	await t.finished
 
 
-## Im Faecher verdeckt die rechte Nachbarin die rechte Kartenhaelfte:
-## sichtbar ist ein Streifen links. Dort anfassen, dann hebt sich die Karte.
 func _greifpunkt(k: TarotKarte) -> Vector2:
-	return k.global_position + Vector2(-60, 20).rotated(k.rotation)
+	return k.global_position + Vector2(-50, 20).rotated(k.rotation)
 
 
 func _ziehen(k: TarotKarte, platz: int) -> void:
@@ -488,26 +586,21 @@ func _ziehen(k: TarotKarte, platz: int) -> void:
 
 
 func _vorfuehren() -> void:
-	# Notbremse: eine Vorfuehrung endet immer, auch wenn ein Schritt scheitert.
-	get_tree().create_timer(70.0).timeout.connect(func(): get_tree().quit())
+	get_tree().create_timer(95.0).timeout.connect(func(): get_tree().quit())
 	_tisch.skript_modus = true
 	_handschuh.visible = true
 	_tisch.zeiger_bewegen(Vector2(900, 1300))
-	await _warte(2.6)
-
-	# ueber die Hand streichen: Neigung, Info, Seltenheit, Editionen
+	await _warte(3.2)
 	for k in _tisch.hand.duplicate():
 		await _zeiger_zu(_greifpunkt(k), 0.3)
 		await _zeiger_zu(k.global_position + Vector2(-20, -30), 0.5 if k.edition != "" else 0.3)
-
-	# Zuege mit den Vorschlaegen des Autopiloten, bis der erste Gegner faellt
 	var kampf_vorher := int(_kampf["kampf"])
-	for zug in 6:
+	for zug in 5:
 		for v in _kern.Vorschlag():
 			var k: TarotKarte = _karten.get(v["instanz"], null)
 			if k != null and k in _tisch.hand:
 				await _ziehen(k, int(v["platz"]))
-		await _warte(0.4)
+		await _warte(0.5)
 		await _zeiger_zu(_knopf.position + _knopf.size * 0.5, 0.45)
 		_handschuh.gedrueckt = true
 		await _warte(0.12)

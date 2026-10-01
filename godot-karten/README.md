@@ -1,7 +1,11 @@
 # Tartot Kartentisch (Godot 4.4)
 
-Die Karten von TARTOT als Godot-Addon: deine Kartenvorlage, Bewegung wie bei
-Balatro, Seltenheit, vier Editionen als Shader und die Zähl-Kaskade.
+Der Kampftisch von TARTOT, aufgebaut wie die Boss-Blätter: Kopfleiste mit
+Akt, Gegner und Runde, darunter die **Bühne** mit dem gemalten Boss, die drei
+Legeplätze, die Hand und die Fußleiste mit **Schicksal ausführen**. Die
+Karten bewegen sich wie bei Balatro, die Figuren wie Gummischlauch-Puppen
+der Fleischer-Zeit, dazu Musik, Foley, Vibration und ein Projektorfilter.
+Wie Bühne und Bosse funktionieren und wie du neue einbaust: [`BUEHNE.md`](BUEHNE.md).
 **Godot 4.4 .NET · GDScript + C#-Regelkern · GL Compatibility · Hochformat 1080 × 1920** — also
 dieselben Einstellungen wie der Godot-Port auf `chatgpt/godot-celluloid-port`.
 
@@ -34,7 +38,9 @@ Tisch einen Hinweis; die Galerie läuft auch ohne.
 
 ## Klang
 
-`addons/tartot_karten/klang.gd` (`KartenKlang`) spielt 40 prozedural
+Musik, Angriffsklänge und Zeichentrick-Foley stehen in [`BUEHNE.md`](BUEHNE.md).
+
+`addons/tartot_karten/klang.gd` (`KartenKlang`) spielt prozedural
 erzeugte Klänge (`tools/klang/klaenge.py`, nur numpy). Sie sind wie Foley
 gebaut, in drei Schichten: das **Blatt** (gefilterter Kartonschnapp mit
 Resonanz), der **Körper** (Hand, Filz, Tisch) und der **Raum** (kurzer
@@ -75,6 +81,8 @@ erzeugten. Varianten heißen `name_1.wav`, `name_2.wav` und so weiter.
 ```sh
 godot --path godot-karten                 # Kartentisch zum Selberspielen
 godot --path godot-karten res://demo/galerie.tscn   # alle Editionen und Seltenheiten
+godot --path godot-karten res://demo/buehnen.tscn   # alle Bosse: Auftritt, Angriffe, Phase 2, Tod
+godot --path godot-karten -- --gegner=boss_sonne    # Kampftisch gegen einen bestimmten Gegner
 ```
 
 Karten antippen (wählen) oder auf **Vergangenheit**, **Gegenwart**,
@@ -100,13 +108,19 @@ addons/tartot_karten/
   info.gd           KartenInfo   Info-Fenster mit Seltenheits- und Editions-Pille
   kaskade.gd        WertungsKaskade  Chips × Mult, Karte für Karte, Faktoren zuletzt
   karten_daten.gd   KartenDaten  liest daten/karten.json (aus dem Spielkern exportiert)
-  klang.gd          KartenKlang  Klänge, Tonleiter der Kaskade
+  klang.gd          KartenKlang  Klänge, Musik mit Takt, Tonleiter der Kaskade, Vibration
+  buehne.gd         BossBuehne   Bühnenbild, Figur an Federn, Angriffe, Phase 2, Tod
+  choreografie.gd   Choreografie Ruhebewegung und Angriffe je Boss
+  effekte.gd        BuehnenEffekte  Blitz, Strahlen, Welle, Feuerringe, Säulen, Hiebe, Regen, Rauch …
+  stil.gd           TarotStil    Farben, Schriften, Zierplatten, Knöpfe
   handschuh.gd      Zeigehand für Vorführungen
-  shader/           Neigung (2D-Perspektive), Editionen, Glas, Auflösen, Schatten
-  kunst/            Rahmen, Rückseite, Farbsymbole, Motive, Vorlage
-  schrift/          Abril Fatface, Alfa Slab One, Jersey 10 (OFL)
+  shader/           Karte (Neigung, Editionen, Papierlicht), Glas, Figur (Verformung), Projektor
+  kunst/            Rahmen, Rückseite, Motive, Bedienelemente (ui/), Vorlage
+  klang/            78 Klänge und Musik (aus tools/klang)
+  schrift/          IM Fell DW Pica (Titel, Text), Oranienbaum (Zahlen), OFL
   VORLAGE.md        Karten selbst malen: Maße, Dateinamen, Stellschrauben
-demo/               Kartentisch und Galerie
+buehnen/<boss>/     Bühnenbild, Figur, Platzbilder je Boss (aus tools/buehne/zerlegen.py)
+demo/               Kampftisch, Bühnen-Galerie, Karten-Galerie
 ```
 
 ### Bewegung wie bei Balatro
@@ -171,9 +185,16 @@ dotnet run --project src/Tartot.Sim -- --export-cards=godot-karten/addons/tartot
 
 ## Grenzen
 
-- Nur 20 der 78 Karten haben ein Beispielmotiv. Es ist aus deinen
-  Entwürfen ausgeschnitten. Die übrigen zeigen das Farbsymbol als
-  Platzhalter, bis du sie malst.
+- 27 der 78 Karten haben ein Motiv, ausgeschnitten aus deinen Boss-Blättern.
+  Zahlenkarten ohne eigenes Motiv zeigen das Motiv derselben Farbe mit dem
+  nächsten Rang, große Arkana ohne Motiv das Sinnbild der Rückseite.
+- Die Figuren sind aus den Blättern freigestellt (Segment Anything). Kanten
+  sind dort am saubersten, wo die Figur eine Tintenkontur hat; getrennte
+  Ebenen (siehe BUEHNE.md) sind besser.
+- Normale Gegner ohne gemalte Figur stehen als Blockout-Animation vor dem
+  Bühnenbild des Akts.
+- Magier, Hohepriesterin, Herrscherin, Wagen und Kraft haben Bühne und
+  Choreografie, sind aber noch keine Bosse im Regelkern (Regeln fehlen).
 - Für Belohnung, Wegwahl, Laden und Ereignisse gibt es am Tisch noch
   keine Oberfläche. Nach einem Sieg entscheidet dort der Autopilot.
 - Die Demo gibt der ersten Hand je eine Edition (Vorführdeck).

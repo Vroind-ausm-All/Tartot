@@ -74,8 +74,11 @@ src/
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
   blender/              Blockouts aller Gegner und Charms (headless, Pixel-Render)
-  karten/               erzeugt Rahmen, Rückseite und Mal-Vorlage der Karten
-godot-karten/      Godot-Addon: Kartenvorlage, Balatro-Bewegung, Editionen, Kaskade
+  karten/               erzeugt Rahmen, Rückseite, Bedienelemente und Mal-Vorlage
+  buehne/               zerlegt die Boss-Blätter in Bühnenbild, Figur, Platzbilder, Motive
+  klang/                erzeugt Foley, Angriffsklänge und Musik (nur numpy)
+godot-karten/      Kampftisch in Godot: Bühne mit Bossen, Karten, Klang, C#-Regelkern
+assets/bossblaetter/ die Boss-Blätter als Quelle für Bühnen und Motive
 assets/blockout/   gerenderte Sprites, Kontaktbögen, .blend-Bibliotheken
 reference/godot/   frühere Godot-Umsetzung, dient als Regelreferenz
 docs/
@@ -128,7 +131,8 @@ inklusive Weg von Hand und was ungeprüft ist, in
 | [`docs/UNITY.md`](docs/UNITY.md) | Unity-Einrichtung und was ungeprüft ist |
 | [`tools/blender/README.md`](tools/blender/README.md) | Blender-Blockouts: Baukasten, Pixel-Render, Konturen |
 | [`docs/entwuerfe/`](docs/entwuerfe/) | UI-Entwürfe im Pixellook (Kampf gegen den Turm, Omen-Beute) |
-| [`godot-karten/README.md`](godot-karten/README.md) | Kartentisch in Godot: Bewegung, Seltenheit, Editionen, Kaskade |
+| [`godot-karten/README.md`](godot-karten/README.md) | Kampftisch in Godot: Aufbau, Regelkern, Karten, Klang |
+| [`godot-karten/BUEHNE.md`](godot-karten/BUEHNE.md) | Bühne: Bosse einbauen, Bewegungen, Effekte, Musik, Haptik, Projektor |
 | [`godot-karten/addons/tartot_karten/VORLAGE.md`](godot-karten/addons/tartot_karten/VORLAGE.md) | Karten selbst malen: Maße, Dateinamen, Stellschrauben |
 | [`reference/godot/README.md`](reference/godot/README.md) | frühere Godot-Umsetzung |
 

@@ -152,6 +152,21 @@ vec4 editionen(vec4 c, vec2 cuv, float d, float zeit) {
 	return vec4(mix(aussen.rgb, c.rgb, innen), max(innen, aussen.a));
 }
 
+// Licht auf Papier: ein weicher Glanz wandert mit der Neigung ueber die Karte,
+// die abgewandte Seite wird etwas dunkler. So fuehlt sich die Karte wie
+// Karton in der Hand an und nicht wie ein Bild auf Glas.
+uniform float licht = 1.0;
+
+vec4 papierlicht(vec4 c, vec2 cuv) {
+	vec2 quelle = vec2(0.42 + y_rot * 0.022, 0.28 - x_rot * 0.022);
+	vec2 dq = (cuv - quelle) * vec2(1.0, 0.75);
+	float glanz = exp(-dot(dq, dq) * 7.0);
+	float seite = (cuv.x - 0.5) * (-y_rot / 22.0) + (cuv.y - 0.5) * (x_rot / 22.0);
+	c.rgb *= 1.0 - 0.16 * licht * clamp(seite, -0.6, 0.6);
+	c.rgb += vec3(1.0, 0.93, 0.80) * glanz * 0.09 * licht * (0.4 + 0.6 * smoothstep(0.35, 0.8, luma(c.rgb)));
+	return c;
+}
+
 vec4 aufloesen_anwenden(vec4 c, vec2 cuv) {
 	if (aufloesen <= 0.0) return c;
 	float n = fbm(cuv * vec2(6.0, 8.0) + saat * 3.0);
