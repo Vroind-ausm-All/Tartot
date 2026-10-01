@@ -227,6 +227,9 @@ func _fliegen(text: String, farbe: Color, ort: Vector2, groesse := 1.0) -> void:
 	ebene.add_child(l)
 	l.reset_size()
 	l.position = ort - l.size * 0.5
+	# Nie ueber die Chips- und Mult-Kaesten steigen, sonst verdecken sie die Zahlen.
+	var oben := 140.0 if ebene == self else global_position.y + 140.0
+	l.position.y = maxf(l.position.y, oben + 70.0)
 	l.pivot_offset = l.size * 0.5
 	l.scale = Vector2(0.3, 0.3)
 	var t := create_tween()

@@ -9,10 +9,10 @@ Wie Bühne und Bosse funktionieren und wie du neue einbaust: [`BUEHNE.md`](BUEHN
 **Godot 4.4 .NET · GDScript + C#-Regelkern · GL Compatibility · Hochformat 1080 × 1920** — also
 dieselben Einstellungen wie der Godot-Port auf `chatgpt/godot-celluloid-port`.
 
-![Kartentisch](bilder/kartentisch.png)
+![Kartentisch](bilder/kartentisch.jpg)
 
-*Drüberfahren mit Info · Ziehen mit Schwung · Kaskade bis ×1,8 · tödlich,
-die Glaskarte zerspringt.*
+*Info beim Drüberfahren · Ziehen mit Schwung · der Turm schlägt mit dem
+Blitz zurück · das Siegel bricht, Phase 2.*
 
 <img src="bilder/galerie.png" width="360" alt="Editionen und Seltenheit">
 

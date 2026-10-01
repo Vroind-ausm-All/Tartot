@@ -18,6 +18,11 @@ zerlegt, sondern verformt, so wie eine Gummischlauch-Figur der Fleischer-Zeit:
   2. **Schlag:** strecken, nach vorn, Effekt und Klang.
   3. **Nachschwingen:** zurückfedern.
 
+![Bühne](bilder/buehne.jpg)
+
+*Turm: Blitzschlag, Phase 2 · Rote Sonne: Strahlen, kreisende Sonnen ·
+Tod: Sense, Phase 2.*
+
 `demo/buehnen.tscn` zeigt alle Bosse nacheinander. Jeder tritt auf, zeigt
 jeden Angriff, wird getroffen, geht in Phase 2 und fällt.
 

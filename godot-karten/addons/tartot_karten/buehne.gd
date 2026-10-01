@@ -88,6 +88,11 @@ func _ready() -> void:
 ## akt fuer das Ersatzbild, wenn es keine gemalte Figur gibt.
 func laden(sprite_id: String, akt := 1) -> void:
 	for kind in _kamera.get_children():
+		# Die Effekt-Ebene bleibt; nur ihre laufenden Wirkungen gehen.
+		if kind == effekte:
+			for w in effekte.get_children():
+				w.queue_free()
+			continue
 		kind.queue_free()
 	boss_id = sprite_id
 	cfg = Choreografie.von(sprite_id)
