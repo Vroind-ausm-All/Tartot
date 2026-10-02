@@ -11,7 +11,7 @@ eigenen Umgebung:
 Quelle: assets/bossblaetter/<name>.jpg (die Blaetter wie entworfen).
 Ausgabe je Boss nach godot-karten/buehnen/<boss-id>/:
 
-    hintergrund.jpg   die Buehne; wo die Figur stand, bleibt ihr weicher Schattenriss
+    hintergrund.jpg   die Buehne; hinter der Figur malt LaMa die Szenerie weiter
     figur.png         die freigestellte Figur (RGBA, auf ihr Rechteck zugeschnitten)
     figur.json        wo die Figur im Buehnenbild sitzt (x, y, b, h) und ihr Fusspunkt
     platz_0..2.png    die drei Platzbilder (Vergangenheit, Gegenwart, Zukunft)
@@ -178,14 +178,99 @@ def maske_aufraeumen(alpha):
     return np.clip(weich * 255, 0, 255).astype(np.uint8), m
 
 
-def buehne_zerlegen(boss_id, cfg, sitzung):
-    from rembg import remove
+LAMA = os.environ.get("LAMA_MODELL", os.path.join(ROOT, ".venv", "big-lama.pt"))
 
+
+def figur_maske(boss_id, groesse):
+    """Maske der Figur im Buehnenbild, aus figur.png und figur.json."""
+    ziel = os.path.join(BUEHNEN, boss_id)
+    with open(os.path.join(ziel, "figur.json")) as f:
+        info = json.load(f)
+    x, y, b, h = info["figur"]
+    a = np.array(Image.open(os.path.join(ziel, "figur.png")))[..., 3]
+    m = np.zeros((groesse[1], groesse[0]), np.uint8)
+    m[y:y + h, x:x + b] = (a > 40).astype(np.uint8)
+    return m
+
+
+FUELL_BREITE = 384
+
+
+def _lama(bild, maske, _modell={}):
+    import torch
+
+    if "m" not in _modell:
+        _modell["m"] = torch.jit.load(LAMA, map_location="cpu").eval()
+    h, w = maske.shape
+    ph, pw = (8 - h % 8) % 8, (8 - w % 8) % 8
+    bild = np.pad(bild, ((0, ph), (0, pw), (0, 0)), mode="reflect")
+    maske = np.pad(maske, ((0, ph), (0, pw)))
+    with torch.no_grad():
+        t_bild = torch.from_numpy(bild).permute(2, 0, 1)[None].float() / 255
+        t_maske = torch.from_numpy(maske)[None, None].float()
+        aus = _modell["m"](t_bild, t_maske)[0].permute(1, 2, 0).numpy()[:h, :w]
+    return np.clip(aus * 255 if aus.max() <= 1.5 else aus, 0, 255).astype(np.float32)
+
+
+def hintergrund_fuellen(rgb, hart):
+    """Fuellt die Stelle hinter der Figur mit gemalter Szenerie (LaMa).
+
+    Statt eines dunklen Schattenrisses setzt LaMa (Suvorov u. a. 2021) Zelte,
+    Mauern, Himmel und Rauch fort, die um die Figur herum stehen; tief in
+    der Luecke wird daraus weicher Dunst. Darueber kommt Korn wie im Rest
+    des Blatts, damit die Stelle nicht glatt wirkt. Das Modell (big-lama.pt,
+    TorchScript) liegt unter .venv/ oder wird mit LAMA_MODELL angegeben.
+    """
+    loch = cv2.dilate(hart, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31)))
+    h, w = loch.shape
+    # LaMa kennt kleine Bilder; bei voller Groesse wird ein so grosses Loch
+    # flach und grau. Also klein fuellen (FUELL_BREITE), dann hochskalieren -
+    # das Korn darueber bringt die Feinheit zurueck.
+    k = FUELL_BREITE / w
+    kw, kh = round(w * k), round(h * k)
+    klein = cv2.resize(rgb, (kw, kh), interpolation=cv2.INTER_AREA)
+    km = (cv2.resize(loch, (kw, kh), interpolation=cv2.INTER_NEAREST) > 0).astype(np.uint8)
+    gefuellt = cv2.resize(_lama(klein, km), (w, h), interpolation=cv2.INTER_CUBIC)
+    # In vollen Bildern erfindet LaMa tief in der Luecke unruhigen Brei. Am
+    # Rand bleibt das Detail (die Szenerie laeuft weiter), nach innen geht es
+    # in weichen Dunst ueber - Tiefe hinter der Figur statt Laerm.
+    tiefe = cv2.distanceTransform(loch, cv2.DIST_L2, 5)
+    t = np.clip((tiefe - 12) / 70.0, 0, 1)[..., None] ** 0.8
+    weich = cv2.bilateralFilter(gefuellt.astype(np.uint8), 0, 40, 9).astype(np.float32)
+    weich = cv2.GaussianBlur(weich, (0, 0), 7)
+    gefuellt = gefuellt * (1 - t) + weich * t
+    # Korn wie im Original (Rauschen der hohen Frequenzen ausserhalb der Figur)
+    rest = rgb.astype(np.float32) - cv2.GaussianBlur(rgb, (0, 0), 1.5).astype(np.float32)
+    staerke = rest[loch == 0].std()
+    rng = np.random.default_rng(7)
+    korn = cv2.GaussianBlur(rng.normal(0, staerke, (h, w, 1)).astype(np.float32), (0, 0), 0.6)
+    gefuellt += korn[..., None] * (1 - 0.75 * t)
+    gewicht = cv2.GaussianBlur(loch.astype(np.float32), (0, 0), 3)[..., None]
+    return np.clip(rgb * (1 - gewicht) + gefuellt * gewicht, 0, 255).astype(np.uint8)
+
+
+def buehnenbild(cfg):
     x0, y0, x1, y1 = cfg["buehne"]
     bild = blatt(cfg["blatt"]).crop((x0, y0, x1, y1))
     skala = BUEHNE_BREITE / bild.width
     gross = bild.resize((BUEHNE_BREITE, round(bild.height * skala)), Image.LANCZOS)
-    gross = gross.filter(ImageFilter.UnsharpMask(radius=2, percent=60, threshold=2))
+    return gross.filter(ImageFilter.UnsharpMask(radius=2, percent=60, threshold=2)), skala
+
+
+def nur_hintergrund(boss_id, cfg):
+    """Nur das Buehnenbild neu fuellen; Figur und Maske bleiben, wie sie sind."""
+    gross, _ = buehnenbild(cfg)
+    hart = figur_maske(boss_id, gross.size)
+    hinter = hintergrund_fuellen(np.array(gross), hart)
+    Image.fromarray(hinter).save(os.path.join(BUEHNEN, boss_id, "hintergrund.jpg"), quality=90, optimize=True)
+    print(f"{boss_id}: Hintergrund gefuellt")
+
+
+def buehne_zerlegen(boss_id, cfg, sitzung):
+    from rembg import remove
+
+    x0, y0, x1, y1 = cfg["buehne"]
+    gross, skala = buehnenbild(cfg)
 
     punkte = [{"type": "point", "data": [round((px - x0) * skala), round((py - y0) * skala)], "label": 1} for px, py in cfg["pos"]]
     punkte += [{"type": "point", "data": [round((px - x0) * skala), round((py - y0) * skala)], "label": 0} for px, py in cfg["neg"]]
@@ -199,17 +284,9 @@ def buehne_zerlegen(boss_id, cfg, sitzung):
     ziel = os.path.join(BUEHNEN, boss_id)
     os.makedirs(ziel, exist_ok=True)
 
-    # Hintergrund: Figur grosszuegig ausschneiden und auffuellen. Was dort
-    # entsteht, ist verschwommen - es wird nur sichtbar, wenn die Figur sich
-    # weit bewegt, und dann liegt ein Schatten darauf.
+    # Hintergrund: hinter der Figur wird die Szenerie weitergemalt.
     rgb = np.array(gross)
-    # Hinter der Figur bleibt ihr weicher, dunkler Schattenriss - wie ein
-    # Schatten auf dem Buehnenprospekt. Bewegt sich die Figur, sieht man
-    # einen Schatten statt eines Lochs.
-    loch = cv2.dilate(hart, np.ones((9, 9), np.uint8)).astype(np.float32)
-    gewicht = cv2.GaussianBlur(loch, (0, 0), 10)[..., None]
-    schatten = cv2.GaussianBlur(rgb, (0, 0), 14).astype(np.float32) * 0.32
-    hinter = (rgb * (1 - gewicht) + schatten * gewicht).astype(np.uint8)
+    hinter = hintergrund_fuellen(rgb, hart)
     Image.fromarray(hinter).save(os.path.join(ziel, "hintergrund.jpg"), quality=90, optimize=True)
 
     ys, xs = np.where(hart > 0)
@@ -249,9 +326,14 @@ def motive():
 
 
 def main():
+    wahl = [a for a in sys.argv[1:] if not a.startswith("-")]
+    if "--nur-hintergrund" in sys.argv:
+        for boss_id, cfg in BOSSE.items():
+            if not wahl or boss_id in wahl or cfg["blatt"] in wahl:
+                nur_hintergrund(boss_id, cfg)
+        return
     from rembg import new_session
 
-    wahl = [a for a in sys.argv[1:] if not a.startswith("-")]
     if "--nur-motive" not in sys.argv:
         sitzung = new_session("sam")
         for boss_id, cfg in BOSSE.items():

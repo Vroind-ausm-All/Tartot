@@ -32,6 +32,14 @@ uniform vec4 aura_farbe : source_color = vec4(1.0, 0.75, 0.3, 1.0);
 uniform float aura_px = 14.0;
 uniform float aufloesen = 0.0;
 uniform vec4 glut_farbe : source_color = vec4(1.0, 0.55, 0.2, 1.0);
+// Abheben vom Hintergrund: Tintenkontur aussen, Gegenlicht als heller Saum
+// an der dem Licht zugewandten Kante (Licht kommt von hinten oben).
+uniform float kontur_px = 3.0;
+uniform vec4 kontur_farbe : source_color = vec4(0.07, 0.05, 0.04, 1.0);
+uniform float randlicht = 0.0;
+uniform float randlicht_px = 7.0;
+uniform vec2 licht_richtung = vec2(-0.45, -0.9);
+uniform vec4 randlicht_farbe : source_color = vec4(1.0, 0.85, 0.55, 1.0);
 uniform float silhouette = 0.0;      // 1: nur Schattenriss (fuer Helfer und Schatten)
 uniform vec4 silhouette_farbe : source_color = vec4(0.08, 0.06, 0.05, 1.0);
 
@@ -63,6 +71,23 @@ void fragment() {
 	vec2 uv = verformt(UV);
 	vec4 c = texture(TEXTURE, uv);
 	if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) c = vec4(0.0);
+
+	// Kontur: ein Tintenrand rund um die Figur trennt sie vom Buehnenbild.
+	if (kontur_px > 0.01 && c.a < 0.99) {
+		float k = 0.0;
+		for (int i = 0; i < 12; i++) {
+			float w = float(i) / 12.0 * 6.2832;
+			k = max(k, texture(TEXTURE, uv + vec2(cos(w), sin(w)) * kontur_px * TEXTURE_PIXEL_SIZE).a);
+		}
+		c = vec4(mix(kontur_farbe.rgb, c.rgb, c.a), max(c.a, k * kontur_farbe.a));
+	}
+	// Gegenlicht: wo zum Licht hin Luft ist, leuchtet der Rand der Figur.
+	if (randlicht > 0.001 && c.a > 0.5) {
+		vec2 r = normalize(licht_richtung) * randlicht_px * TEXTURE_PIXEL_SIZE;
+		float frei = 1.0 - texture(TEXTURE, uv + r).a;
+		frei = max(frei, (1.0 - texture(TEXTURE, uv + r * 0.5).a) * 0.7);
+		c.rgb = mix(c.rgb, randlicht_farbe.rgb, frei * randlicht * 0.75);
+	}
 
 	// Aura: der Umriss leuchtet nach aussen
 	if (aura > 0.001) {

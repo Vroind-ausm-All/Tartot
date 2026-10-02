@@ -78,9 +78,31 @@ python3 -m venv .venv && .venv/bin/pip install numpy pillow opencv-python-headle
 .venv/bin/python tools/buehne/zerlegen.py boss_<name>
 ```
 
-Segment Anything stellt die Figur frei. Hinter ihr bleibt ein weicher
-Schattenriss im Bühnenbild stehen. Bewegt sich die Figur weit, sieht man dort
-einen Schatten und kein Loch.
+Segment Anything stellt die Figur frei. Die Lücke dahinter füllt LaMa: Am
+Rand läuft die Szenerie weiter (Wolken, Zelte, Säulen), tief in der Lücke
+wird daraus weicher Dunst. Bewegt sich die Figur, steht dahinter Bühne und
+kein leerer Raum. LaMa braucht PyTorch und das Modell `big-lama.pt`:
+
+```sh
+.venv/bin/pip install torch
+curl -L -o .venv/big-lama.pt https://github.com/enesmsahin/simple-lama-inpainting/releases/download/v0.1.0/big-lama.pt
+.venv/bin/python tools/buehne/zerlegen.py --nur-hintergrund     # nur die Bühnenbilder neu füllen
+```
+
+## Tiefe: damit sich die Figur abhebt
+
+Die Bühne ist in Ebenen gebaut, von hinten nach vorn:
+
+| Ebene | Was sie tut |
+|---|---|
+| Kulisse (`shader/kulisse.gdshader`) | leicht unscharf, dunstig und etwas dunkler; um die Figur ein warmes Gegenlicht, das im Takt pulsiert |
+| Strahlen | langsam drehende Lichtstrahlen in der Farbe des Bosses |
+| Schlagschatten | die Figur als Schatten auf dem Prospekt, nach rechts hinten versetzt, mit Parallaxe |
+| Figur (`shader/figur.gdshader`) | Tintenkontur (`kontur_px`) und Randlicht von hinten oben (`randlicht`) |
+| Bodennebel | ziehender Dunst vor den Füßen |
+
+Bei getrennten Ebenen (Weg A) gilt dasselbe. Male den Hintergrund ruhig
+etwas heller und weniger dicht als die Figur; den Rest erledigt die Bühne.
 
 ### Choreografie
 

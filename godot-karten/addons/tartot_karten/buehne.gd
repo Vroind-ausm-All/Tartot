@@ -47,6 +47,12 @@ var _figur: Node2D
 var _mat: ShaderMaterial
 var _textur: Texture2D
 var _vignette: Control
+# Tiefe: Kulisse (unscharf, Gegenlicht), Strahlen hinter der Figur,
+# ihr Schlagschatten auf dem Prospekt und Bodennebel davor.
+var _kulisse: ShaderMaterial
+var _strahlen: Node2D
+var _schlag: Sprite2D
+var _nebel: Node2D
 var _skala := 1.0
 var _versatz := Vector2.ZERO
 var _fuss := Vector2.ZERO
@@ -125,6 +131,14 @@ func laden(sprite_id: String, akt := 1) -> void:
 	if not _gemalt:
 		_hinten.modulate = Color(0.62, 0.56, 0.5)
 	_kamera.add_child(_hinten)
+	_kulisse = null
+
+	_strahlen = Node2D.new()
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_strahlen.material = add
+	_strahlen.draw.connect(_strahlen_zeichnen)
+	_kamera.add_child(_strahlen)
 
 	_schatten = Node2D.new()
 	_schatten.draw.connect(func():
@@ -133,12 +147,17 @@ func laden(sprite_id: String, akt := 1) -> void:
 		_schatten.draw_circle(Vector2.ZERO, _hoehe * 0.32 * flach, Color(0, 0, 0, 0.42 * flach * (1.0 - _aufloesen))))
 	_kamera.add_child(_schatten)
 
+	_schlag = null
 	_figur_knoten = Node2D.new()
 	_kamera.add_child(_figur_knoten)
 	if _gemalt:
 		_figur_laden(ordner)
 	else:
 		_blockout_laden(sprite_id, akt)
+
+	_nebel = Node2D.new()
+	_nebel.draw.connect(_nebel_zeichnen)
+	_kamera.add_child(_nebel)
 
 	_staub = CPUParticles2D.new()
 	_staub.amount = 36
@@ -201,12 +220,36 @@ func _figur_laden(ordner: String) -> void:
 	_mat.set_shader_parameter("beule_mitte", schwer_rel)
 	_mat.set_shader_parameter("toenung_farbe", cfg["zweite"])
 	_mat.set_shader_parameter("aura_farbe", cfg["farbe"])
+	_mat.set_shader_parameter("randlicht", 0.6)
+	_mat.set_shader_parameter("randlicht_farbe", Color(cfg["farbe"]).lerp(Color(1, 0.95, 0.85), 0.45))
 	s.material = _mat
 	_figur = s
 	_figur_knoten.add_child(s)
 	_figur_knoten.scale = Vector2(_skala, _skala)
 	_figur_knoten.position = _fuss
 	_schatten.position = _fuss
+
+	# Schlagschatten auf dem Prospekt: dieselbe Figur, schwarz und halb
+	# durchsichtig, nach hinten versetzt. Er teilt sich das Material, biegt
+	# sich also mit.
+	_schlag = Sprite2D.new()
+	_schlag.texture = _textur
+	_schlag.centered = false
+	_schlag.offset = s.offset
+	_schlag.material = _mat
+	_schlag.self_modulate = Color(0, 0, 0, 0.32)
+	_kamera.add_child(_schlag)
+	_kamera.move_child(_schlag, _figur_knoten.get_index())
+
+	# Die Kulisse tritt zurueck: leicht unscharf, dunstig, dunkler - und um
+	# die Figur ein warmer Lichtfleck, damit dahinter kein leerer Raum steht.
+	_kulisse = ShaderMaterial.new()
+	_kulisse.shader = load("res://addons/tartot_karten/shader/kulisse.gdshader")
+	var bg := _hinten.texture.get_size()
+	_kulisse.set_shader_parameter("licht_mitte", Vector2(schwer[0], schwer[1]) / bg)
+	_kulisse.set_shader_parameter("licht_radius", Vector2(fig[2], fig[3]) / bg * Vector2(0.95, 0.75))
+	_kulisse.set_shader_parameter("licht_farbe", Color(cfg["farbe"]).lerp(Color(1, 0.9, 0.7), 0.5))
+	_hinten.material = _kulisse
 
 
 func _blockout_laden(sprite_id: String, _akt: int) -> void:
@@ -304,6 +347,18 @@ func _process(delta: float) -> void:
 	_kamera.position = size * 0.5 * (1.0 - z) + Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _wackeln
 	_hinten.position = _versatz - Vector2(_f["x"][0] * 0.05, _f["y"][0] * 0.03) + Vector2(sin(_zeit * 0.21), cos(_zeit * 0.17)) * 4.0
 	_schatten.queue_redraw()
+	_strahlen.queue_redraw()
+	_nebel.queue_redraw()
+	if _schlag:
+		# Der Schatten faellt nach rechts hinten und bewegt sich weniger als
+		# die Figur (Parallaxe): so steht sie sichtbar vor der Wand.
+		_schlag.position = _fuss + Vector2(_f["x"][0] * 0.8, _f["y"][0] * 0.55) + Vector2(_hoehe * 0.05, -_hoehe * 0.025)
+		_schlag.rotation = _f["rot"][0] * 0.8 + 0.035
+		_schlag.scale = Vector2(_f["sx"][0], _f["sy"][0]) * _skala * 1.02
+		_schlag.self_modulate.a = 0.32 * (1.0 - _aufloesen)
+	if _kulisse:
+		var puls := 1.0 - fposmod(KartenKlang.schlaege(), 1.0)
+		_kulisse.set_shader_parameter("licht", (0.22 + 0.06 * puls * puls + _aura * 0.2) * (1.0 - _aufloesen * 0.7))
 
 
 ## Die Ruhebewegung, im Takt der Musik.
@@ -683,6 +738,43 @@ func _supernova() -> void:
 	await _warte(0.4)
 	create_tween().tween_property(self, "_aura", 0.0, 0.6)
 	await _zurueck(0.6)
+
+
+# ------------------------------------------------------------------ Tiefe
+## Langsam drehende Lichtstrahlen hinter der Figur (additiv), wie ein
+## Scheinwerfer im Dunst des Jahrmarkts.
+func _strahlen_zeichnen() -> void:
+	if tot:
+		return
+	var farbe: Color = Color(cfg.get("farbe", Color("F4D27A")))
+	var mitte := _mitte + Vector2(_f["x"][0], _f["y"][0]) * 0.6 - Vector2(0, _hoehe * 0.15)
+	var laenge := _hoehe * 1.15
+	var staerke := 0.05 * (1.0 - _aufloesen) * (1.3 if phase_zwei else 1.0)
+	for i in 9:
+		var w := _zeit * 0.06 + float(i) / 9.0 * TAU
+		var breite := 0.07 + 0.04 * sin(i * 2.3)
+		var a := mitte + Vector2(cos(w - breite), sin(w - breite)) * laenge
+		var b := mitte + Vector2(cos(w + breite), sin(w + breite)) * laenge
+		_strahlen.draw_polygon(PackedVector2Array([mitte, a, b]),
+			PackedColorArray([Color(farbe, staerke), Color(farbe, 0.0), Color(farbe, 0.0)]))
+
+
+## Bodennebel vor den Fuessen: erdet die Figur und verdeckt die Kante,
+## an der sie auf dem Bild steht.
+func _nebel_zeichnen() -> void:
+	var oben := _fuss.y - _hoehe * 0.14
+	var dunst := Color(0.78, 0.7, 0.58)
+	var tief := Color(dunst, 0.0)
+	var dicht := Color(dunst, 0.30)
+	_nebel.draw_polygon(PackedVector2Array([Vector2(0, oben), Vector2(size.x, oben), Vector2(size.x, size.y), Vector2(0, size.y)]),
+		PackedColorArray([tief, tief, dicht, dicht]))
+	for i in 7:
+		var x := fposmod(float(i) * 173.0 + _zeit * (9.0 + i * 2.0), size.x + 300.0) - 150.0
+		var y := _fuss.y - _hoehe * 0.02 + sin(_zeit * 0.4 + i) * 6.0
+		_nebel.draw_set_transform(Vector2(x, y), 0.0, Vector2(1.0, 0.28))
+		for r in 4:
+			_nebel.draw_circle(Vector2.ZERO, 150.0 - r * 30.0, Color(dunst, 0.035))
+	_nebel.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 # ------------------------------------------------------------------ Rahmen
