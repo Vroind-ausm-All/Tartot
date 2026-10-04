@@ -19,6 +19,7 @@ namespace UnityEngine
 
     public class Component : Object
     {
+        public GameObject gameObject { get; } = new GameObject("stub");
         public T GetComponent<T>() where T : Component => null;
     }
 
@@ -65,6 +66,20 @@ namespace UnityEngine
     public enum FilterMode { Point, Bilinear, Trilinear }
     public class TextAsset : Object { public string text => string.Empty; }
     public class Texture2D : Object { }
+    public class AudioClip : Object { }
+
+    public class AudioSource : Behaviour
+    {
+        public bool playOnAwake { get; set; }
+        public bool loop { get; set; }
+        public float spatialBlend { get; set; }
+        public float volume { get; set; }
+        public float pitch { get; set; }
+        public AudioClip clip { get; set; }
+        public void Play() { }
+        public void Stop() { }
+        public void PlayOneShot(AudioClip clip, float volumeScale = 1f) { }
+    }
 
     public struct Vector2
     {
