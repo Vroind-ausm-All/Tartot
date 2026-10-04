@@ -86,7 +86,11 @@
         </ui:VisualElement>
 
         <ui:VisualElement name="vorschau-panel" class="vorschau-panel">
-          <ui:Label class="vorschau-panel__kopf" text="DIE LEGUNG SAGT" />
+          <ui:VisualElement class="vorschau-panel__kopfzeile">
+            <ui:Label class="vorschau-panel__kopf" text="DIE LEGUNG SAGT" />
+            <ui:Label name="vorschau-status" class="vorschau__status" text="" />
+          </ui:VisualElement>
+          <ui:Label name="vorschau-fate" class="vorschau__fate" text="" />
           <ui:Label name="vorschau" class="vorschau" text="" />
           <ui:VisualElement name="vorschau-kaskade" class="kaskade" />
           <ui:Label name="vorschau-hinweis" class="vorschau__hinweis" text="" />
@@ -108,7 +112,14 @@
         </ui:VisualElement>
         <ui:VisualElement name="hand" class="hand" />
         <ui:Button name="ausfuehren" class="knopf knopf--schicksal" text="SCHICKSAL AUSFÜHREN" />
-        <ui:VisualElement name="auflosung" class="auflosung" style="display: none;" />
+        <ui:VisualElement name="auflosung" class="auflosung" style="display: none;">
+          <ui:VisualElement name="auflosung-halo" class="auflosung__halo" />
+          <ui:Label name="auflosung-kopf" class="auflosung__kopf" text="" />
+          <ui:Label name="auflosung-stempel" class="auflosung__stempel" text="" />
+          <ui:VisualElement name="auflosung-schritte" class="auflosung__schritte" />
+          <ui:Label name="auflosung-fate" class="auflosung__fate" text="" />
+          <ui:Label name="auflosung-moment" class="auflosung__moment" text="" />
+        </ui:VisualElement>
       </ui:VisualElement>
     </ui:VisualElement>
 
