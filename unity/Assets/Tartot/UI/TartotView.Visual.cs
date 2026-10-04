@@ -60,8 +60,9 @@ namespace Tartot.Unity
             if (enemy == null) return;
 
             var hasRules = enemy.Definition.Rules != null && enemy.Definition.Rules.Count > 0;
-            var tower = _game != null && _game.Combat != null &&
-                        CombatSystem.HasRule(_game.Combat, BossRule.Tower);
+            // Das Finale kann eine abgeschwaechte Turm-Regel erben. Die
+            // Turm-Buehnenkunst gehoert trotzdem nur zum echten XVI-Boss.
+            var tower = enemy.Definition.Id == "boss_turm";
             var phaseTwo = enemy.Phase >= 1;
 
             if (_ruleCard != null)
