@@ -15,6 +15,7 @@ namespace Tartot.Unity
     {
         private BossStageView _bossStageView;
         private BossRuleCardView _bossRuleCardView;
+        private TowerSignatureView _towerSignatureView;
         private PreviewCascadeView _previewCascadeView;
         private ResolutionPulseView _resolutionPulseView;
 
@@ -34,6 +35,7 @@ namespace Tartot.Unity
         {
             _bossStageView = new BossStageView(_root, _frame, _stage);
             _bossRuleCardView = new BossRuleCardView(_root);
+            _towerSignatureView = new TowerSignatureView(_root, _slots, _slotHints);
             _previewCascadeView = new PreviewCascadeView(_root, _actButton);
             _resolutionPulseView = new ResolutionPulseView(_root);
 
@@ -58,9 +60,15 @@ namespace Tartot.Unity
 
             // Die Turm-Platzkunst gehoert zum Tisch, nicht zur Bossbuehne.
             var tower = enemy.Definition.Id == "boss_turm";
+            _towerSignatureView?.Refresh(tower, _game?.Combat?.BlockedSlot);
             SetVisualTexture(_slotArts[SlotPosition.Past], tower ? "Tartot/Stage/turm_platz_0" : null);
             SetVisualTexture(_slotArts[SlotPosition.Present], tower ? "Tartot/Stage/turm_platz_1" : null);
             SetVisualTexture(_slotArts[SlotPosition.Future], tower ? "Tartot/Stage/turm_platz_2" : null);
+        }
+
+        private bool DisplaySlotBlocked(SlotPosition slot, bool actualBlocked)
+        {
+            return _towerSignatureView?.DisplayBlocked(slot, actualBlocked) ?? actualBlocked;
         }
 
         private void RefreshSlotVisual(SlotPosition slot, bool blocked, bool occupied)
@@ -335,9 +343,10 @@ namespace Tartot.Unity
         /// Setzt den reinen Presentation-Lock vor Refresh(), damit Reward-/BossLoot-
         /// Overlays einen finalen Treffer nicht verdecken.
         /// </summary>
-        private void PrepareResolution(TurnResult turn)
+        private void PrepareResolution(TurnResult turn, SlotPosition? blockedBefore)
         {
             if (turn == null || turn.Score == null) return;
+            _towerSignatureView?.PrepareTransition(blockedBefore, _game?.Combat?.BlockedSlot);
             if (turn.PhaseChanged)
             {
                 _bossStageView?.PreparePhaseChange();
@@ -365,6 +374,7 @@ namespace Tartot.Unity
                 PulseStanceBreak,
                 PulseSealBreak,
                 PulseSlotCollapse,
+                PulseSlotRestore,
                 PulseWorld,
                 ReleasePresentationLock);
         }
@@ -379,22 +389,21 @@ namespace Tartot.Unity
         {
             _bossRuleCardView?.PlaySealBreakCue();
             _bossStageView?.PlayPhaseTwoCue();
+            _towerSignatureView?.PlaySealBreakShock();
             PulseImpact(3);
         }
 
         private void PulseSlotCollapse(SlotPosition slot)
         {
-            if (!_slots.TryGetValue(slot, out var element)) return;
-            element.EnableInClassList("platz--einsturz-cue", true);
+            _towerSignatureView?.PlayCollapse(slot);
+            _bossStageView?.PlayTowerStrikeCue();
             PulseImpact(3);
+        }
 
-            element.schedule.Execute(() =>
-            {
-                element.EnableInClassList("platz--einsturz-cue", false);
-                element.EnableInClassList("platz--einsturz-nachhall", true);
-            }).StartingIn(180);
-            element.schedule.Execute(() =>
-                element.EnableInClassList("platz--einsturz-nachhall", false)).StartingIn(520);
+        private void PulseSlotRestore(SlotPosition slot)
+        {
+            _towerSignatureView?.PlayRecovery(slot);
+            PulseImpact(1);
         }
 
         private void PulseWorld()
@@ -440,6 +449,7 @@ namespace Tartot.Unity
 
         private void ReleasePresentationLock()
         {
+            _towerSignatureView?.Synchronize(_game?.Combat?.BlockedSlot);
             _presentationLocked = false;
             _frame?.EnableInClassList("kampf--aufloesung", false);
             if (_actButton != null)
