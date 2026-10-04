@@ -860,20 +860,3 @@
     border-color: #d15349;
     background-color: rgba(31,11,10,0.97);
 }
-
-@media (max-width: 700px) {
-    .karte--fokus {
-        translate: 0 -20px;
-        scale: 1.065 1.065;
-    }
-
-    .karte--nachbar-links { translate: -5px 7px; }
-    .karte--nachbar-rechts { translate: 5px 7px; }
-
-    .auflosung {
-        left: 8%;
-        right: 8%;
-        top: 35%;
-    }
-}
-
