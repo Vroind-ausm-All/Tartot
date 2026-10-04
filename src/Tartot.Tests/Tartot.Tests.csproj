@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Tartot.Core/Tartot.Core.csproj" />
+    <Compile Include="../../unity/Assets/Tartot/Scripts/TowerDemoSession.cs" Link="Demo/TowerDemoSession.cs" />
   </ItemGroup>
 
 </Project>

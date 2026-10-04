@@ -43,6 +43,15 @@ namespace Tartot.Unity
                 return;
             }
 
+            if (TowerDemo && _game.Phase != GamePhase.Combat)
+            {
+                _overlayTitle.text = _game.Phase == GamePhase.GameOver ? "DER TURM BLEIBT" : "DER TURM IST GEFALLEN";
+                _overlaySubtitle.text = "Turm-Vertical-Slice · Seed " + _game.Seed;
+                OverlayButton("TURM ERNEUT SPIELEN", RestartTowerDemo);
+                _overlay.style.display = DisplayStyle.Flex;
+                return;
+            }
+
             switch (_game.Phase)
             {
                 case GamePhase.Combat:

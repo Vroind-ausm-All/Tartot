@@ -30,6 +30,9 @@ namespace Tartot.Unity
         [Tooltip("Speicherstand automatisch nach jedem Zug schreiben.")]
         public bool AutoSave = true;
 
+        [Tooltip("Startet direkt den Turm-Slice, ohne normale Spielstaende zu lesen oder zu schreiben.")]
+        public bool TowerDemo = true;
+
         [Tooltip("Demo-Audio und Bossmusik aktivieren.")]
         public bool AudioEnabled = true;
 
@@ -77,10 +80,26 @@ namespace Tartot.Unity
 
         private void OnEnable()
         {
-            _root = GetComponent<UIDocument>().rootVisualElement;
+            var document = GetComponent<UIDocument>();
+            if (document.panelSettings == null || document.visualTreeAsset == null)
+            {
+                Debug.LogError("Tartot: UIDocument ist unvollstaendig. Tartot > Projekt einrichten ausfuehren.");
+                return;
+            }
+            // Rebuild our own tree on re-enable, so callbacks never accumulate.
+            document.rootVisualElement.Clear();
+            _root = new VisualElement();
+            _root.style.flexGrow = 1;
+            document.rootVisualElement.Add(_root);
+            document.visualTreeAsset.CloneTree(_root);
+            if (_root.Q<VisualElement>("wurzel") == null)
+            {
+                Debug.LogError("Tartot: Falsches UXML am UIDocument; erwartet Tartot/Tartot.");
+                return;
+            }
             CacheElements();
             CacheVisualElements();
-            _meta = MetaProgress.Deserialize(PlayerPrefs.GetString(MetaKey, string.Empty));
+            _meta = TowerDemo ? new MetaProgress() : MetaProgress.Deserialize(PlayerPrefs.GetString(MetaKey, string.Empty));
             _setup = LoadSetup();
             StartOrResume();
         }
@@ -139,6 +158,14 @@ namespace Tartot.Unity
         // ------------------------------------------------------ Run-Steuerung
         private void StartOrResume()
         {
+            _showTitle = false;
+            _game = null;
+            if (TowerDemo)
+            {
+                StartTowerDemo();
+                Refresh();
+                return;
+            }
             var saved = PlayerPrefs.GetString(SaveKey, string.Empty);
             if (string.IsNullOrEmpty(saved))
             {
@@ -191,7 +218,7 @@ namespace Tartot.Unity
 
         private void Save()
         {
-            if (!AutoSave) return;
+            if (TowerDemo || !AutoSave) return;
             if (_game != null && _game.Phase != GamePhase.GameOver) PlayerPrefs.SetString(SaveKey, _game.Save());
             else PlayerPrefs.DeleteKey(SaveKey);
             PlayerPrefs.SetString(MetaKey, _meta.Serialize());
@@ -204,6 +231,7 @@ namespace Tartot.Unity
         /// </summary>
         private void CompleteRunOnce()
         {
+            if (TowerDemo) return;
             if (_report != null || _game == null) return;
             var killedBy = _game.Run.Won ? string.Empty : _game.Combat?.Enemy?.Definition?.Name ?? string.Empty;
             _report = _meta.CompleteRun(_game, null, killedBy);

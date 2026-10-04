@@ -74,6 +74,15 @@ namespace Tartot.Unity
             }
         }
 
+        public void Dispose()
+        {
+            ++_musicToken;
+            foreach (var voice in _voices)
+                if (voice != null) { voice.Stop(); UnityEngine.Object.Destroy(voice); }
+            if (_music != null) { _music.Stop(); UnityEngine.Object.Destroy(_music); }
+            if (_bossMusic != null) { _bossMusic.Stop(); UnityEngine.Object.Destroy(_bossMusic); }
+        }
+
         public void PlayCardSelect()
         {
             var name = (_selectVariant++ & 1) == 0 ? "waehlen_1" : "waehlen_2";
