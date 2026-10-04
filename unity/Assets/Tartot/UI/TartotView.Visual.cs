@@ -16,6 +16,7 @@ namespace Tartot.Unity
         private BossStageView _bossStageView;
         private BossRuleCardView _bossRuleCardView;
         private TowerSignatureView _towerSignatureView;
+        private PresentationFeedbackView _feedbackView;
         private PreviewCascadeView _previewCascadeView;
         private ResolutionPulseView _resolutionPulseView;
 
@@ -36,6 +37,7 @@ namespace Tartot.Unity
             _bossStageView = new BossStageView(_root, _frame, _stage);
             _bossRuleCardView = new BossRuleCardView(_root);
             _towerSignatureView = new TowerSignatureView(_root, _slots, _slotHints);
+            _feedbackView = new PresentationFeedbackView(this, _root, AudioEnabled, HapticsEnabled);
             _previewCascadeView = new PreviewCascadeView(_root, _actButton);
             _resolutionPulseView = new ResolutionPulseView(_root);
 
@@ -56,7 +58,12 @@ namespace Tartot.Unity
 
             var introduced = _bossStageView?.Refresh(enemy) ?? false;
             _bossRuleCardView?.Refresh(enemy, activeRuleText);
-            if (introduced) _bossRuleCardView?.PlayIntroCue();
+            _feedbackView?.RefreshMusic(enemy.Definition.IsBoss);
+            if (introduced)
+            {
+                _bossRuleCardView?.PlayIntroCue();
+                _feedbackView?.PlayBossIntro();
+            }
 
             // Die Turm-Platzkunst gehoert zum Tisch, nicht zur Bossbuehne.
             var tower = enemy.Definition.Id == "boss_turm";
@@ -102,8 +109,9 @@ namespace Tartot.Unity
             _pendingSnapCardId = instanceId ?? string.Empty;
         }
 
-        private static void PulseSnap(CardElement element)
+        private void PulseSnap(CardElement element)
         {
+            _feedbackView?.PlayCardLand();
             element.AddToClassList("karte--einrasten");
             element.schedule.Execute(() => element.RemoveFromClassList("karte--einrasten"))
                 .StartingIn(150);
@@ -370,23 +378,50 @@ namespace Tartot.Unity
                 turn,
                 blockedBefore,
                 blockedAfter,
+                PulseCascadeStep,
+                PulseFateHit,
+                PulsePlayerHit,
                 PulseImpact,
                 PulseStanceBreak,
                 PulseSealBreak,
                 PulseSlotCollapse,
                 PulseSlotRestore,
                 PulseWorld,
+                PulseJudgment,
                 ReleasePresentationLock);
+        }
+
+        private void PulseCascadeStep(int index, bool pattern)
+        {
+            _feedbackView?.PlayCascadeStep(index, pattern);
+        }
+
+        private void PulseFateHit(bool strong)
+        {
+            _feedbackView?.PlayFateHit(strong);
+        }
+
+        private void PulsePlayerHit()
+        {
+            _feedbackView?.PlayPlayerHit();
+            PulseImpact(1);
+        }
+
+        private void PulseJudgment(bool victory)
+        {
+            _feedbackView?.PlayJudgment(victory);
         }
 
         private void PulseStanceBreak()
         {
+            _feedbackView?.PlayStanceBreak();
             _bossStageView?.PlayStanceBreakCue();
             PulseImpact(2);
         }
 
         private void PulseSealBreak()
         {
+            _feedbackView?.PlaySealBreak();
             _bossRuleCardView?.PlaySealBreakCue();
             _bossStageView?.PlayPhaseTwoCue();
             _towerSignatureView?.PlaySealBreakShock();
@@ -395,6 +430,7 @@ namespace Tartot.Unity
 
         private void PulseSlotCollapse(SlotPosition slot)
         {
+            _feedbackView?.PlayTowerCollapse();
             _towerSignatureView?.PlayCollapse(slot);
             _bossStageView?.PlayTowerStrikeCue();
             PulseImpact(3);
@@ -408,6 +444,7 @@ namespace Tartot.Unity
 
         private void PulseWorld()
         {
+            _feedbackView?.PlayWorld();
             _frame?.EnableInClassList("kampf--welt", true);
             _frame?.schedule.Execute(() =>
                 _frame.EnableInClassList("kampf--welt", false)).StartingIn(420);
@@ -419,7 +456,9 @@ namespace Tartot.Unity
             var token = ++_impactToken;
             _frame.EnableInClassList("kampf--stoss-a", false);
             _frame.EnableInClassList("kampf--stoss-b", false);
+            _frame.EnableInClassList("kampf--stoss-c", false);
             _frame.EnableInClassList("kampf--stoss-stark", strength >= 2);
+            _frame.EnableInClassList("kampf--stoss-sehr-stark", strength >= 3);
             _frame.EnableInClassList("kampf--stoss-a", true);
 
             _frame.schedule.Execute(() =>
@@ -427,14 +466,22 @@ namespace Tartot.Unity
                 if (token != _impactToken) return;
                 _frame.EnableInClassList("kampf--stoss-a", false);
                 _frame.EnableInClassList("kampf--stoss-b", true);
-            }).StartingIn(45);
+            }).StartingIn(strength >= 3 ? 34 : 42);
 
             _frame.schedule.Execute(() =>
             {
                 if (token != _impactToken) return;
                 _frame.EnableInClassList("kampf--stoss-b", false);
+                _frame.EnableInClassList("kampf--stoss-c", true);
+            }).StartingIn(strength >= 3 ? 72 : 86);
+
+            _frame.schedule.Execute(() =>
+            {
+                if (token != _impactToken) return;
+                _frame.EnableInClassList("kampf--stoss-c", false);
                 _frame.EnableInClassList("kampf--stoss-stark", false);
-            }).StartingIn(95);
+                _frame.EnableInClassList("kampf--stoss-sehr-stark", false);
+            }).StartingIn(strength >= 3 ? 126 : 118);
         }
 
         private void SchedulePresentationUnlock(int delayMs)
