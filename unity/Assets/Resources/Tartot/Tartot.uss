@@ -1751,3 +1751,90 @@
     translate: 0 -16px;
 }
 
+/* =========================================================================
+   PHASE E — DEMO POLISH
+   Kleine Impulse statt dauernder Kamera-Bewegung. Audio/Haptik liegt in
+   PresentationFeedbackView; diese Klassen liefern nur den visuellen Nachhall.
+   ========================================================================= */
+
+.kampf--stoss-a .kampftisch {
+    translate: -3px 1px;
+    rotate: -0.10deg;
+}
+
+.kampf--stoss-b .kampftisch {
+    translate: 2px -1px;
+    rotate: 0.08deg;
+}
+
+.kampf--stoss-c .kampftisch {
+    translate: -1px 0;
+    rotate: -0.03deg;
+    scale: 1.002 1.002;
+}
+
+.kampf--stoss-stark.kampf--stoss-a .kampftisch {
+    translate: -6px 2px;
+    rotate: -0.18deg;
+    scale: 0.996 0.996;
+}
+
+.kampf--stoss-stark.kampf--stoss-b .kampftisch {
+    translate: 5px -2px;
+    rotate: 0.15deg;
+    scale: 1.004 1.004;
+}
+
+.kampf--stoss-stark.kampf--stoss-c .kampftisch {
+    translate: -2px 1px;
+    rotate: -0.05deg;
+    scale: 1.001 1.001;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-a .kampftisch {
+    translate: -9px 3px;
+    rotate: -0.26deg;
+    scale: 0.991 0.986;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-b .kampftisch {
+    translate: 7px -2px;
+    rotate: 0.22deg;
+    scale: 1.006 1.006;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-c .kampftisch {
+    translate: -2px 1px;
+    rotate: -0.04deg;
+    scale: 1.002 1.002;
+}
+
+.kampf--stoss-sehr-stark .filmrahmen {
+    border-color: rgba(240, 207, 130, 0.30);
+}
+
+.kampf--phase2 .gegner__phaseglut {
+    opacity: 0.46;
+}
+
+.kampf--aufloesung .gegner__absicht {
+    opacity: 0.72;
+}
+
+.auflosung--urteil {
+    translate: 0 -2px;
+}
+
+.auflosung--urteil .auflosung__halo {
+    scale: 1.18 1.18;
+}
+
+.platz--einsturz-cue .platz__splitter {
+    opacity: 0.96;
+}
+
+.regelkarte--bricht .regelkarte__siegelriss {
+    width: 7px;
+    opacity: 1;
+}
+
