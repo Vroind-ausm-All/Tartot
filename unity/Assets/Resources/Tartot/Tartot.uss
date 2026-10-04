@@ -860,3 +860,295 @@
     border-color: #d15349;
     background-color: rgba(31,11,10,0.97);
 }
+
+/* =========================================================================
+   PHASE B — BOSS STAGING
+   BossStageView + BossRuleCardView besitzen diese Zustandsklassen.
+   ========================================================================= */
+
+.gegner__buehnenbild {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.92;
+    -unity-background-scale-mode: scale-and-crop;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.28s;
+}
+
+.gegner__phaseglut {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    top: 3%;
+    bottom: 3%;
+    opacity: 0;
+    background-color: rgba(116, 24, 24, 0.00);
+    border-width: 1px;
+    border-color: rgba(200, 77, 62, 0.00);
+    border-radius: 120px;
+    transition-property: opacity, scale, background-color, border-color;
+    transition-duration: 0.26s;
+}
+
+.gegner__blitz {
+    position: absolute;
+    left: 67%;
+    top: -12%;
+    width: 7px;
+    height: 128%;
+    opacity: 0;
+    rotate: 17deg;
+    scale: 0.55 1;
+    background-color: #efe5c9;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-color: #ffffff;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.09s;
+}
+
+.gegner__staub {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 3%;
+    height: 23%;
+    opacity: 0;
+    scale: 0.82 0.62;
+    background-color: rgba(215, 201, 167, 0.12);
+    border-radius: 100px;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.24s;
+}
+
+.bossbuehne--boss .gegner__nameplatte {
+    border-color: rgba(227, 188, 99, 0.62);
+    background-color: rgba(10, 8, 7, 0.82);
+}
+
+.bossbuehne--turm .gegner__licht {
+    border-color: rgba(227, 188, 99, 0.28);
+    background-color: rgba(200, 155, 60, 0.045);
+}
+
+.bossbuehne--intro-start .gegner__kulisse {
+    translate: 0 -28px;
+    scale: 0.94 0.94;
+    opacity: 0.42;
+    border-color: #8c7041;
+}
+
+.bossbuehne--intro-start .gegner__figurkunst,
+.bossbuehne--intro-start .gegner__silhouette {
+    translate: 0 -18px;
+    scale: 1.07 1.07;
+    opacity: 0.18;
+}
+
+.bossbuehne--intro-settle .gegner__kulisse {
+    translate: 0 3px;
+    scale: 1.012 1.012;
+    border-color: #8f7847;
+}
+
+.bossbuehne--intro-settle .gegner__nameplatte {
+    scale: 1.02 1.02;
+    border-color: #d0a84f;
+}
+
+.gegner__blitz--intro {
+    opacity: 0.72;
+    scale: 1.2 1.0;
+    translate: -7px 0;
+}
+
+.gegner__staub--intro {
+    opacity: 0.72;
+    scale: 1.12 0.88;
+    translate: 0 -8px;
+}
+
+.bossbuehne--phase2 .gegner__buehnenbild {
+    opacity: 0.76;
+    scale: 1.025 1.025;
+}
+
+.bossbuehne--phase2 .gegner__phaseglut {
+    opacity: 0.42;
+    background-color: rgba(132, 31, 29, 0.16);
+    border-color: rgba(210, 73, 61, 0.34);
+}
+
+.bossbuehne--phase2 .gegner__figurkunst {
+    opacity: 0.31;
+    scale: 1.025 1.025;
+}
+
+.bossbuehne--phase2 .gegner__nameplatte {
+    border-color: rgba(209, 83, 73, 0.72);
+    background-color: rgba(27, 8, 8, 0.82);
+}
+
+.bossbuehne--phase2 .gegner__name {
+    color: #f0d7c9;
+}
+
+.bossbuehne--phase-cue .gegner__kulisse {
+    scale: 1.025 1.025;
+    border-color: #d15349;
+}
+
+.bossbuehne--phase-cue .gegner__figurkunst,
+.bossbuehne--phase-cue .gegner__silhouette {
+    scale: 1.055 1.055;
+}
+
+.gegner__phaseglut--cue {
+    opacity: 0.72;
+    scale: 1.05 1.05;
+    background-color: rgba(174, 42, 35, 0.24);
+    border-color: rgba(239, 111, 87, 0.62);
+}
+
+.gegner__blitz--aktiv {
+    opacity: 0.94;
+    scale: 1.6 1;
+    translate: -12px 0;
+}
+
+.gegner__staub--aktiv {
+    opacity: 0.88;
+    scale: 1.22 1.04;
+    translate: 0 -13px;
+}
+
+.bossbuehne--haltung-bruch .gegner__kulisse {
+    translate: 0 3px;
+    scale: 1.018 0.985;
+    border-color: #8798da;
+}
+
+.bossbuehne--haltung-bruch .gegner__werte {
+    scale: 1.04 1.04;
+}
+
+.bossbuehne--haltung-bruch .gegner__haltung {
+    color: #dbe0ff;
+    -unity-font-style: bold;
+}
+
+/* Regelkarte: erste Lesart -> gebrochenes Siegel -> zweite Lesart. */
+.regelkarte {
+    overflow: visible;
+}
+
+.regelkarte__phase {
+    display: none;
+    align-self: flex-start;
+    margin-bottom: 2px;
+    padding: 1px 6px;
+    color: #8e2b2b;
+    background-color: rgba(142, 43, 43, 0.08);
+    border-left-width: 2px;
+    border-color: #8e2b2b;
+    font-size: 9px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+}
+
+.regelkarte__siegelriss {
+    position: absolute;
+    left: 22px;
+    top: 2px;
+    width: 3px;
+    height: 44px;
+    opacity: 0;
+    rotate: 23deg;
+    background-color: #261512;
+    transition-property: opacity, width, rotate;
+    transition-duration: 0.12s;
+}
+
+.regelkarte__siegelriss--sichtbar {
+    opacity: 0.86;
+}
+
+.regelkarte__siegelriss--aktiv {
+    opacity: 1;
+    width: 6px;
+    rotate: 35deg;
+}
+
+.regelkarte--intro-start {
+    translate: 0 -58px;
+    scale: 0.88 0.88;
+    rotate: -6deg;
+    opacity: 0.04;
+}
+
+.regelkarte--intro-settle {
+    translate: 0 3px;
+    scale: 1.018 1.018;
+    rotate: -1.4deg;
+    border-color: #d0a84f;
+}
+
+.regelkarte--phase2 {
+    background-color: #c7b09b;
+    border-color: #a03a33;
+    border-left-width: 4px;
+    rotate: 0.9deg;
+}
+
+.regelkarte--phase2 .regelkarte__kopf {
+    color: #7d2925;
+}
+
+.regelkarte--phase2 .gegner__regel {
+    color: #2f1714;
+}
+
+.regelkarte--phase2 .regelkarte__phase {
+    display: flex;
+}
+
+.regelkarte--bricht {
+    translate: 0 5px;
+    scale: 1.055 1.055;
+    rotate: -3.2deg;
+    border-color: #e0665b;
+    background-color: #b99782;
+}
+
+.regelkarte__siegel--bricht {
+    scale: 1.42 1.42;
+    rotate: 31deg;
+    opacity: 0.62;
+    border-color: #f0cf82;
+}
+
+.regelkarte__siegel--gebrochen {
+    rotate: -19deg;
+    scale: 0.78 0.78;
+    opacity: 0.42;
+    border-color: #6d2a25;
+}
+
+.regelkarte__phase--cue {
+    color: #f2ecdd;
+    background-color: #8e2b2b;
+    border-color: #e0665b;
+    scale: 1.08 1.08;
+}
+
+.wurzel--desktop .bossbuehne--boss .gegner__kulisse {
+    min-height: 430px;
+}
+
+.wurzel--desktop .regelkarte__phase {
+    font-size: 10px;
+}
+
