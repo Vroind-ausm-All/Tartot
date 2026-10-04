@@ -40,6 +40,7 @@ namespace Tartot.Unity
             Action stanceBreak,
             Action phaseChanged,
             Action<SlotPosition> slotCollapse,
+            Action<SlotPosition> slotRestore,
             Action world,
             Action completed)
         {
@@ -149,7 +150,21 @@ namespace Tartot.Unity
                     _moment?.EnableInClassList("auflosung__moment--blut", true);
                     slotCollapse?.Invoke(collapsed);
                 });
-                delay += 130;
+                delay += 150;
+            }
+            else if (blockedBefore.HasValue && !blockedAfter.HasValue)
+            {
+                var restored = blockedBefore.Value;
+                var when = delay;
+                Schedule(token, when, () =>
+                {
+                    if (_moment != null)
+                        _moment.text = CombatSystem.SlotName(restored).ToUpperInvariant() + " RICHTET SICH AUF";
+                    _moment?.EnableInClassList("auflosung__moment--sichtbar", true);
+                    _moment?.EnableInClassList("auflosung__moment--ruhe", true);
+                    slotRestore?.Invoke(restored);
+                });
+                delay += 90;
             }
 
             if (lethal)
@@ -201,6 +216,7 @@ namespace Tartot.Unity
             _fate?.EnableInClassList("auflosung__fate--aktiv", false);
             _moment?.EnableInClassList("auflosung__moment--sichtbar", false);
             _moment?.EnableInClassList("auflosung__moment--blut", false);
+            _moment?.EnableInClassList("auflosung__moment--ruhe", false);
         }
 
         private void PulseClass(string className, int duration)
