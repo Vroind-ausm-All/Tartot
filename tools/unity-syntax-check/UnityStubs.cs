@@ -66,6 +66,21 @@ namespace UnityEngine
     public class TextAsset : Object { public string text => string.Empty; }
     public class Texture2D : Object { }
 
+    public struct Vector2
+    {
+        public float x;
+        public float y;
+        public Vector2(float x = 0f, float y = 0f) { this.x = x; this.y = y; }
+        public float sqrMagnitude => x * x + y * y;
+        public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
+    }
+
+    public struct Rect
+    {
+        public float x, y, width, height;
+        public bool Contains(Vector2 point) => true;
+    }
+
     public static class Resources
     {
         public static T Load<T>(string path) where T : Object => null;
@@ -112,6 +127,7 @@ namespace UnityEngine.UIElements
         StyleLength width { get; set; }
         StyleLength height { get; set; }
         StyleLength left { get; set; }
+        StyleLength top { get; set; }
         StyleBackground backgroundImage { get; set; }
         Rotate rotate { get; set; }
     }
@@ -122,6 +138,7 @@ namespace UnityEngine.UIElements
         public StyleLength width { get; set; }
         public StyleLength height { get; set; }
         public StyleLength left { get; set; }
+        public StyleLength top { get; set; }
         public StyleBackground backgroundImage { get; set; }
         public Rotate rotate { get; set; }
     }
@@ -129,6 +146,7 @@ namespace UnityEngine.UIElements
     public interface IVisualElementScheduledItem
     {
         IVisualElementScheduledItem Every(long intervalMs);
+        IVisualElementScheduledItem StartingIn(long delayMs);
     }
 
     public interface IVisualElementScheduler
@@ -140,21 +158,29 @@ namespace UnityEngine.UIElements
     {
         public IVisualElementScheduledItem Execute(Action timerUpdateEvent) => this;
         public IVisualElementScheduledItem Every(long intervalMs) => this;
+        public IVisualElementScheduledItem StartingIn(long delayMs) => this;
     }
 
-    public class EventBase { }
+    public class EventBase { public void StopPropagation() { } }
     public class ClickEvent : EventBase { }
+    public class PointerDownEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
+    public class PointerMoveEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
+    public class PointerUpEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
+    public class GeometryChangedEvent : EventBase { public UnityEngine.Rect newRect; }
 
     public class VisualElement
     {
         public IStyle style { get; } = new StyleStub();
         public IVisualElementScheduler schedule { get; } = new SchedulerStub();
+        public UnityEngine.Rect worldBound => new UnityEngine.Rect();
         public void Add(VisualElement child) { }
         public void Clear() { }
         public void AddToClassList(string className) { }
         public void RemoveFromClassList(string className) { }
         public void EnableInClassList(string className, bool enable) { }
         public void SetEnabled(bool value) { }
+        public void CapturePointer(int pointerId) { }
+        public void ReleasePointer(int pointerId) { }
         public void RegisterCallback<TEvent>(Action<TEvent> callback) where TEvent : EventBase { }
         public T Q<T>(string name = null) where T : VisualElement => null;
     }
