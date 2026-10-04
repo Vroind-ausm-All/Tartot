@@ -101,7 +101,7 @@ namespace Tartot.Unity
             var fateDelay = delay;
             Schedule(token, fateDelay, () =>
             {
-                var actual = turn.FateDamage > 0 ? turn.FateDamage : score.ExpectedHit;
+                var actual = turn.FateDamage;
                 if (_fate != null)
                     _fate.text = score.Chips + " × " + score.Multiplier.ToString("0.00") +
                                  " = " + score.FateDamage + " FATE" +
