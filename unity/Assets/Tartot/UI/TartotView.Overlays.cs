@@ -307,14 +307,23 @@ namespace Tartot.Unity
             _overlayTitle.text = "DAS OMEN FÄLLT";
             _overlaySubtitle.text = _game.Message + "\nWas geschieht mit seiner Tinte?";
 
+            if (omen != null) _overlayRow.Add(OmenPreview(omen));
+
             var soak = string.Join(", ", _game.SoakTargets().Select(c => c.Definition.Name));
-            OverlayButton($"TRÄNKEN — {soak}\nje eine Stufe höher und dunkler · +{GameController.SoakDarkness} Verdunkelung",
+            var soakButton = OverlayButton($"TRÄNKEN — {soak}\nje eine Stufe höher und dunkler · +{GameController.SoakDarkness} Verdunkelung",
                 () => _game.ChooseBossLoot(BossLootChoice.Soak), secondary: true);
+            StyleOmenButton(soakButton, "traenken");
+
             if (omen != null)
-                OverlayButton($"BINDEN — {omen.Name} kommt ins Deck\nverkehrt und blutig · +{GameController.BindDarkness} Verdunkelung",
+            {
+                var bindButton = OverlayButton($"BINDEN — {omen.Name} kommt ins Deck\nverkehrt und blutig · +{GameController.BindDarkness} Verdunkelung",
                     () => _game.ChooseBossLoot(BossLootChoice.Bind), secondary: true);
-            OverlayButton($"BANNEN — +{GameController.BanishGold} Gold, Heilung\n−{GameController.BanishLight} Verdunkelung",
+                StyleOmenButton(bindButton, "binden");
+            }
+
+            var banishButton = OverlayButton($"BANNEN — +{GameController.BanishGold} Gold, Heilung\n−{GameController.BanishLight} Verdunkelung",
                 () => _game.ChooseBossLoot(BossLootChoice.Banish), secondary: true);
+            StyleOmenButton(banishButton, "bannen");
         }
 
         // ------------------------------------------------------------ Rast
