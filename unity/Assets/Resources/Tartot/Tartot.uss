@@ -1152,3 +1152,345 @@
     font-size: 10px;
 }
 
+/* =========================================================================
+   PHASE C — PREVIEW + RESOLVE
+   PreviewCascadeView / ResolutionPulseView
+   ========================================================================= */
+
+.vorschau-panel {
+    position: relative;
+    overflow: hidden;
+    transition-property: scale, border-color, background-color, opacity;
+    transition-duration: 0.12s;
+}
+
+.vorschau-panel__kopfzeile {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vorschau__status {
+    min-width: 112px;
+    padding: 2px 7px;
+    border-left-width: 2px;
+    border-color: #655b4c;
+    color: #a89f8e;
+    font-size: 9px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+.vorschau__fate {
+    min-height: 27px;
+    margin-top: 2px;
+    color: #e3bc63;
+    font-size: 22px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    transition-property: scale, color;
+    transition-duration: 0.12s;
+}
+
+.vorschau {
+    margin-top: 0;
+    color: #c8beaa;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+}
+
+.vorschau-panel--aktiv {
+    border-color: #675943;
+    background-color: #15120f;
+}
+
+.vorschau-panel--aktiv .vorschau__fate {
+    scale: 1.02 1.02;
+}
+
+.vorschau-panel--bruch {
+    border-color: #7a89c4;
+    background-color: #12141c;
+    scale: 1.008 1.008;
+}
+
+.vorschau-panel--bruch .vorschau__status,
+.vorschau-panel--bruch .vorschau__fate {
+    color: #bfc9ff;
+    border-color: #7887c0;
+}
+
+.vorschau-panel--welt {
+    border-color: #d4aa4e;
+    background-color: #211b0f;
+    scale: 1.012 1.012;
+}
+
+.vorschau-panel--welt .vorschau__status,
+.vorschau-panel--welt .vorschau__fate {
+    color: #f0cf82;
+    border-color: #d4aa4e;
+}
+
+.vorschau-panel--toedlich {
+    border-width: 2px;
+    border-color: #df665b;
+    background-color: #260d0b;
+    scale: 1.018 1.018;
+}
+
+.vorschau-panel--toedlich .vorschau__status {
+    color: #f3b0a7;
+    border-color: #e0665b;
+}
+
+.vorschau-panel--toedlich .vorschau__fate {
+    color: #f08a7e;
+    scale: 1.07 1.07;
+}
+
+.vorschau-panel--verschleiert {
+    border-color: #5f5c79;
+    background-color: #12111a;
+    opacity: 0.92;
+}
+
+.vorschau-panel--verschleiert .vorschau__fate {
+    color: #8a88ae;
+}
+
+.kaskade {
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top-width: 1px;
+    border-color: rgba(108, 94, 67, 0.36);
+}
+
+.kaskade__schritt {
+    margin: 1px 3px;
+    padding: 2px 5px;
+    background-color: rgba(239, 227, 200, 0.025);
+    border-bottom-width: 1px;
+    border-color: rgba(103, 89, 67, 0.34);
+    border-radius: 4px;
+}
+
+.kaskade__schritt--muster {
+    color: #e3bc63;
+    background-color: rgba(200, 155, 60, 0.065);
+    border-color: rgba(211, 171, 82, 0.50);
+}
+
+/* Auflösung ist eine kurze Bühne über dem Tisch, kein Log-Fenster. */
+.auflosung {
+    overflow: hidden;
+    min-height: 170px;
+    justify-content: center;
+    padding: 14px 16px 16px 16px;
+    transition-property: scale, translate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__halo {
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    top: 8%;
+    bottom: 8%;
+    opacity: 0.10;
+    scale: 0.84 0.84;
+    background-color: rgba(214, 179, 89, 0.04);
+    border-width: 1px;
+    border-color: rgba(222, 190, 105, 0.12);
+    border-radius: 120px;
+    transition-property: opacity, scale, background-color, border-color;
+    transition-duration: 0.16s;
+}
+
+.auflosung__kopf {
+    position: relative;
+    margin-bottom: 3px;
+    color: #8d8474;
+    font-size: 9px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.auflosung__stempel {
+    position: relative;
+    display: none;
+    margin: 2px 0 5px 0;
+    padding: 4px 13px;
+    color: #f0cf82;
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: #c89b3c;
+    scale: 0.88 0.88;
+    opacity: 0.12;
+    transition-property: scale, opacity, color, border-color, background-color;
+    transition-duration: 0.11s;
+}
+
+.auflosung__stempel--sichtbar {
+    display: flex;
+    scale: 1.04 1.04;
+    opacity: 1;
+}
+
+.auflosung__stempel--toedlich {
+    color: #f3b0a7;
+    border-color: #e0665b;
+    background-color: rgba(142, 43, 43, 0.12);
+    scale: 1.10 1.10;
+}
+
+.auflosung__schritte {
+    position: relative;
+    align-items: center;
+    min-height: 36px;
+    width: 100%;
+}
+
+.auflosung__schritt {
+    min-width: 58%;
+    margin-top: 2px;
+    padding: 2px 8px;
+    color: #aaa08d;
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    border-left-width: 2px;
+    border-color: #5c5143;
+    background-color: rgba(239, 227, 200, 0.018);
+}
+
+.auflosung__schritt--muster {
+    color: #e3bc63;
+    border-color: #c89b3c;
+    background-color: rgba(200, 155, 60, 0.06);
+    -unity-font-style: bold;
+}
+
+.auflosung__fate {
+    position: relative;
+    min-height: 33px;
+    margin-top: 6px;
+    color: var(--ocker-hell);
+    font-size: 23px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0.15;
+    scale: 0.84 0.84;
+    transition-property: scale, opacity, color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__fate--aktiv {
+    opacity: 1;
+    scale: 1.08 1.08;
+}
+
+.auflosung__moment {
+    position: relative;
+    min-height: 20px;
+    margin-top: 5px;
+    color: #8798da;
+    font-size: 13px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0;
+    scale: 0.86 0.86;
+    transition-property: scale, opacity, color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__moment--sichtbar {
+    opacity: 1;
+    scale: 1.06 1.06;
+}
+
+.auflosung__moment--blut {
+    color: #e0665b;
+}
+
+.auflosung--schritt-puls {
+    scale: 1.012 1.012;
+}
+
+.auflosung--bruch {
+    border-color: #7d8fcb;
+    background-color: rgba(14, 15, 25, 0.97);
+}
+
+.auflosung__halo--bruch {
+    opacity: 0.54;
+    scale: 1.03 1.03;
+    background-color: rgba(86, 102, 170, 0.13);
+    border-color: rgba(135, 152, 218, 0.48);
+}
+
+.auflosung--welt {
+    border-color: #e3bc63;
+    background-color: rgba(30, 24, 12, 0.98);
+}
+
+.auflosung__halo--welt {
+    opacity: 0.64;
+    scale: 1.08 1.08;
+    background-color: rgba(200, 155, 60, 0.16);
+    border-color: rgba(240, 207, 130, 0.60);
+}
+
+.auflosung--welt .auflosung__fate {
+    color: #f0cf82;
+}
+
+.auflosung--toedlich {
+    border-width: 3px;
+    border-color: #e0665b;
+    background-color: rgba(37, 8, 8, 0.98);
+}
+
+.auflosung--toedlich .auflosung__fate {
+    color: #f08a7e;
+}
+
+.auflosung__halo--toedlich {
+    opacity: 0.70;
+    scale: 1.14 1.14;
+    background-color: rgba(159, 38, 31, 0.19);
+    border-color: rgba(224, 102, 91, 0.68);
+}
+
+.auflosung--urteil {
+    scale: 1.035 1.035;
+    border-color: #f18b7f;
+}
+
+.auflosung--urteil .auflosung__stempel {
+    scale: 1.14 1.14;
+}
+
+.wurzel--desktop .vorschau__fate {
+    font-size: 25px;
+}
+
+.wurzel--desktop .auflosung {
+    left: 18%;
+    right: 18%;
+    top: 32%;
+    min-height: 190px;
+}
+
+.wurzel--desktop .auflosung__fate {
+    font-size: 27px;
+}
+
