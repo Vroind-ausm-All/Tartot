@@ -8,8 +8,12 @@
     <ui:VisualElement name="kampftisch" class="kampftisch">
       <ui:VisualElement name="gegner" class="gegner">
         <ui:VisualElement name="gegner-kulisse" class="gegner__kulisse">
+          <ui:VisualElement name="gegner-buehnenbild" class="gegner__buehnenbild" />
+          <ui:VisualElement name="gegner-phaseglut" class="gegner__phaseglut" />
+          <ui:VisualElement name="gegner-blitz" class="gegner__blitz" />
           <ui:VisualElement class="gegner__licht" />
           <ui:VisualElement name="gegner-figurkunst" class="gegner__figurkunst" />
+          <ui:VisualElement name="gegner-staub" class="gegner__staub" />
           <ui:VisualElement class="gegner__bodennebel" />
           <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />
           <ui:VisualElement class="gegner__nameplatte">
@@ -20,9 +24,11 @@
         <ui:VisualElement name="gegner-regelkarte" class="regelkarte">
           <ui:VisualElement class="regelkarte__textblock">
             <ui:Label class="regelkarte__kopf" text="REGEL DES OMENS" />
+            <ui:Label name="gegner-regelphase" class="regelkarte__phase" text="ERSTE LESART" />
             <ui:Label name="gegner-regel" class="gegner__regel" text="" />
           </ui:VisualElement>
           <ui:VisualElement name="gegner-regelsiegel" class="regelkarte__siegel">
+            <ui:VisualElement name="gegner-regelsiegel-riss" class="regelkarte__siegelriss" />
             <ui:Label name="gegner-regelsiegel-text" class="regelkarte__siegeltext" text="✦" />
           </ui:VisualElement>
         </ui:VisualElement>
