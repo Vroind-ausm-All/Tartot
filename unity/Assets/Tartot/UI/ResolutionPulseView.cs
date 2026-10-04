@@ -36,12 +36,16 @@ namespace Tartot.Unity
             TurnResult turn,
             SlotPosition? blockedBefore,
             SlotPosition? blockedAfter,
+            Action<int, bool> cascadeStep,
+            Action<bool> fateHit,
+            Action playerHit,
             Action<int> impact,
             Action stanceBreak,
             Action phaseChanged,
             Action<SlotPosition> slotCollapse,
             Action<SlotPosition> slotRestore,
             Action world,
+            Action<bool> judgment,
             Action completed)
         {
             if (_root == null || turn == null || turn.Score == null)
@@ -68,10 +72,12 @@ namespace Tartot.Unity
                     : breakMoment ? "DIE HALTUNG GIBT NACH"
                     : "DIE LEGUNG WIRD GEDEUTET";
 
-            var delay = 35;
+            var delay = 28;
+            var stepIndex = 0;
             foreach (var step in score.Steps.Take(5))
             {
                 var captured = step;
+                var capturedIndex = stepIndex++;
                 var when = delay;
                 Schedule(token, when, () =>
                 {
@@ -80,9 +86,10 @@ namespace Tartot.Unity
                     if (string.IsNullOrEmpty(captured.InstanceId))
                         line.AddToClassList("auflosung__schritt--muster");
                     _steps?.Add(line);
-                    PulseClass("auflosung--schritt-puls", 70);
+                    cascadeStep?.Invoke(capturedIndex, string.IsNullOrEmpty(captured.InstanceId));
+                    PulseClass("auflosung--schritt-puls", 64);
                 });
-                delay += 78;
+                delay += 70;
             }
 
             if (score.IsWorld)
@@ -96,7 +103,7 @@ namespace Tartot.Unity
                     world?.Invoke();
                     impact?.Invoke(2);
                 });
-                delay += 135;
+                delay += 120;
             }
 
             var fateDelay = delay;
@@ -108,9 +115,17 @@ namespace Tartot.Unity
                                  " = " + score.FateDamage + " FATE" +
                                  (actual != score.FateDamage ? "  →  " + actual + " TREFFER" : string.Empty);
                 _fate?.EnableInClassList("auflosung__fate--aktiv", true);
+                fateHit?.Invoke(lethal || breakMoment);
                 impact?.Invoke(lethal ? 3 : breakMoment ? 2 : 1);
             });
-            delay += lethal ? 150 : 95;
+            delay += lethal ? 145 : 90;
+
+            if (turn.EnemyDamage > 0)
+            {
+                var when = delay;
+                Schedule(token, when, () => playerHit?.Invoke());
+                delay += 70;
+            }
 
             if (breakMoment)
             {
@@ -177,12 +192,13 @@ namespace Tartot.Unity
                     _stamp?.EnableInClassList("auflosung__stempel--toedlich", true);
                     _halo?.EnableInClassList("auflosung__halo--toedlich", true);
                     PulseClass("auflosung--urteil", 210);
+                    judgment?.Invoke(turn.Victory);
                     impact?.Invoke(3);
                 });
                 delay += 185;
             }
 
-            var endDelay = Math.Max(score.IsWorld || lethal ? 980 : 720, delay + 220);
+            var endDelay = Math.Max(score.IsWorld || lethal ? 930 : 680, delay + 190);
             Schedule(token, endDelay, () =>
             {
                 _root.style.display = DisplayStyle.None;
