@@ -236,6 +236,7 @@ namespace Tartot.Unity
         private void OnCombatCardDragStart(CardElement element)
         {
             if (_game == null || _game.Combat == null) return;
+            _feedbackView?.PlayCardSelect();
             _selected?.SetSelected(false);
             _selected = null;
             SetHandFocus(element);
