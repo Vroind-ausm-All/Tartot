@@ -24,7 +24,8 @@ namespace Tartot.Unity
         private bool _deferred;
         private SlotPosition? _displayedBlocked;
         private SlotPosition? _pendingBlocked;
-        private int _token;
+        private int _transitionToken;
+        private int _sealToken;
 
         private static readonly Dictionary<SlotPosition, string> DefaultHints =
             new Dictionary<SlotPosition, string>
@@ -102,7 +103,7 @@ namespace Tartot.Unity
         public void PlayCollapse(SlotPosition slot)
         {
             if (!_isTower) return;
-            var token = ++_token;
+            var token = ++_transitionToken;
             var previous = _displayedBlocked;
 
             _deferred = false;
@@ -122,7 +123,7 @@ namespace Tartot.Unity
 
             _table?.schedule.Execute(() =>
             {
-                if (token != _token) return;
+                if (token != _transitionToken) return;
                 _strike?.EnableInClassList("turm-einschlag--warnung", false);
                 _strike?.EnableInClassList("turm-einschlag--schlag", true);
                 _table?.EnableInClassList("tisch--turm-warnung", false);
@@ -139,7 +140,7 @@ namespace Tartot.Unity
 
             _table?.schedule.Execute(() =>
             {
-                if (token != _token) return;
+                if (token != _transitionToken) return;
                 _strike?.EnableInClassList("turm-einschlag--schlag", false);
                 _table?.EnableInClassList("tisch--turm-schlag", false);
                 if (_slots.TryGetValue(slot, out var hit))
@@ -151,7 +152,7 @@ namespace Tartot.Unity
 
             _table?.schedule.Execute(() =>
             {
-                if (token != _token) return;
+                if (token != _transitionToken) return;
                 if (_slots.TryGetValue(slot, out var hit))
                     hit.EnableInClassList("platz--einsturz-nachhall", false);
                 _dust[slot]?.EnableInClassList("platz__staub--aktiv", false);
@@ -164,14 +165,14 @@ namespace Tartot.Unity
         public void PlaySealBreakShock()
         {
             if (!_isTower || _table == null) return;
-            var token = ++_token;
+            var token = ++_sealToken;
 
             _table.EnableInClassList("tisch--siegelbruch", true);
             _strike?.EnableInClassList("turm-einschlag--siegel", true);
 
             _table.schedule.Execute(() =>
             {
-                if (token != _token) return;
+                if (token != _sealToken) return;
                 _table.EnableInClassList("tisch--siegelbruch", false);
                 _strike?.EnableInClassList("turm-einschlag--siegel", false);
             }).StartingIn(420);
@@ -180,7 +181,7 @@ namespace Tartot.Unity
         public void PlayRecovery(SlotPosition slot)
         {
             if (!_isTower) return;
-            var token = ++_token;
+            var token = ++_transitionToken;
 
             _deferred = false;
             _pendingBlocked = null;
@@ -207,7 +208,7 @@ namespace Tartot.Unity
 
             _table?.schedule.Execute(() =>
             {
-                if (token != _token) return;
+                if (token != _transitionToken) return;
                 element.EnableInClassList("platz--rueckkehr", false);
                 _dust[slot]?.EnableInClassList("platz__staub--rueckkehr", false);
             }).StartingIn(360);
