@@ -51,7 +51,7 @@ namespace Tartot.Unity
         private VisualElement _root, _frame, _charmBar, _hand, _overlay, _overlayRow, _overlayButtons, _pact;
         private VisualElement _enemyHpBar, _enemyStanceBar;
         private EnemyStage _stage;
-        private Label _enemyName, _enemyRule, _enemyHp, _enemyStance, _enemyIntent;
+        private Label _enemyName, _enemyHp, _enemyStance, _enemyIntent;
         private Label _playerHp, _playerShield, _playerFate, _playerLuck, _playerDark, _playerTurn;
         private Label _preview, _previewHint, _log, _overlayTitle, _overlaySubtitle, _pactText, _toastLabel;
         private Button _actButton;
@@ -84,7 +84,6 @@ namespace Tartot.Unity
             _frame = _root.Q<VisualElement>("wurzel");
             _enemyName = _root.Q<Label>("gegner-name");
             _stage = new EnemyStage(_root.Q<VisualElement>("gegner-silhouette"));
-            _enemyRule = _root.Q<Label>("gegner-regel");
             _enemyHp = _root.Q<Label>("gegner-hp");
             _enemyStance = _root.Q<Label>("gegner-haltung");
             _enemyIntent = _root.Q<Label>("gegner-absicht");
@@ -350,9 +349,8 @@ namespace Tartot.Unity
             var enemy = _game.Combat?.Enemy;
             if (enemy == null) return;
 
-            _stage.Show(enemy.Definition);
             _enemyName.text = enemy.Definition.Name.ToUpperInvariant();
-            _enemyRule.text = string.Join("  ·  ", CombatSystem.ActiveRuleTexts(_game.Combat));
+            var activeRuleText = string.Join("  ·  ", CombatSystem.ActiveRuleTexts(_game.Combat));
 
             // Der Mond zeigt sein Leben nur ungefaehr.
             var moon = CombatSystem.HasRule(_game.Combat, BossRule.Moon);
@@ -368,7 +366,7 @@ namespace Tartot.Unity
             SetBar(_enemyStanceBar, enemy.Stance, Mathf.Max(1, enemy.Definition.MaxStance));
 
             _enemyIntent.text = "Nächster Zug: " + (enemy.IntentHidden ? "??? — der Mond verbirgt es" : IntentText(enemy));
-            RefreshEnemyVisual(enemy);
+            RefreshEnemyVisual(enemy, activeRuleText);
         }
 
         private static void SetBar(VisualElement bar, int value, int max)
