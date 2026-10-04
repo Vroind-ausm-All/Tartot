@@ -161,6 +161,22 @@ namespace Tartot.Unity
             }).StartingIn(620);
         }
 
+        public void PlaySealBreakShock()
+        {
+            if (!_isTower || _table == null) return;
+            var token = ++_token;
+
+            _table.EnableInClassList("tisch--siegelbruch", true);
+            _strike?.EnableInClassList("turm-einschlag--siegel", true);
+
+            _table.schedule.Execute(() =>
+            {
+                if (token != _token) return;
+                _table.EnableInClassList("tisch--siegelbruch", false);
+                _strike?.EnableInClassList("turm-einschlag--siegel", false);
+            }).StartingIn(420);
+        }
+
         public void PlayRecovery(SlotPosition slot)
         {
             if (!_isTower) return;
