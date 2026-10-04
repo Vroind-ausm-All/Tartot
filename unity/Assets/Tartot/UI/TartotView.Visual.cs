@@ -13,9 +13,9 @@ namespace Tartot.Unity
     /// </summary>
     public sealed partial class TartotView
     {
-        private VisualElement _enemyRoot, _enemyBackdrop, _enemyFigureArt, _ruleCard, _ruleSeal;
+        private BossStageView _bossStageView;
+        private BossRuleCardView _bossRuleCardView;
         private VisualElement _previewPanel, _previewCascade, _resolution;
-        private Label _ruleSealLabel;
 
         private readonly Dictionary<SlotPosition, VisualElement> _slotArts =
             new Dictionary<SlotPosition, VisualElement>();
@@ -24,22 +24,16 @@ namespace Tartot.Unity
         private int _resolutionToken;
         private int _presentationToken;
         private int _impactToken;
-        private int _introToken;
         private bool _presentationLocked;
         private string _pendingSnapCardId = string.Empty;
-        private string _stagedEnemyId = string.Empty;
 
         private static readonly Dictionary<string, Texture2D> VisualTextures =
             new Dictionary<string, Texture2D>();
 
         private void CacheVisualElements()
         {
-            _enemyRoot = _root.Q<VisualElement>("gegner");
-            _enemyBackdrop = _root.Q<VisualElement>("gegner-kulisse");
-            _enemyFigureArt = _root.Q<VisualElement>("gegner-figurkunst");
-            _ruleCard = _root.Q<VisualElement>("gegner-regelkarte");
-            _ruleSeal = _root.Q<VisualElement>("gegner-regelsiegel");
-            _ruleSealLabel = _root.Q<Label>("gegner-regelsiegel-text");
+            _bossStageView = new BossStageView(_root, _frame, _stage);
+            _bossRuleCardView = new BossRuleCardView(_root);
             _previewPanel = _root.Q<VisualElement>("vorschau-panel");
             _previewCascade = _root.Q<VisualElement>("vorschau-kaskade");
             _resolution = _root.Q<VisualElement>("auflosung");
@@ -55,53 +49,19 @@ namespace Tartot.Unity
             });
         }
 
-        private void RefreshEnemyVisual(EnemyState enemy)
+        private void RefreshEnemyVisual(EnemyState enemy, string activeRuleText)
         {
             if (enemy == null) return;
 
-            var hasRules = enemy.Definition.Rules != null && enemy.Definition.Rules.Count > 0;
-            // Das Finale kann eine abgeschwaechte Turm-Regel erben. Die
-            // Turm-Buehnenkunst gehoert trotzdem nur zum echten XVI-Boss.
+            var introduced = _bossStageView?.Refresh(enemy) ?? false;
+            _bossRuleCardView?.Refresh(enemy, activeRuleText);
+            if (introduced) _bossRuleCardView?.PlayIntroCue();
+
+            // Die Turm-Platzkunst gehoert zum Tisch, nicht zur Bossbuehne.
             var tower = enemy.Definition.Id == "boss_turm";
-            var phaseTwo = enemy.Phase >= 1;
-
-            if (_ruleCard != null)
-            {
-                _ruleCard.style.display = hasRules ? DisplayStyle.Flex : DisplayStyle.None;
-                _ruleCard.EnableInClassList("regelkarte--phase2", phaseTwo);
-            }
-
-            _ruleSeal?.EnableInClassList("regelkarte__siegel--gebrochen", phaseTwo || enemy.Sigils <= 0);
-            if (_ruleSealLabel != null) _ruleSealLabel.text = tower ? "XVI" : "✦";
-
-            _frame?.EnableInClassList("kampf--turm", tower);
-            _frame?.EnableInClassList("kampf--phase2", tower && phaseTwo);
-
-            SetVisualTexture(_enemyBackdrop, tower ? "Tartot/Stage/turm_hintergrund" : null);
-            SetVisualTexture(_enemyFigureArt, tower ? "Tartot/Stage/turm_figur" : null);
             SetVisualTexture(_slotArts[SlotPosition.Past], tower ? "Tartot/Stage/turm_platz_0" : null);
             SetVisualTexture(_slotArts[SlotPosition.Present], tower ? "Tartot/Stage/turm_platz_1" : null);
             SetVisualTexture(_slotArts[SlotPosition.Future], tower ? "Tartot/Stage/turm_platz_2" : null);
-
-            if (tower && _stagedEnemyId != enemy.Definition.Id)
-            {
-                _stagedEnemyId = enemy.Definition.Id;
-                PlayTowerEntrance();
-            }
-        }
-
-        private void PlayTowerEntrance()
-        {
-            var token = ++_introToken;
-            _enemyRoot?.EnableInClassList("gegner--eintritt", true);
-            _ruleCard?.EnableInClassList("regelkarte--einflug", true);
-
-            _enemyRoot?.schedule.Execute(() =>
-            {
-                if (token != _introToken) return;
-                _enemyRoot.EnableInClassList("gegner--eintritt", false);
-                _ruleCard?.EnableInClassList("regelkarte--einflug", false);
-            }).StartingIn(80);
         }
 
         private void RefreshSlotVisual(SlotPosition slot, bool blocked, bool occupied)
@@ -434,6 +394,11 @@ namespace Tartot.Unity
         private void PrepareResolution(TurnResult turn)
         {
             if (turn == null || turn.Score == null) return;
+            if (turn.PhaseChanged)
+            {
+                _bossStageView?.PreparePhaseChange();
+                _bossRuleCardView?.PreparePhaseChange();
+            }
             _presentationLocked = true;
             _frame?.EnableInClassList("kampf--aufloesung", true);
             _actButton?.SetEnabled(false);
@@ -557,24 +522,15 @@ namespace Tartot.Unity
 
         private void PulseStanceBreak()
         {
-            if (_enemyRoot == null) return;
-            _enemyRoot.AddToClassList("gegner--haltung-bruch");
+            _bossStageView?.PlayStanceBreakCue();
             PulseImpact(2);
-            _enemyRoot.schedule.Execute(() =>
-                _enemyRoot.RemoveFromClassList("gegner--haltung-bruch")).StartingIn(260);
         }
 
         private void PulseSealBreak()
         {
-            _ruleCard?.EnableInClassList("regelkarte--bricht", true);
-            _ruleSeal?.EnableInClassList("regelkarte__siegel--bricht", true);
+            _bossRuleCardView?.PlaySealBreakCue();
+            _bossStageView?.PlayPhaseTwoCue();
             PulseImpact(3);
-
-            _ruleCard?.schedule.Execute(() =>
-            {
-                _ruleCard.EnableInClassList("regelkarte--bricht", false);
-                _ruleSeal?.EnableInClassList("regelkarte__siegel--bricht", false);
-            }).StartingIn(360);
         }
 
         private void PulseSlotCollapse(SlotPosition slot)
