@@ -1,31 +1,27 @@
 using System;
+using System.Collections.Generic;
 using Tartot.Core;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tartot.Unity
 {
-    /// <summary>
-    /// Eine Karte auf dem Bildschirm.
-    /// </summary>
-    /// <remarks>
-    /// Leitsatz der Artdirection: Man erkennt die Karte an ihrer Silhouette,
-    /// der Text ist sekundaer. Deshalb dominiert das Symbol, die Zahl steht
-    /// oben, der Effekttext klein darunter.
-    ///
-    /// Die Farbgebung kommt vollstaendig aus USS-Klassen - hier steht kein
-    /// einziger Farbwert.
-    /// </remarks>
+    /// <summary>Eine Karte als physischer Papier-Gegenstand.</summary>
     public sealed class CardElement : VisualElement
     {
         public CardInstance Card { get; }
 
         private readonly Label _head;
         private readonly Label _symbol;
+        private readonly Label _name;
         private readonly Label _text;
         private readonly Label _rage;
+        private readonly VisualElement _art;
+        private readonly VisualElement _frame;
 
-        /// <param name="veiled">Der Mond: nur die Rueckseite zeigen.</param>
-        /// <param name="deathMark">Der Tod: verbleibende Runden, 0 = nicht gezeichnet.</param>
+        private static readonly Dictionary<string, Texture2D> ArtCache =
+            new Dictionary<string, Texture2D>();
+
         public CardElement(CardInstance card, Action<CardElement> onClick = null,
             bool veiled = false, int deathMark = 0)
         {
@@ -34,23 +30,36 @@ namespace Tartot.Unity
 
             if (veiled)
             {
-                // Verdeckt verraet die Karte nichts - weder Farbe noch Wert
-                // noch Orientierung. Man legt sie im Vertrauen.
                 AddToClassList("karte--verdeckt");
                 _head = new Label { text = "?" };
                 _head.AddToClassList("karte__kopf");
                 Add(_head);
+
+                _art = new VisualElement();
+                _art.AddToClassList("karte__motiv");
+                _art.AddToClassList("karte__rueckseite");
+                SetTexture(_art, Load("Tartot/CardArt/rueckseite"));
+                Add(_art);
+
                 _symbol = new Label { text = "☾" };
                 _symbol.AddToClassList("karte__symbol");
                 Add(_symbol);
+
+                _name = new Label { text = "IM MONDLICHT" };
+                _name.AddToClassList("karte__name");
+                Add(_name);
+
                 _rage = new Label { text = string.Empty };
                 _rage.AddToClassList("karte__rage");
                 Add(_rage);
-                _text = new Label { text = "Im Mondlicht verborgen." };
+
+                _text = new Label { text = "Verborgen." };
                 _text.AddToClassList("karte__text");
                 Add(_text);
-                if (onClick != null)
-                    RegisterCallback<ClickEvent>(_ => onClick(this));
+
+                _frame = Frame();
+                Add(_frame);
+                RegisterClick(onClick);
                 return;
             }
 
@@ -58,6 +67,7 @@ namespace Tartot.Unity
             AddToClassList(ShimmerClass(card.Shimmer));
             if (IsDark(card)) AddToClassList("karte--dunkel");
             if (deathMark > 0) AddToClassList("karte--gezeichnet");
+            if (card.Orientation == Orientation.Reversed) AddToClassList("karte--verkehrt");
             AddToClassList("karte--selten-" + card.Definition.Rarity.ToString().ToLowerInvariant());
             if (card.Edition != CardEdition.None)
                 AddToClassList("karte--edition-" + card.Edition.ToString().ToLowerInvariant());
@@ -66,30 +76,40 @@ namespace Tartot.Unity
             _head.AddToClassList("karte__kopf");
             Add(_head);
 
+            _art = new VisualElement();
+            _art.AddToClassList("karte__motiv");
+            var art = ArtFor(card.Definition);
+            if (art != null)
+            {
+                SetTexture(_art, art);
+                AddToClassList("karte--mit-motiv");
+            }
+            else AddToClassList("karte--ohne-motiv");
+            Add(_art);
+
             _symbol = new Label { text = SuitSymbol(card.Definition.Suit) };
             _symbol.AddToClassList("karte__symbol");
-            // Umgekehrt wird nicht durchgestrichen, sondern gedreht: es ist eine
-            // andere Karte, keine schlechtere.
-            if (card.Orientation == Orientation.Reversed)
-                _symbol.style.rotate = new Rotate(180f);
             Add(_symbol);
+
+            _name = new Label { text = card.Definition.Name.ToUpperInvariant() };
+            _name.AddToClassList("karte__name");
+            Add(_name);
 
             if (deathMark > 0)
             {
-                var mark = new Label { text = $"☠ {deathMark}" };
+                var mark = new Label { text = "☠ " + deathMark };
                 mark.AddToClassList("karte__zeichen");
                 Add(mark);
             }
 
-            _rage = new Label { text = card.Rage > 0 ? $"RAGE {card.Rage}/3" : string.Empty };
+            _rage = new Label { text = card.Rage > 0 ? "RAGE " + card.Rage + "/3" : string.Empty };
             _rage.AddToClassList("karte__rage");
             Add(_rage);
 
-            // Seltenheit und Edition stehen wie bei Balatro als Plakette unter dem Text.
             var badge = new Label
             {
                 text = Rarities.Name(card.Definition.Rarity)
-                       + (card.Edition != CardEdition.None ? " · " + CardEditions.Name(card.Edition) : string.Empty)
+                    + (card.Edition != CardEdition.None ? " · " + CardEditions.Name(card.Edition) : string.Empty)
             };
             badge.AddToClassList("karte__plakette");
             Add(badge);
@@ -97,22 +117,73 @@ namespace Tartot.Unity
             _text = new Label
             {
                 text = card.Definition.Description
-                       + (card.Edition != CardEdition.None ? "\n" + CardEditions.Text(card.Edition) : string.Empty)
+                    + (card.Edition != CardEdition.None ? "\n" + CardEditions.Text(card.Edition) : string.Empty)
             };
             _text.AddToClassList("karte__text");
             Add(_text);
 
-            if (onClick != null)
-                RegisterCallback<ClickEvent>(_ => onClick(this));
+            _frame = Frame();
+            Add(_frame);
+            RegisterClick(onClick);
         }
 
         public void SetSelected(bool selected) => EnableInClassList("karte--gewaehlt", selected);
 
+        private void RegisterClick(Action<CardElement> onClick)
+        {
+            if (onClick != null) RegisterCallback<ClickEvent>(_ => onClick(this));
+        }
+
+        private static VisualElement Frame()
+        {
+            var frame = new VisualElement();
+            frame.AddToClassList("karte__rahmen");
+            SetTexture(frame, Load("Tartot/CardArt/rahmen"));
+            return frame;
+        }
+
+        private static Texture2D ArtFor(CardDefinition definition)
+        {
+            var exact = Load("Tartot/CardArt/" + definition.Id);
+            if (exact != null) return exact;
+            if (definition.IsMajor) return null;
+
+            var prefix = definition.Suit.ToString().ToLowerInvariant();
+            for (var distance = 1; distance <= 13; distance++)
+            {
+                var low = definition.Rank - distance;
+                if (low >= 1)
+                {
+                    var image = Load("Tartot/CardArt/" + prefix + "_" + low);
+                    if (image != null) return image;
+                }
+
+                var high = definition.Rank + distance;
+                if (high <= 14)
+                {
+                    var image = Load("Tartot/CardArt/" + prefix + "_" + high);
+                    if (image != null) return image;
+                }
+            }
+            return null;
+        }
+
+        private static Texture2D Load(string path)
+        {
+            if (ArtCache.TryGetValue(path, out var cached)) return cached;
+            var texture = Resources.Load<Texture2D>(path);
+            ArtCache[path] = texture;
+            return texture;
+        }
+
+        private static void SetTexture(VisualElement element, Texture2D texture)
+        {
+            if (element != null) element.style.backgroundImage = new StyleBackground(texture);
+        }
+
         private static string HeadText(CardInstance card)
         {
-            var name = card.Definition.IsMajor
-                ? Roman(card.Definition.DisplayNumber)
-                : card.Definition.Rank.ToString();
+            var name = card.Definition.IsMajor ? Roman(card.Definition.DisplayNumber) : card.Definition.Rank.ToString();
             var level = card.Level > 1 ? new string('+', Math.Min(3, card.Level - 1)) : string.Empty;
             return name + level;
         }
@@ -121,11 +192,11 @@ namespace Tartot.Unity
         {
             switch (suit)
             {
-                case Suit.Swords: return "⚔";     // gekreuzte Schwerter
-                case Suit.Wands: return "✸";      // Funke
-                case Suit.Cups: return "♥";       // Herz
-                case Suit.Pentacles: return "◆";  // Raute
-                default: return "★";              // Stern
+                case Suit.Swords: return "⚔";
+                case Suit.Wands: return "✸";
+                case Suit.Cups: return "♥";
+                case Suit.Pentacles: return "◆";
+                default: return "★";
             }
         }
 
@@ -154,7 +225,6 @@ namespace Tartot.Unity
             }
         }
 
-        /// <summary>Ab Gold ist die Karte zu dunkel fuer schwarze Schrift.</summary>
         private static bool IsDark(CardInstance card) =>
             card.Shimmer >= Shimmer.Gold || card.Definition.IsMajor;
 
