@@ -1737,3 +1737,17 @@
     right: 5%;
 }
 
+/* Phase-D Cue-Ueberlagerungen bleiben getrennt, damit Haltung und Phase 2
+   im selben Zug ihre eigenen Cleanups behalten. */
+.gegner__staub--haltung {
+    opacity: 0.74;
+    scale: 1.14 0.94;
+    translate: 0 -10px;
+}
+
+.gegner__staub--phase {
+    opacity: 0.92;
+    scale: 1.26 1.08;
+    translate: 0 -16px;
+}
+
