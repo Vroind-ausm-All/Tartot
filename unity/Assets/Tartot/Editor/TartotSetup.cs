@@ -50,7 +50,12 @@ namespace Tartot.Unity.EditorTools
         private static PanelSettings CreatePanelSettings()
         {
             var existing = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            if (existing != null) return existing;
+            if (existing != null)
+            {
+                ConfigurePanel(existing);
+                AssetDatabase.SaveAssets();
+                return existing;
+            }
 
             var theme = FindTheme();
             if (theme == null)
@@ -67,14 +72,19 @@ namespace Tartot.Unity.EditorTools
 
             var settings = ScriptableObject.CreateInstance<PanelSettings>();
             settings.themeStyleSheet = theme;
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1080, 1920);
-            settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
-            settings.match = 1f;   // an der Hoehe ausrichten: Hochformat
+            ConfigurePanel(settings);
 
             AssetDatabase.CreateAsset(settings, PanelSettingsPath);
             AssetDatabase.SaveAssets();
             return settings;
+        }
+
+        private static void ConfigurePanel(PanelSettings settings)
+        {
+            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            settings.referenceResolution = new Vector2Int(1080, 1920);
+            settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+            settings.match = .5f;
         }
 
         private static ThemeStyleSheet FindTheme()
@@ -108,11 +118,11 @@ namespace Tartot.Unity.EditorTools
 
         private static void ApplyPortraitSettings()
         {
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
-            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+            PlayerSettings.allowedAutorotateToLandscapeRight = true;
         }
 
         private static void EnsureFolder(string path)
