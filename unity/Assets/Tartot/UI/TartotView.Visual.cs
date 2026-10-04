@@ -191,10 +191,11 @@ namespace Tartot.Unity
                 break;
             }
 
-            if (!found) _log.text = "Die Karte kehrt in deine Hand zurück.";
+            var feedback = found ? string.Empty : "Die Karte kehrt in deine Hand zurück.";
             _selected = null;
             ClearDropTargets();
             Refresh();
+            if (!string.IsNullOrEmpty(feedback)) _log.text = feedback;
         }
 
         private void RefreshDropTargets()
