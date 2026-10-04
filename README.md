@@ -144,4 +144,3 @@ Der Regelkern ist geprüft: **281 Tests**, 400 Runs ohne Absturz, Speichern
 und Laden mitten im Bosskampf und mitten in einer Szene, reproduzierbare
 Seeds. Was fehlt, ist überwiegend Kunst, Animation und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).
-

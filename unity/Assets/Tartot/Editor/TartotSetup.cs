@@ -69,7 +69,7 @@ namespace Tartot.Unity.EditorTools
             panel.match = .5f;
             EditorUtility.SetDirty(panel);
             AssetDatabase.SaveAssets();
-            if (!File.Exists(ScenePath)) CreateScene(panel, tree);
+            if (!File.Exists(ScenePath)) CreateScene();
             var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
             scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = scenes.ToArray();
@@ -107,7 +107,7 @@ namespace Tartot.Unity.EditorTools
             if (host.GetComponent<AudioListener>() == null) host.AddComponent<AudioListener>();
         }
 
-        private static void CreateScene(PanelSettings panel, VisualTreeAsset tree)
+        private static void CreateScene()
         {
             if (!AssetDatabase.IsValidFolder("Assets/Scenes")) AssetDatabase.CreateFolder("Assets", "Scenes");
             var previous = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
@@ -120,16 +120,18 @@ namespace Tartot.Unity.EditorTools
                 UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(host, scene);
                 host.SetActive(false);
                 var document = host.AddComponent<UIDocument>();
-                document.visualTreeAsset = tree;
+                document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
                 var view = host.AddComponent<TartotView>();
                 view.TowerDemo = true;
                 view.AutoSave = false;
                 view.Seed = 1337;
                 ConfigureBackground(host);
                 host.SetActive(true);
-                // UIDocument initializes its panel when it first becomes active.
-                // Assign after that initialization so the saved reference survives.
-                document.panelSettings = panel;
+                // NewScene(Single) unloads unused ScriptableObjects. Load the panel
+                // AFTER that scene switch, never retain the pre-switch native object.
+                document.panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+                if (document.panelSettings == null)
+                    throw new InvalidOperationException("Tartot: PanelSettings-Import fehlgeschlagen.");
                 EditorUtility.SetDirty(document);
                 if (!EditorSceneManager.SaveScene(scene, ScenePath))
                     throw new InvalidOperationException("Tartot: Startszene konnte nicht gespeichert werden.");

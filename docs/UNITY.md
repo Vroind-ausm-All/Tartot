@@ -137,8 +137,11 @@ Lokale Prüfung am 04.10.2026 mit Windows und Unity **6000.6.2f1**:
   zwei Demo-Regressionsprüfungen).
 - Unity-Syntaxcheck erfolgreich.
 - Echter Unity-Import, Szeneneinrichtung und Windows-Development-Build erfolgreich.
+- Frischer Import aus dem Git-Archiv ohne Library-Cache erfolgreich; fehlende
+  Startszene und PanelSettings in einer separaten Testkopie automatisch neu erzeugt
+  und nach erneutem Öffnen korrekt verbunden.
 - Player-Smoke-Test: Turm besiegt, **10 Züge**, Ergebnis `BossLoot`, Neustart und
-  View-Lebenszyklus erfolgreich.
+  View-Lebenszyklus erfolgreich, sowohl bei **540 × 960** als auch **1280 × 720**.
 - `Tartot.Core`-Quellcode unverändert; lediglich Unitys Import-Metadaten ergänzt.
 
 Offen bzw. bewusst begrenzt:
