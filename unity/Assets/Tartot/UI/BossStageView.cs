@@ -26,6 +26,7 @@ namespace Tartot.Unity
         private bool _phaseTransitionDeferred;
         private int _introToken;
         private int _cueToken;
+        private int _towerStrikeToken;
 
         private static readonly Dictionary<string, Texture2D> Textures =
             new Dictionary<string, Texture2D>();
@@ -114,6 +115,24 @@ namespace Tartot.Unity
                 _dust?.EnableInClassList("gegner__staub--aktiv", false);
                 _lightning?.EnableInClassList("gegner__blitz--aktiv", false);
             }).StartingIn(460);
+        }
+
+        public void PlayTowerStrikeCue()
+        {
+            if (!_isTower || _stageRoot == null) return;
+
+            var token = ++_towerStrikeToken;
+            _stageRoot.EnableInClassList("bossbuehne--turm-schlag", true);
+            _lightning?.EnableInClassList("gegner__blitz--turm-schlag", true);
+            _dust?.EnableInClassList("gegner__staub--turm-schlag", true);
+
+            _stageRoot.schedule.Execute(() =>
+            {
+                if (token != _towerStrikeToken) return;
+                _stageRoot.EnableInClassList("bossbuehne--turm-schlag", false);
+                _lightning?.EnableInClassList("gegner__blitz--turm-schlag", false);
+                _dust?.EnableInClassList("gegner__staub--turm-schlag", false);
+            }).StartingIn(360);
         }
 
         private void PlayIntroCue()
