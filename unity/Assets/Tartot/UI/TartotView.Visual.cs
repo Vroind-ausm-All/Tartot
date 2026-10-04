@@ -27,6 +27,7 @@ namespace Tartot.Unity
         private int _presentationToken;
         private int _impactToken;
         private bool _presentationLocked;
+        private bool? _landscapeLayout;
         private string _pendingSnapCardId = string.Empty;
 
         private static readonly Dictionary<string, Texture2D> VisualTextures =
@@ -48,7 +49,12 @@ namespace Tartot.Unity
             _root.RegisterCallback<GeometryChangedEvent>(evt =>
             {
                 if (_frame == null) return;
-                _frame.EnableInClassList("wurzel--desktop", evt.newRect.width > evt.newRect.height * 1.12f);
+                var landscape = evt.newRect.width > evt.newRect.height * 1.12f;
+                _frame.EnableInClassList("wurzel--desktop", landscape);
+                if (_landscapeLayout == landscape) return;
+                _landscapeLayout = landscape;
+                GetComponent<UIDocument>().panelSettings.referenceResolution = landscape
+                    ? new Vector2Int(1280, 720) : new Vector2Int(720, 1280);
             });
         }
 
@@ -400,6 +406,7 @@ namespace Tartot.Unity
         private void PulseFateHit(bool strong)
         {
             _feedbackView?.PlayFateHit(strong);
+            _bossStageView?.PlayHitCue(strong);
         }
 
         private void PulsePlayerHit()

@@ -28,6 +28,7 @@ namespace Tartot.Unity
         private int _stanceToken;
         private int _phaseToken;
         private int _towerStrikeToken;
+        private int _hitToken;
 
         private static readonly Dictionary<string, Texture2D> Textures =
             new Dictionary<string, Texture2D>();
@@ -93,6 +94,20 @@ namespace Tartot.Unity
                 _stageRoot.EnableInClassList("bossbuehne--haltung-bruch", false);
                 _dust?.EnableInClassList("gegner__staub--haltung", false);
             }).StartingIn(280);
+        }
+
+        public void PlayHitCue(bool strong)
+        {
+            if (!_isTower || _stageRoot == null) return;
+            var token = ++_hitToken;
+            _stageRoot.EnableInClassList("bossbuehne--treffer", true);
+            _stageRoot.EnableInClassList("bossbuehne--treffer-stark", strong);
+            _stageRoot.schedule.Execute(() =>
+            {
+                if (token != _hitToken) return;
+                _stageRoot.EnableInClassList("bossbuehne--treffer", false);
+                _stageRoot.EnableInClassList("bossbuehne--treffer-stark", false);
+            }).StartingIn(strong ? 260 : 180);
         }
 
         public void PlayPhaseTwoCue()

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
   <Style src="project://database/Assets/Resources/Tartot/Tartot.uss" />
+  <Style src="project://database/Assets/Resources/Tartot/TowerArt.uss" />
   <ui:VisualElement name="wurzel" class="wurzel">
     <ui:VisualElement class="filmrahmen" />
     <ui:Label name="spieler-runde" class="kopfzeile" text="" />
@@ -9,10 +10,10 @@
       <ui:VisualElement name="gegner" class="gegner">
         <ui:VisualElement name="gegner-kulisse" class="gegner__kulisse">
           <ui:VisualElement name="gegner-buehnenbild" class="gegner__buehnenbild" />
+          <ui:VisualElement name="gegner-figurkunst" class="gegner__figurkunst" />
           <ui:VisualElement name="gegner-phaseglut" class="gegner__phaseglut" />
           <ui:VisualElement name="gegner-blitz" class="gegner__blitz" />
           <ui:VisualElement class="gegner__licht" />
-          <ui:VisualElement name="gegner-figurkunst" class="gegner__figurkunst" />
           <ui:VisualElement name="gegner-staub" class="gegner__staub" />
           <ui:VisualElement class="gegner__bodennebel" />
           <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />

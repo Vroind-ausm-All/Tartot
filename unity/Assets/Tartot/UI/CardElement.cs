@@ -27,6 +27,8 @@ namespace Tartot.Unity
         {
             Card = card;
             AddToClassList("karte");
+            _frame = Frame();
+            Add(_frame);
 
             if (veiled)
             {
@@ -57,8 +59,6 @@ namespace Tartot.Unity
                 _text.AddToClassList("karte__text");
                 Add(_text);
 
-                _frame = Frame();
-                Add(_frame);
                 RegisterClick(onClick);
                 return;
             }
@@ -122,8 +122,6 @@ namespace Tartot.Unity
             _text.AddToClassList("karte__text");
             Add(_text);
 
-            _frame = Frame();
-            Add(_frame);
             RegisterClick(onClick);
         }
 

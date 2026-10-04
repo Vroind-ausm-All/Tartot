@@ -64,7 +64,7 @@ namespace Tartot.Unity.EditorTools
             }
             panel.themeStyleSheet = theme;
             panel.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            panel.referenceResolution = new Vector2Int(1080, 1920);
+            panel.referenceResolution = new Vector2Int(720, 1280);
             panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
             panel.match = .5f;
             EditorUtility.SetDirty(panel);

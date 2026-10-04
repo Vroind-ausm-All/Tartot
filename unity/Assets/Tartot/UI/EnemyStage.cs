@@ -49,6 +49,11 @@ namespace Tartot.Unity
         /// <summary>Neuer Gegner: Streifen laden und ins Wippen gehen.</summary>
         public void Show(EnemyDefinition enemy)
         {
+            if (enemy.Id == "boss_turm")
+            {
+                _window.style.display = DisplayStyle.None;
+                return;
+            }
             var id = AnimationCues.SpriteId(enemy);
             if (id == _enemyId) return;
             _enemyId = id;

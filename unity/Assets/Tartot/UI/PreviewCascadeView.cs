@@ -37,7 +37,7 @@ namespace Tartot.Unity
             if (_summary != null) _summary.text = string.Empty;
             if (_status != null) _status.text = string.Empty;
             if (_fate != null) _fate.text = string.Empty;
-            if (_hint != null) _hint.text = string.Empty;
+            if (_hint != null) _hint.text = "Wähle eine Karte und lege sie auf einen Schicksalsplatz.";
 
             _panel?.EnableInClassList("vorschau-panel--aktiv", false);
             _panel?.EnableInClassList("vorschau-panel--toedlich", false);
