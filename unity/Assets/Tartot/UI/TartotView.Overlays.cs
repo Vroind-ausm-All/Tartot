@@ -35,6 +35,14 @@ namespace Tartot.Unity
                 return;
             }
 
+            // Ein finaler Treffer soll sichtbar zu Ende spielen, bevor Beute
+            // oder Run-Bericht den Kampftisch verdecken.
+            if (_presentationLocked)
+            {
+                _overlay.style.display = DisplayStyle.None;
+                return;
+            }
+
             switch (_game.Phase)
             {
                 case GamePhase.Combat:
