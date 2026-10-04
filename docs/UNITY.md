@@ -146,9 +146,9 @@ Lokale Prüfung am 04.10.2026 mit Windows und Unity **6000.6.2f1**:
 
 Offen bzw. bewusst begrenzt:
 
-- **Kein manueller visueller/akustischer Abnahmetest.** Der automatisierte Test
-  bestätigt Ablauf und UI-Anbindung, nicht die subjektive Lesbarkeit, Lautstärke
-  oder das endgültige FX-Tuning. Maus-Drag und echtes Touch-Verhalten manuell prüfen.
+- **Spielbilder geprüft:** Start und Kartenlegung in Hoch- und Querformat wurden
+  im gerenderten Windows-Spieler visuell kontrolliert. Eine vollständige akustische
+  und gestalterische Abnahme steht aus. Maus-Drag und echtes Touch-Verhalten manuell prüfen.
 - **Android/iOS, Haptik, Safe Areas und IL2CPP** wurden nicht gebaut oder auf Geräten
   geprüft. Der Windows-Mono-Build ist kein Nachweis dafür.
 - **Andere Unity-Versionen:** Die frühere pauschale Zusage „2022.3 oder neuer“
@@ -171,3 +171,18 @@ Die C#-Bindung orientiert sich am Lebenszyklus des
 [Unity-UIDocument](https://github.com/Unity-Technologies/UnityCsReference/blob/master/Modules/UIElements/Core/GameObjects/UIDocument.cs):
 bei erneutem Aktivieren wird ein neuer UI-Baum gebunden; der alte Baum wird
 abgehängt, damit geplante Animationen und Eingabecallbacks nicht weiterlaufen.
+# Bildreferenz und Darstellungsprüfung
+
+Die Turm-Demo verwendet die Jahrmarkt-Illustration aus `assets/bossblaetter/turm.jpg`, entsprechend der [geteilten Bildreferenz](https://chatgpt.com/share/6ac2ce62-0554-83eb-8828-540c744117b3). Die extrahierte Figur und Bühne liegen bereits in Resources. `TowerArt.uss` bestimmt die Turm-Darstellung: große Illustration, Oranienbaum-Schrift (OFL liegt bei), Papierkarten, Filmrahmen an den Plätzen und roter Aktionsknopf aus den vorhandenen Godot-Grafiken.
+
+Die Panel-Referenz wechselt mit dem Seitenverhältnis zwischen 720 × 1280 und 1280 × 720. Der Kartenrahmen liegt hinter dem Karteninhalt. Die alte Pixel-Figur ist beim Turm ausgeblendet; Treffer, Haltungsbruch, Phasenwechsel und Einsturz bewegen die große Illustration.
+
+Für ein echtes Spielbild kann der Development-Player sichtbar gestartet werden:
+
+```powershell
+./unity/Build/Windows/Tartot.exe -screen-fullscreen 0 -screen-width 540 -screen-height 960 -tartot-capture "C:/Temp/tartot.png"
+```
+
+Der Zielordner muss existieren. Mit zusätzlichem `-tartot-capture-layout` werden vor dem Bild Karten über die View abgelegt. Der Player beendet sich danach. Nicht mit `-batchmode` oder einem versteckten Fenster verwenden: dabei ist die Bildausgabe nicht zuverlässig. Der automatische Kampftest prüft zusätzlich eine breite Bossbühne und die sichtbare Schadensvorschau.
+
+Bekannte Art-Grenzen: Die Turmfigur ist eine bewegte Illustration, kein Rig mit einzeln animierten Armen/Gesicht. Für Narr, Eremit und Gehängten fehlen eigene Kartenmotive; dort erscheint ein Symbol. Kleine Arkana verwenden teils dasselbe Farbsymbol-Motiv bei verschiedenen Rängen. Die typografischen Rangwerte sind maßgeblich. Die Bildreferenz ist damit die gestalterische Richtung, keine Behauptung einer vollständigen Animations- oder Asset-Umsetzung.

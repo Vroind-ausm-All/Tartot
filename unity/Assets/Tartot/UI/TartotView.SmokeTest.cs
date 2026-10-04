@@ -15,7 +15,33 @@ namespace Tartot.Unity
 
         private void Start()
         {
+            Application.runInBackground = true;
             if (Environment.GetCommandLineArgs().Contains("-tartot-smoke-test")) StartCoroutine(RunSmokeTest());
+            else if (Environment.GetCommandLineArgs().Contains("-tartot-capture")) StartCoroutine(CapturePresentation());
+        }
+
+        private IEnumerator CapturePresentation()
+        {
+            yield return new WaitForSecondsRealtime(2);
+            if (Environment.GetCommandLineArgs().Contains("-tartot-capture-layout"))
+            {
+                foreach (var (id, slot) in new Autopilot().SuggestLayout(_game))
+                {
+                    OnCardClicked(_handVisuals.First(c => c.Card.InstanceId == id));
+                    OnSlotClicked(slot);
+                }
+                yield return new WaitForSecondsRealtime(.5f);
+            }
+            yield return new WaitForEndOfFrame();
+            var args = Environment.GetCommandLineArgs();
+            var path = args[Array.IndexOf(args, "-tartot-capture") + 1];
+            var image = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            image.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            image.Apply();
+            System.IO.File.WriteAllBytes(path, image.EncodeToPNG());
+            Destroy(image);
+            Debug.Log("TARTOT_CAPTURE_PASS");
+            Application.Quit(0);
         }
 
         private void CaptureSmokeError(string message, string stack, LogType type)
@@ -55,6 +81,7 @@ namespace Tartot.Unity
             Require(_handVisuals.Count > 0 && _actButton.panel != null, "Attached UI with hand");
             Require(_actButton.worldBound.width > 0 && _actButton.worldBound.height > 0, "Visible action button");
             Require(_actButton.worldBound.yMax <= _root.worldBound.yMax + 1, "Action button fits viewport");
+            Require(_root.Q<VisualElement>("gegner-kulisse").worldBound.width > 200, "Boss stage does not collapse to sprite width");
             var picked = _root.panel.Pick(_actButton.worldBound.center);
             Require(picked == _actButton || _actButton.Contains(picked), "Action button is not covered by FX");
             var saveBefore = PlayerPrefs.GetString(SaveKey, "");
@@ -73,6 +100,9 @@ namespace Tartot.Unity
                     OnSlotClicked(slot);
                 }
                 Require(_game.Combat.Slots.Count > 0, "Cards placed through view handlers");
+                yield return null;
+                Require(_root.Q<Label>("vorschau-fate").worldBound.yMax <=
+                    _root.Q<VisualElement>("vorschau-panel").worldBound.yMax, "Damage preview is not clipped");
                 using (var submit = NavigationSubmitEvent.GetPooled())
                 {
                     submit.target = _actButton;
