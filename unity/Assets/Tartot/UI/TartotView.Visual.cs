@@ -112,14 +112,15 @@ namespace Tartot.Unity
                 if (_game == null || _game.Phase != GamePhase.Combat) return;
                 pressed = true;
                 dragging = false;
-                press = evt.position;
+                press = new Vector2(evt.position.x, evt.position.y);
                 element.CapturePointer(evt.pointerId);
             });
 
             element.RegisterCallback<PointerMoveEvent>(evt =>
             {
                 if (!pressed) return;
-                var delta = evt.position - press;
+                var current = new Vector2(evt.position.x, evt.position.y);
+                var delta = current - press;
                 if (!dragging && delta.sqrMagnitude > 144f)
                 {
                     dragging = true;
@@ -143,7 +144,7 @@ namespace Tartot.Unity
                 element.RemoveFromClassList("karte--gezogen");
                 if (!dragging) return;
                 dragging = false;
-                OnCombatCardDropped(element, evt.position);
+                OnCombatCardDropped(element, new Vector2(evt.position.x, evt.position.y));
                 evt.StopPropagation();
             });
 
