@@ -210,7 +210,7 @@ namespace Tartot.Unity
         // ------------------------------------------------------- Eingaben
         private void OnCardClicked(CardElement card)
         {
-            if (_game.Phase != GamePhase.Combat) return;
+            if (_presentationLocked || _game.Phase != GamePhase.Combat) return;
             _toast = string.Empty;
             if (_selected == card) { _selected.SetSelected(false); _selected = null; }
             else
@@ -226,7 +226,7 @@ namespace Tartot.Unity
 
         private void OnSlotClicked(SlotPosition slot)
         {
-            if (_game == null || _game.Phase != GamePhase.Combat) return;
+            if (_presentationLocked || _game == null || _game.Phase != GamePhase.Combat) return;
             _toast = string.Empty;
 
             if (_game.Combat.Slots.ContainsKey(slot))
@@ -235,8 +235,13 @@ namespace Tartot.Unity
             }
             else if (_selected != null)
             {
-                if (!_game.CombatSystem.PlaceCard(_game.Combat, _selected.Card.InstanceId, slot))
-                    _log.text = "Dieser Platz ist eingestürzt.";
+                var selectedId = _selected.Card.InstanceId;
+                if (!_game.CombatSystem.PlaceCard(_game.Combat, selectedId, slot))
+                {
+                    RejectPlacement(slot, _selected);
+                    return;
+                }
+                MarkCardForSnap(selectedId);
             }
             else return;
 
@@ -254,7 +259,7 @@ namespace Tartot.Unity
 
         private void OnAct()
         {
-            if (_game == null || _game.Phase != GamePhase.Combat) return;
+            if (_presentationLocked || _game == null || _game.Phase != GamePhase.Combat) return;
             if (_game.Combat.Slots.Count == 0)
             {
                 _log.text = "Lege mindestens eine Karte.";
@@ -284,6 +289,7 @@ namespace Tartot.Unity
                     if (card.Definition.IsMajor)
                         _meta.EncounterArcanum(card.Definition.Id);
 
+            PrepareResolution(turn);
             Save();
             Refresh();
             ShowResolution(turn, blockedBefore);
@@ -321,7 +327,7 @@ namespace Tartot.Unity
                 RefreshPreview();
                 RefreshPact();
                 _log.text = _game.Message;
-                _actButton.SetEnabled(_game.Phase == GamePhase.Combat);
+                _actButton.SetEnabled(_game.Phase == GamePhase.Combat && !_presentationLocked);
             }
             RefreshOverlay();
             RefreshToast();
@@ -456,12 +462,14 @@ namespace Tartot.Unity
         private void RefreshHand()
         {
             _hand.Clear();
+            _handVisuals.Clear();
             _selected = null;
             if (_game.Combat == null) return;
             var cards = _game.Combat.Hand;
             for (var i = 0; i < cards.Count; i++)
             {
                 var element = CombatCard(cards[i], OnCardClicked);
+                _handVisuals.Add(element);
                 ApplyHandFan(element, i, cards.Count);
                 _hand.Add(element);
             }
