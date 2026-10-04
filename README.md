@@ -1,7 +1,7 @@
 # TARTOT
 
 Ein groteskes Tarot-Roguelike für Android und iOS, Hochformat.
-**Unity 2022.3 LTS · C# · netstandard2.1**
+**Unity 6000.6.2f1 · C# · netstandard2.1**
 
 > Du spielst nicht einfach Tarotkarten aus — du legst in jedem Zug eine Legung
 > aus **Vergangenheit**, **Gegenwart** und **Zukunft** und versuchst, das
@@ -69,7 +69,7 @@ unity/Assets/Tartot/
   Scripts/         Bootstrap
 src/
   Tartot.Core/     csproj, das dieselben Core-Quellen verlinkt (eine Kopie!)
-  Tartot.Tests/    xunit — 278 Tests
+  Tartot.Tests/    xunit — 281 Tests
   Tartot.Sim/      Balancing-Simulation
 tools/
   unity-syntax-check/   kompiliert den Unity-Code gegen Stubs
@@ -97,7 +97,7 @@ auseinanderlaufen.
 # Alles bauen
 dotnet build
 
-# Tests (278)
+# Tests (281)
 dotnet test src/Tartot.Tests
 
 # Balancing: 400 komplette Runs spielen, Kurve je Kampf und Statistik
@@ -111,12 +111,14 @@ dotnet run --project src/Tartot.Sim -c Release -- --runs=300 --career=1
 dotnet build tools/unity-syntax-check
 ```
 
-**In Unity:** Repository klonen, in Unity Hub den Unterordner **`unity/`**
-öffnen (2022.3 LTS oder neuer), ein TSS-Theme anlegen, dann
-`Tartot → Projekt einrichten` im Menü und **Play**. Der Regelkern liegt
-bereits unter `unity/Assets` — es ist nichts zu kopieren. Schritt für Schritt,
-inklusive Weg von Hand und was ungeprüft ist, in
-[`docs/UNITY.md`](docs/UNITY.md).
+**In Unity:** Den Branch `claude/compassionate-archimedes-ebvgo2` klonen und in
+Unity Hub den Unterordner **`unity/`** mit **6000.6.2f1** öffnen. Import abwarten,
+**`Assets/Scenes/Tartot.unity`** öffnen und **Play** drücken: Der Turm startet
+sofort mit Seed 1337. Szene, Theme, UIDocument, Audio und Resources sind
+vorbereitet; das Editor-Setup ergänzt fehlende Startassets automatisch.
+Die Demo lässt normale Spielstände unberührt und bietet nach Kampfende
+**TURM ERNEUT SPIELEN**. Bei beschädigter Zuordnung: **Tartot → Projekt einrichten**.
+Genaue Startschritte, Buildbefehle und Editor-Risiken: [`docs/UNITY.md`](docs/UNITY.md).
 
 ---
 
@@ -138,7 +140,8 @@ inklusive Weg von Hand und was ungeprüft ist, in
 
 ## Stand
 
-Der Regelkern ist geprüft: **278 Tests**, 400 Runs ohne Absturz, Speichern
+Der Regelkern ist geprüft: **281 Tests**, 400 Runs ohne Absturz, Speichern
 und Laden mitten im Bosskampf und mitten in einer Szene, reproduzierbare
 Seeds. Was fehlt, ist überwiegend Kunst, Animation und Politur — siehe *Offene Punkte* in
 [`docs/BALANCING.md`](docs/BALANCING.md) und [`docs/UNITY.md`](docs/UNITY.md).
+
