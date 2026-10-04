@@ -15,6 +15,9 @@ namespace Tartot.Unity
         private readonly VisualElement _seal;
         private readonly Label _sealText;
         private readonly VisualElement _sealCrack;
+        private readonly VisualElement _waxA;
+        private readonly VisualElement _waxB;
+        private readonly VisualElement _waxC;
 
         private bool _phaseTwoRequested;
         private bool _phaseTransitionDeferred;
@@ -29,6 +32,9 @@ namespace Tartot.Unity
             _seal = documentRoot.Q<VisualElement>("gegner-regelsiegel");
             _sealText = documentRoot.Q<Label>("gegner-regelsiegel-text");
             _sealCrack = documentRoot.Q<VisualElement>("gegner-regelsiegel-riss");
+            _waxA = documentRoot.Q<VisualElement>("gegner-wachssplitter-a");
+            _waxB = documentRoot.Q<VisualElement>("gegner-wachssplitter-b");
+            _waxC = documentRoot.Q<VisualElement>("gegner-wachssplitter-c");
         }
 
         public void Refresh(EnemyState enemy, string activeRuleText)
@@ -84,6 +90,9 @@ namespace Tartot.Unity
             _card.EnableInClassList("regelkarte--bricht", true);
             _seal?.EnableInClassList("regelkarte__siegel--bricht", true);
             _sealCrack?.EnableInClassList("regelkarte__siegelriss--aktiv", true);
+            _waxA?.EnableInClassList("regelkarte__wachssplitter--fliegt-a", true);
+            _waxB?.EnableInClassList("regelkarte__wachssplitter--fliegt-b", true);
+            _waxC?.EnableInClassList("regelkarte__wachssplitter--fliegt-c", true);
             _phaseLabel?.EnableInClassList("regelkarte__phase--cue", true);
 
             _card.schedule.Execute(() =>
@@ -91,6 +100,9 @@ namespace Tartot.Unity
                 if (token != _breakToken) return;
                 _card.EnableInClassList("regelkarte--bricht", false);
                 _seal?.EnableInClassList("regelkarte__siegel--bricht", false);
+                _waxA?.EnableInClassList("regelkarte__wachssplitter--fliegt-a", false);
+                _waxB?.EnableInClassList("regelkarte__wachssplitter--fliegt-b", false);
+                _waxC?.EnableInClassList("regelkarte__wachssplitter--fliegt-c", false);
                 _phaseLabel?.EnableInClassList("regelkarte__phase--cue", false);
             }).StartingIn(380);
         }
