@@ -11,6 +11,9 @@ unity/Obj/
 unity/Build/
 unity/Logs/
 unity/UserSettings/
+unity/*.csproj
+unity/*.sln
+unity/*.slnx
 unity/[Mm]emoryCaptures/
 *.csproj.user
 

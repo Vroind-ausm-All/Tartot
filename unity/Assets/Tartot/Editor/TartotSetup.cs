@@ -1,6 +1,6 @@
+using System;
 using System.IO;
 using System.Linq;
-using Tartot.Core;
 using Tartot.Core.Simulation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -9,129 +9,143 @@ using UnityEngine.UIElements;
 
 namespace Tartot.Unity.EditorTools
 {
-    /// <summary>
-    /// Nimmt die Handgriffe ab, die zwischen "Projekt geoeffnet" und "Play"
-    /// liegen: PanelSettings anlegen, Szene bauen, Hochformat einstellen.
-    /// </summary>
-    /// <remarks>
-    /// Falls hier etwas schiefgeht, stehen dieselben Schritte von Hand in
-    /// docs/UNITY.md. Dieses Skript ist Bequemlichkeit, keine Voraussetzung.
-    /// </remarks>
+    [InitializeOnLoad]
     public static class TartotSetup
     {
-        private const string SettingsFolder = "Assets/Settings";
-        private const string PanelSettingsPath = "Assets/Resources/Tartot/TartotPanelSettings.asset";
-        private const string UxmlPath = "Assets/Resources/Tartot/Tartot.uxml";
-        private const string ScenePath = "Assets/Scenes/Tartot.unity";
+        public const string PanelSettingsPath = "Assets/Resources/Tartot/TartotPanelSettings.asset";
+        public const string UxmlPath = "Assets/Resources/Tartot/Tartot.uxml";
+        public const string ScenePath = "Assets/Scenes/Tartot.unity";
+        private const string ThemePath = "Assets/Resources/Tartot/TartotTheme.tss";
+
+        static TartotSetup() { EditorApplication.delayCall += AutoSetup; }
+
+        private static void AutoSetup()
+        {
+            if (Application.isBatchMode || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            {
+                EditorApplication.delayCall += AutoSetup;
+                return;
+            }
+            var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (!File.Exists(ScenePath) && string.IsNullOrEmpty(active.path) && active.isDirty)
+            {
+                Debug.LogWarning("Tartot: Ungespeicherte Szene bitte zuerst speichern; danach Tartot > Projekt einrichten.");
+                return;
+            }
+            EnsureProject();
+            EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
+        }
 
         [MenuItem("Tartot/Projekt einrichten", priority = 0)]
         public static void SetupProject()
         {
-            var panel = CreatePanelSettings();
-            if (panel == null) return;
-            CreateScene(panel);
-            ApplyPortraitSettings();
-            Debug.Log("Tartot: eingerichtet. Szene Assets/Scenes/Tartot.unity ist offen - Play druecken.");
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EnsureProject();
+            EditorSceneManager.OpenScene(ScenePath);
+            RepairOpenScene();
+            EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
+            Debug.Log("Tartot: Turm-Slice bereit. Play druecken.");
+        }
+
+        // Also callable via -executeMethod. Safe to run repeatedly.
+        public static void EnsureProject()
+        {
+            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            if (tree == null) throw new InvalidOperationException("Tartot: UXML fehlt: " + UxmlPath);
+            var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(ThemePath);
+            if (theme == null) throw new InvalidOperationException("Tartot: Theme fehlt: " + ThemePath);
+            var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+            if (panel == null)
+            {
+                panel = ScriptableObject.CreateInstance<PanelSettings>();
+                AssetDatabase.CreateAsset(panel, PanelSettingsPath);
+            }
+            panel.themeStyleSheet = theme;
+            panel.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            panel.referenceResolution = new Vector2Int(1080, 1920);
+            panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+            panel.match = .5f;
+            EditorUtility.SetDirty(panel);
+            AssetDatabase.SaveAssets();
+            if (!File.Exists(ScenePath)) CreateScene(panel, tree);
+            var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
+            scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
+            EditorBuildSettings.scenes = scenes.ToArray();
+            PlayerSettings.companyName = "Tartot";
+            PlayerSettings.productName = "Tartot - Der Turm";
+            PlayerSettings.defaultScreenWidth = 540;
+            PlayerSettings.defaultScreenHeight = 960;
+            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+        }
+
+        public static void RepairOpenScene()
+        {
+            var view = UnityEngine.Object.FindAnyObjectByType<TartotView>();
+            if (view == null) throw new InvalidOperationException("Tartot: Startszene enthaelt keine TartotView.");
+            var document = view.GetComponent<UIDocument>();
+            document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            document.panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+            ConfigureBackground(view.gameObject);
+            EditorUtility.SetDirty(document);
+            EditorSceneManager.SaveScene(view.gameObject.scene, ScenePath);
+        }
+
+        private static void ConfigureBackground(GameObject host)
+        {
+            var camera = host.GetComponent<Camera>();
+            if (camera == null) camera = host.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Color.black;
+            camera.cullingMask = 0;
+            if (host.GetComponent<AudioListener>() == null) host.AddComponent<AudioListener>();
+        }
+
+        private static void CreateScene(PanelSettings panel, VisualTreeAsset tree)
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/Scenes")) AssetDatabase.CreateFolder("Assets", "Scenes");
+            var previous = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var replaceEmpty = string.IsNullOrEmpty(previous.path) && !previous.isDirty;
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,
+                replaceEmpty ? NewSceneMode.Single : NewSceneMode.Additive);
+            try
+            {
+                var host = new GameObject("Tartot");
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(host, scene);
+                host.SetActive(false);
+                var document = host.AddComponent<UIDocument>();
+                document.visualTreeAsset = tree;
+                var view = host.AddComponent<TartotView>();
+                view.TowerDemo = true;
+                view.AutoSave = false;
+                view.Seed = 1337;
+                ConfigureBackground(host);
+                host.SetActive(true);
+                // UIDocument initializes its panel when it first becomes active.
+                // Assign after that initialization so the saved reference survives.
+                document.panelSettings = panel;
+                EditorUtility.SetDirty(document);
+                if (!EditorSceneManager.SaveScene(scene, ScenePath))
+                    throw new InvalidOperationException("Tartot: Startszene konnte nicht gespeichert werden.");
+            }
+            finally
+            {
+                if (!replaceEmpty) EditorSceneManager.CloseScene(scene, true);
+                if (previous.IsValid()) UnityEngine.SceneManagement.SceneManager.SetActiveScene(previous);
+            }
         }
 
         [MenuItem("Tartot/Regelkern pruefen (ohne Play)", priority = 20)]
         public static void SelfCheck()
         {
-            // Schneller Beweis, dass der Kern im Editor laeuft, ohne die
-            // Oberflaeche anzufassen.
             var outcome = new Autopilot().PlayRun(seed: 1337, maxFights: 40);
-            var ende = outcome.Won ? "Finale geschlagen" : $"gestorben in Akt {outcome.ActReached} gegen {outcome.DiedAgainst}";
-            Debug.Log($"Tartot-Selbsttest: {outcome.FightsCleared} Kaempfe, {ende}. Deck {outcome.DeckSize}, " +
-                      $"Verdunkelung {outcome.Darkness}, {outcome.EventsSeen} Ereignisse. " +
-                      $"Katalog: {GameCatalog.Cards.Count} Karten, {GameCatalog.Charms.Count} Charms, " +
-                      $"{GameCatalog.Enemies.Count} Gegner, {EventCatalog.All.Count} Ereignisse.");
-        }
-
-        private static PanelSettings CreatePanelSettings()
-        {
-            var existing = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            if (existing != null)
-            {
-                ConfigurePanel(existing);
-                AssetDatabase.SaveAssets();
-                return existing;
-            }
-
-            var theme = FindTheme();
-            if (theme == null)
-            {
-                Debug.LogError(
-                    "Tartot: Kein ThemeStyleSheet gefunden. Lege eines an ueber " +
-                    "Assets → Create → UI Toolkit → TSS Theme File und rufe das Menue erneut auf. " +
-                    "Ohne Theme zeichnet UI Toolkit zur Laufzeit nichts.");
-                return null;
-            }
-
-            EnsureFolder("Assets/Resources");
-            EnsureFolder("Assets/Resources/Tartot");
-
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
-            settings.themeStyleSheet = theme;
-            ConfigurePanel(settings);
-
-            AssetDatabase.CreateAsset(settings, PanelSettingsPath);
-            AssetDatabase.SaveAssets();
-            return settings;
-        }
-
-        private static void ConfigurePanel(PanelSettings settings)
-        {
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1080, 1920);
-            settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
-            settings.match = .5f;
-        }
-
-        private static ThemeStyleSheet FindTheme()
-        {
-            var guid = AssetDatabase.FindAssets("t:ThemeStyleSheet").FirstOrDefault();
-            return guid == null
-                ? null
-                : AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(AssetDatabase.GUIDToAssetPath(guid));
-        }
-
-        private static void CreateScene(PanelSettings panel)
-        {
-            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
-            if (tree == null)
-            {
-                Debug.LogError($"Tartot: {UxmlPath} nicht gefunden.");
-                return;
-            }
-
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-
-            var host = new GameObject("Tartot");
-            var document = host.AddComponent<UIDocument>();
-            document.panelSettings = panel;
-            document.visualTreeAsset = tree;
-            host.AddComponent<TartotView>();
-
-            EnsureFolder("Assets/Scenes");
-            EditorSceneManager.SaveScene(scene, ScenePath);
-        }
-
-        private static void ApplyPortraitSettings()
-        {
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
-            PlayerSettings.allowedAutorotateToPortrait = true;
-            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
-            PlayerSettings.allowedAutorotateToLandscapeRight = true;
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path)) return;
-            var parent = Path.GetDirectoryName(path)?.Replace('\\', '/');
-            var leaf = Path.GetFileName(path);
-            if (!string.IsNullOrEmpty(parent) && !AssetDatabase.IsValidFolder(parent)) EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, leaf);
+            Debug.Log($"Tartot-Selbsttest: {outcome.FightsCleared} Kaempfe, Akt {outcome.ActReached}.");
         }
     }
 }

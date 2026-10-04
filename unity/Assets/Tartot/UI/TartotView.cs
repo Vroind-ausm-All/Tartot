@@ -100,7 +100,7 @@ namespace Tartot.Unity
             CacheElements();
             CacheVisualElements();
             _meta = TowerDemo ? new MetaProgress() : MetaProgress.Deserialize(PlayerPrefs.GetString(MetaKey, string.Empty));
-            _setup = LoadSetup();
+            _setup = TowerDemo ? new RunSetup() : LoadSetup();
             StartOrResume();
         }
 

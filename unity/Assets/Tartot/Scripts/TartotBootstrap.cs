@@ -19,7 +19,7 @@ namespace Tartot.Unity
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
         {
-            if (Object.FindObjectOfType<TartotView>() != null) return;
+            if (Object.FindAnyObjectByType<TartotView>() != null) return;
 
             var tree = Resources.Load<VisualTreeAsset>(UxmlPath);
             var settings = Resources.Load<PanelSettings>(PanelSettingsPath);
@@ -33,12 +33,14 @@ namespace Tartot.Unity
             }
 
             var host = new GameObject("Tartot");
-            Object.DontDestroyOnLoad(host);
+            host.SetActive(false);
 
             var document = host.AddComponent<UIDocument>();
             document.panelSettings = settings;
             document.visualTreeAsset = tree;
             host.AddComponent<TartotView>();
+            if (Object.FindAnyObjectByType<AudioListener>() == null) host.AddComponent<AudioListener>();
+            host.SetActive(true);
         }
     }
 }

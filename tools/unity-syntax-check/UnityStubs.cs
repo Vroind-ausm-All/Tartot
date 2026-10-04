@@ -14,6 +14,8 @@ namespace UnityEngine
     public class Object
     {
         public static T FindObjectOfType<T>() where T : Object => null;
+        public static T FindAnyObjectByType<T>() where T : Object => null;
+        public static void Destroy(Object target) { }
         public static void DontDestroyOnLoad(Object target) { }
     }
 
@@ -25,11 +27,20 @@ namespace UnityEngine
 
     public class Behaviour : Component { }
     public class MonoBehaviour : Behaviour { }
+    public class AudioListener : Behaviour { }
+    public enum FullScreenMode { Windowed }
+    public enum CameraClearFlags { SolidColor }
+    public struct Color { public static Color black => new Color(); }
+    public class Camera : Behaviour { public CameraClearFlags clearFlags; public Color backgroundColor; public int cullingMask; }
+    public static class Application { public static bool isBatchMode => false; }
 
     public class GameObject : Object
     {
         public GameObject(string name) { }
         public T AddComponent<T>() where T : Component => null;
+        public void SetActive(bool active) { }
+        public T GetComponent<T>() where T : Component => null;
+        public UnityEngine.SceneManagement.Scene scene => new UnityEngine.SceneManagement.Scene();
     }
 
     public sealed class TooltipAttribute : Attribute { public TooltipAttribute(string t) { } }
@@ -146,6 +157,7 @@ namespace UnityEngine.UIElements
 
     public interface IStyle
     {
+        float flexGrow { get; set; }
         DisplayStyle display { get; set; }
         StyleLength width { get; set; }
         StyleLength height { get; set; }
@@ -157,6 +169,7 @@ namespace UnityEngine.UIElements
 
     internal sealed class StyleStub : IStyle
     {
+        public float flexGrow { get; set; }
         public DisplayStyle display { get; set; }
         public StyleLength width { get; set; }
         public StyleLength height { get; set; }
@@ -200,6 +213,7 @@ namespace UnityEngine.UIElements
         public UnityEngine.Rect worldBound => new UnityEngine.Rect();
         public void Add(VisualElement child) { }
         public void Clear() { }
+        public void RemoveFromHierarchy() { }
         public void AddToClassList(string className) { }
         public void RemoveFromClassList(string className) { }
         public void EnableInClassList(string className, bool enable) { }
@@ -225,7 +239,7 @@ namespace UnityEngine.UIElements
         public event Action clicked { add { } remove { } }
     }
 
-    public class VisualTreeAsset : Object { }
+    public class VisualTreeAsset : Object { public void CloneTree(VisualElement root) { } }
 
     public class UIDocument : MonoBehaviour
     {
@@ -255,7 +269,13 @@ namespace UnityEngine
 
 namespace UnityEngine.SceneManagement
 {
-    public struct Scene { }
+    public struct Scene { public bool IsValid() => true; public string path => ""; public bool isDirty => false; }
+    public static class SceneManager
+    {
+        public static Scene GetActiveScene() => new Scene();
+        public static bool SetActiveScene(Scene scene) => true;
+        public static void MoveGameObjectToScene(UnityEngine.GameObject host, Scene scene) { }
+    }
 }
 
 namespace UnityEngine.UIElements
@@ -269,6 +289,21 @@ namespace UnityEngine.UIElements
 namespace UnityEditor
 {
     using System;
+
+    public class InitializeOnLoadAttribute : Attribute { }
+    public class SceneAsset : UnityEngine.Object { }
+    public static class EditorApplication
+    {
+        public static Action delayCall;
+        public static bool isPlayingOrWillChangePlaymode, isCompiling, isUpdating;
+    }
+    public static class EditorUtility { public static void SetDirty(UnityEngine.Object obj) { } }
+    public class EditorBuildSettingsScene
+    {
+        public string path;
+        public EditorBuildSettingsScene(string path, bool enabled) { this.path = path; }
+    }
+    public static class EditorBuildSettings { public static EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[0]; }
 
     public class AssetImporter : UnityEngine.Object { }
     public enum TextureImporterType { Default, Sprite }
@@ -312,6 +347,9 @@ namespace UnityEditor
 
     public static class PlayerSettings
     {
+        public static string companyName, productName;
+        public static int defaultScreenWidth, defaultScreenHeight;
+        public static UnityEngine.FullScreenMode fullScreenMode;
         public static UIOrientation defaultInterfaceOrientation { get; set; }
         public static bool allowedAutorotateToPortrait { get; set; }
         public static bool allowedAutorotateToPortraitUpsideDown { get; set; }
@@ -329,6 +367,10 @@ namespace UnityEditor.SceneManagement
 
     public static class EditorSceneManager
     {
+        public static UnityEditor.SceneAsset playModeStartScene;
+        public static bool SaveCurrentModifiedScenesIfUserWantsTo() => true;
+        public static Scene OpenScene(string path) => new Scene();
+        public static bool CloseScene(Scene scene, bool removeScene) => true;
         public static Scene NewScene(NewSceneSetup setup, NewSceneMode mode) => new Scene();
         public static bool SaveScene(Scene scene, string path) => true;
     }
