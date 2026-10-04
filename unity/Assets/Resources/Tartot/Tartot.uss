@@ -619,3 +619,261 @@
 .wurzel--desktop .knopf--schicksal { width: 54%; }
 .wurzel--desktop .auflosung { left: 20%; right: 20%; top: 34%; }
 
+/* =========================================================================
+   TURM VORFUEHRBUILD — SPRINT 1 / FEEL PASS
+   Nur Praesentation: keine dieser Klassen entscheidet Spielregeln.
+   ========================================================================= */
+
+.gegner__kulisse,
+.regelkarte,
+.kampftisch,
+.tisch,
+.hand,
+.gegner__werte {
+    transition-property: translate, scale, rotate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.gegner--eintritt .gegner__kulisse {
+    translate: 0 -18px;
+    scale: 0.975 0.975;
+    opacity: 0.56;
+}
+
+.regelkarte--einflug {
+    translate: 0 -44px;
+    scale: 0.93 0.93;
+    rotate: -4deg;
+    opacity: 0.05;
+}
+
+.regelkarte--bricht {
+    translate: 0 3px;
+    scale: 1.035 1.035;
+    rotate: -2.5deg;
+    border-color: #d15349;
+    background-color: #bca18c;
+}
+
+.regelkarte__siegel--bricht {
+    scale: 1.32 1.32;
+    rotate: 24deg;
+    opacity: 0.72;
+    border-color: #e3bc63;
+}
+
+.gegner--haltung-bruch .gegner__werte {
+    scale: 1.025 1.025;
+}
+
+.gegner--haltung-bruch .gegner__haltung {
+    color: #d9deff;
+    -unity-font-style: bold;
+}
+
+.karte--fokus {
+    translate: 0 -25px;
+    scale: 1.085 1.085;
+    rotate: 0deg;
+    border-color: #f0cf82;
+    border-bottom-width: 5px;
+}
+
+.karte--nachbar-links {
+    translate: -8px 8px;
+    rotate: -8deg;
+    opacity: 0.94;
+}
+
+.karte--nachbar-rechts {
+    translate: 8px 8px;
+    rotate: 8deg;
+    opacity: 0.94;
+}
+
+.karte--einrasten {
+    translate: 0 -8px;
+    scale: 1.095 1.095;
+    rotate: 1.2deg;
+    border-color: #f0cf82;
+    border-bottom-width: 5px;
+}
+
+.karte--abgewiesen-a {
+    translate: -11px 0;
+    rotate: -4deg;
+    border-color: #d15349;
+}
+
+.karte--abgewiesen-b {
+    translate: 9px 0;
+    rotate: 3deg;
+    border-color: #d15349;
+}
+
+.platz--ziel {
+    opacity: 0.90;
+}
+
+.platz--ziel-aktiv {
+    border-width: 2px;
+    border-color: #f0cf82;
+    background-color: #292113;
+    scale: 1.035 1.035;
+}
+
+.platz--ziel-gesperrt-aktiv {
+    border-width: 2px;
+    border-color: #d15349;
+    background-color: #2a0d0c;
+    scale: 0.975 0.975;
+    rotate: -1.2deg;
+}
+
+.platz--reject {
+    border-width: 3px;
+    border-color: #e0665b;
+    translate: -5px 0;
+    rotate: -1.8deg;
+}
+
+.platz--einsturz-cue {
+    border-width: 3px;
+    border-color: #e0665b;
+    background-color: #2b0c0a;
+    translate: 0 9px;
+    scale: 0.93 0.93;
+    rotate: -3.4deg;
+}
+
+.platz--einsturz-cue .platz__riss {
+    width: 10px;
+    background-color: rgba(224,102,91,0.95);
+}
+
+.platz--einsturz-nachhall {
+    border-color: #b33a35;
+    background-color: #1f0c0b;
+    rotate: -1.8deg;
+}
+
+.kampf--stoss-a .kampftisch {
+    translate: -4px 1px;
+    rotate: -0.12deg;
+}
+
+.kampf--stoss-b .kampftisch {
+    translate: 3px -1px;
+    rotate: 0.10deg;
+}
+
+.kampf--stoss-stark.kampf--stoss-a .kampftisch {
+    translate: -8px 2px;
+    rotate: -0.24deg;
+}
+
+.kampf--stoss-stark.kampf--stoss-b .kampftisch {
+    translate: 6px -2px;
+    rotate: 0.20deg;
+}
+
+.kampf--aufloesung .hand {
+    opacity: 0.70;
+    scale: 0.99 0.99;
+}
+
+.kampf--aufloesung .knopf--schicksal {
+    opacity: 0.55;
+}
+
+.kampf--welt .tisch {
+    border-color: #e3bc63;
+}
+
+.kampf--welt .vorschau-panel {
+    border-color: #e3bc63;
+    background-color: #211b10;
+    scale: 1.02 1.02;
+}
+
+.vorschau-panel--welt {
+    border-color: #d2a74d;
+    background-color: #1d190f;
+}
+
+.knopf--bruchbereit {
+    background-color: #4a5a96;
+    border-color: #8798da;
+    color: #f2ecdd;
+}
+
+.knopf--welt {
+    background-color: #d0a03e;
+    border-color: #f0cf82;
+    color: #16120e;
+}
+
+.knopf--toedlich {
+    background-color: #8e2b2b;
+    border-color: #e0665b;
+    color: #f2ecdd;
+    scale: 1.015 1.015;
+}
+
+.auflosung {
+    transition-property: scale, translate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__schritt {
+    margin-top: 2px;
+    padding: 2px 7px;
+    border-left-width: 1px;
+    border-color: #5c5143;
+}
+
+.auflosung__schritt--muster {
+    color: #e3bc63;
+    -unity-font-style: bold;
+    border-color: #c89b3c;
+}
+
+.auflosung__welt {
+    margin-top: 5px;
+    padding: 4px 12px;
+    color: #f0cf82;
+    font-size: 17px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: #c89b3c;
+}
+
+.auflosung--welt {
+    border-color: #e3bc63;
+    background-color: rgba(28,23,13,0.97);
+}
+
+.auflosung--toedlich {
+    border-color: #d15349;
+    background-color: rgba(31,11,10,0.97);
+}
+
+@media (max-width: 700px) {
+    .karte--fokus {
+        translate: 0 -20px;
+        scale: 1.065 1.065;
+    }
+
+    .karte--nachbar-links { translate: -5px 7px; }
+    .karte--nachbar-rechts { translate: 5px 7px; }
+
+    .auflosung {
+        left: 8%;
+        right: 8%;
+        top: 35%;
+    }
+}
+
