@@ -30,6 +30,12 @@ namespace Tartot.Unity
         [Tooltip("Speicherstand automatisch nach jedem Zug schreiben.")]
         public bool AutoSave = true;
 
+        [Tooltip("Demo-Audio und Bossmusik aktivieren.")]
+        public bool AudioEnabled = true;
+
+        [Tooltip("Mobile Haptik fuer starke Treffer, Siegelbruch und Turm-Einsturz.")]
+        public bool HapticsEnabled = true;
+
         private const string SaveKey = "tartot.save";
         private const string MetaKey = "tartot.meta";
         private const string SetupKey = "tartot.setup";
@@ -215,6 +221,7 @@ namespace Tartot.Unity
                 _selected?.SetSelected(false);
                 _selected = card;
                 _selected.SetSelected(true);
+                _feedbackView?.PlayCardSelect();
             }
             RefreshDropTargets();
             RefreshPreview();
