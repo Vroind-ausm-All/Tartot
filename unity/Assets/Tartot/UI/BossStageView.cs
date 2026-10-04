@@ -25,7 +25,8 @@ namespace Tartot.Unity
         private bool _phaseTwoRequested;
         private bool _phaseTransitionDeferred;
         private int _introToken;
-        private int _cueToken;
+        private int _stanceToken;
+        private int _phaseToken;
         private int _towerStrikeToken;
 
         private static readonly Dictionary<string, Texture2D> Textures =
@@ -82,15 +83,15 @@ namespace Tartot.Unity
         public void PlayStanceBreakCue()
         {
             if (_stageRoot == null) return;
-            var token = ++_cueToken;
+            var token = ++_stanceToken;
             _stageRoot.EnableInClassList("bossbuehne--haltung-bruch", true);
-            _dust?.EnableInClassList("gegner__staub--aktiv", true);
+            _dust?.EnableInClassList("gegner__staub--haltung", true);
 
             _stageRoot.schedule.Execute(() =>
             {
-                if (token != _cueToken) return;
+                if (token != _stanceToken) return;
                 _stageRoot.EnableInClassList("bossbuehne--haltung-bruch", false);
-                _dust?.EnableInClassList("gegner__staub--aktiv", false);
+                _dust?.EnableInClassList("gegner__staub--haltung", false);
             }).StartingIn(280);
         }
 
@@ -101,18 +102,18 @@ namespace Tartot.Unity
             _phaseTransitionDeferred = false;
             ApplyPhaseLook(_phaseTwoRequested);
 
-            var token = ++_cueToken;
+            var token = ++_phaseToken;
             _stageRoot.EnableInClassList("bossbuehne--phase-cue", true);
             _phaseGlow?.EnableInClassList("gegner__phaseglut--cue", true);
-            _dust?.EnableInClassList("gegner__staub--aktiv", true);
+            _dust?.EnableInClassList("gegner__staub--phase", true);
             if (_isTower) _lightning?.EnableInClassList("gegner__blitz--aktiv", true);
 
             _stageRoot.schedule.Execute(() =>
             {
-                if (token != _cueToken) return;
+                if (token != _phaseToken) return;
                 _stageRoot.EnableInClassList("bossbuehne--phase-cue", false);
                 _phaseGlow?.EnableInClassList("gegner__phaseglut--cue", false);
-                _dust?.EnableInClassList("gegner__staub--aktiv", false);
+                _dust?.EnableInClassList("gegner__staub--phase", false);
                 _lightning?.EnableInClassList("gegner__blitz--aktiv", false);
             }).StartingIn(460);
         }
