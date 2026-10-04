@@ -29,6 +29,9 @@
           </ui:VisualElement>
           <ui:VisualElement name="gegner-regelsiegel" class="regelkarte__siegel">
             <ui:VisualElement name="gegner-regelsiegel-riss" class="regelkarte__siegelriss" />
+            <ui:VisualElement name="gegner-wachssplitter-a" class="regelkarte__wachssplitter regelkarte__wachssplitter--a" />
+            <ui:VisualElement name="gegner-wachssplitter-b" class="regelkarte__wachssplitter regelkarte__wachssplitter--b" />
+            <ui:VisualElement name="gegner-wachssplitter-c" class="regelkarte__wachssplitter regelkarte__wachssplitter--c" />
             <ui:Label name="gegner-regelsiegel-text" class="regelkarte__siegeltext" text="✦" />
           </ui:VisualElement>
         </ui:VisualElement>
@@ -50,7 +53,7 @@
         <ui:Label name="gegner-absicht" class="gegner__absicht" text="" />
       </ui:VisualElement>
 
-      <ui:VisualElement class="tisch">
+      <ui:VisualElement name="tisch" class="tisch">
         <ui:VisualElement class="leiste">
           <ui:Label name="spieler-hp" class="leiste__wert" text="—" />
           <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
@@ -62,9 +65,12 @@
         <ui:VisualElement name="charmleiste" class="charmleiste" />
 
         <ui:VisualElement name="legung" class="legung">
+          <ui:VisualElement name="turm-einschlag" class="turm-einschlag" />
           <ui:VisualElement name="platz-past" class="platz">
             <ui:VisualElement name="platz-past-art" class="platz__art" />
             <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-past-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-past-splitter" class="platz__splitter" />
             <ui:Label class="platz__titel" text="VERGANGENHEIT" />
             <ui:VisualElement name="platz-past-inhalt" class="platz__inhalt" />
             <ui:Label name="platz-past-hinweis" class="platz__hinweis" text="90 % — Vorbereitung" />
@@ -72,6 +78,8 @@
           <ui:VisualElement name="platz-present" class="platz">
             <ui:VisualElement name="platz-present-art" class="platz__art" />
             <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-present-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-present-splitter" class="platz__splitter" />
             <ui:Label class="platz__titel" text="GEGENWART" />
             <ui:VisualElement name="platz-present-inhalt" class="platz__inhalt" />
             <ui:Label name="platz-present-hinweis" class="platz__hinweis" text="100 % — sicher" />
@@ -79,6 +87,8 @@
           <ui:VisualElement name="platz-future" class="platz">
             <ui:VisualElement name="platz-future-art" class="platz__art" />
             <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-future-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-future-splitter" class="platz__splitter" />
             <ui:Label class="platz__titel" text="ZUKUNFT" />
             <ui:VisualElement name="platz-future-inhalt" class="platz__inhalt" />
             <ui:Label name="platz-future-hinweis" class="platz__hinweis" text="150 % — nach dem Gegner" />
