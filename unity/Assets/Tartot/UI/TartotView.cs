@@ -53,7 +53,7 @@ namespace Tartot.Unity
         private EnemyStage _stage;
         private Label _enemyName, _enemyHp, _enemyStance, _enemyIntent;
         private Label _playerHp, _playerShield, _playerFate, _playerLuck, _playerDark, _playerTurn;
-        private Label _preview, _previewHint, _log, _overlayTitle, _overlaySubtitle, _pactText, _toastLabel;
+        private Label _log, _overlayTitle, _overlaySubtitle, _pactText, _toastLabel;
         private Button _actButton;
         private readonly Dictionary<SlotPosition, VisualElement> _slots =
             new Dictionary<SlotPosition, VisualElement>();
@@ -99,8 +99,6 @@ namespace Tartot.Unity
 
             _charmBar = _root.Q<VisualElement>("charmleiste");
             _hand = _root.Q<VisualElement>("hand");
-            _preview = _root.Q<Label>("vorschau");
-            _previewHint = _root.Q<Label>("vorschau-hinweis");
             _log = _root.Q<Label>("protokoll");
 
             _pact = _root.Q<VisualElement>("pakt");
@@ -475,37 +473,22 @@ namespace Tartot.Unity
 
         private void RefreshPreview()
         {
-            _preview.EnableInClassList("vorschau--toedlich", false);
-            _previewHint.text = string.Empty;
             if (_game.Phase != GamePhase.Combat || _game.Combat.Slots.Count == 0)
             {
-                _preview.text = string.Empty;
-                ClearPreviewVisual();
+                _previewCascadeView?.Clear();
                 return;
             }
+
             // Die Vorschau ist garantiert nebenwirkungsfrei - siehe
-            // CombatSystem.PreviewScore.
+            // CombatSystem.PreviewScore. Die View interpretiert nur diese Daten.
             var score = _game.PreviewScore();
-            if (score == null) { _preview.text = string.Empty; ClearPreviewVisual(); return; }
-
-            if (score.Veiled)
+            if (score == null)
             {
-                _preview.text = "Die Legung liegt im Mondlicht — ungewiss.";
-                RefreshPreviewVisual(score);
+                _previewCascadeView?.Clear();
                 return;
             }
 
-            var penalty = score.RepeatPenalty < 1f
-                ? $" × Wiederholung {score.RepeatPenalty:0.00}"
-                : string.Empty;
-            var landing = score.BreaksStance ? $" → HALTUNG BRICHT: {score.ExpectedHit}"
-                : score.ExpectedHit < score.FateDamage ? $" → Haltung deckelt: {score.ExpectedHit}"
-                : string.Empty;
-            var chain = score.Chain >= 2 ? $" · Kette ×{score.Chain}" : string.Empty;
-            _preview.text = $"{score.ComboName}: {score.Chips} × {score.Multiplier:0.00}{penalty} = {score.FateDamage}{landing}{chain}";
-            _preview.EnableInClassList("vorschau--toedlich", score.Lethal);
-            _previewHint.text = string.Join("   ·   ", score.Hints);
-            RefreshPreviewVisual(score);
+            _previewCascadeView?.Show(score);
         }
 
         private void RefreshPact()
