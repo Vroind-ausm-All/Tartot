@@ -73,6 +73,7 @@ namespace Tartot.Unity
         {
             _root = GetComponent<UIDocument>().rootVisualElement;
             CacheElements();
+            CacheVisualElements();
             _meta = MetaProgress.Deserialize(PlayerPrefs.GetString(MetaKey, string.Empty));
             _setup = LoadSetup();
             StartOrResume();
@@ -218,6 +219,7 @@ namespace Tartot.Unity
                 _selected = card;
                 _selected.SetSelected(true);
             }
+            RefreshDropTargets();
             RefreshPreview();
             RefreshToast();
         }
@@ -260,6 +262,7 @@ namespace Tartot.Unity
             }
 
             // Absicht und Runde vor dem Zug merken: danach wuerfelt der Gegner schon die naechste.
+            var blockedBefore = _game.Combat.BlockedSlot;
             var enemyBefore = _game.Combat.Enemy;
             var intentBefore = enemyBefore.Intent;
             var roundBefore = _game.Combat.Turn;
@@ -283,6 +286,7 @@ namespace Tartot.Unity
 
             Save();
             Refresh();
+            ShowResolution(turn, blockedBefore);
         }
 
         /// <summary>
@@ -358,6 +362,7 @@ namespace Tartot.Unity
             SetBar(_enemyStanceBar, enemy.Stance, Mathf.Max(1, enemy.Definition.MaxStance));
 
             _enemyIntent.text = "Nächster Zug: " + (enemy.IntentHidden ? "??? — der Mond verbirgt es" : IntentText(enemy));
+            RefreshEnemyVisual(enemy);
         }
 
         private static void SetBar(VisualElement bar, int value, int max)
@@ -421,11 +426,13 @@ namespace Tartot.Unity
             var combat = _game.Combat;
             var veiled = combat != null && combat.VeiledCards.Contains(card.InstanceId);
             var mark = combat != null && combat.MarkedCardId == card.InstanceId ? combat.MarkTurnsLeft : 0;
-            return new CardElement(card, onClick, veiled, mark);
+            var element = new CardElement(card, null, veiled, mark);
+            return DecorateCombatCard(element, onClick);
         }
 
         private void RefreshSpread()
         {
+            ClearDropTargets();
             var combat = _game.Combat;
             foreach (var slot in _slots.Keys.ToList())
             {
@@ -441,6 +448,7 @@ namespace Tartot.Unity
                 _slotHints[slot].text = blocked ? "EINGESTÜRZT — der Turm"
                     : effective != slot ? $"wirkt als {CombatSystem.SlotName(effective)}"
                     : DefaultSlotHints[slot];
+                RefreshSlotVisual(slot, blocked, occupied);
                 if (occupied) content.Add(CombatCard(combat.Slots[slot], null));
             }
         }
@@ -450,8 +458,13 @@ namespace Tartot.Unity
             _hand.Clear();
             _selected = null;
             if (_game.Combat == null) return;
-            foreach (var card in _game.Combat.Hand)
-                _hand.Add(CombatCard(card, OnCardClicked));
+            var cards = _game.Combat.Hand;
+            for (var i = 0; i < cards.Count; i++)
+            {
+                var element = CombatCard(cards[i], OnCardClicked);
+                ApplyHandFan(element, i, cards.Count);
+                _hand.Add(element);
+            }
         }
 
         private void RefreshPreview()
@@ -461,16 +474,18 @@ namespace Tartot.Unity
             if (_game.Phase != GamePhase.Combat || _game.Combat.Slots.Count == 0)
             {
                 _preview.text = string.Empty;
+                ClearPreviewVisual();
                 return;
             }
             // Die Vorschau ist garantiert nebenwirkungsfrei - siehe
             // CombatSystem.PreviewScore.
             var score = _game.PreviewScore();
-            if (score == null) { _preview.text = string.Empty; return; }
+            if (score == null) { _preview.text = string.Empty; ClearPreviewVisual(); return; }
 
             if (score.Veiled)
             {
                 _preview.text = "Die Legung liegt im Mondlicht — ungewiss.";
+                RefreshPreviewVisual(score);
                 return;
             }
 
@@ -484,6 +499,7 @@ namespace Tartot.Unity
             _preview.text = $"{score.ComboName}: {score.Chips} × {score.Multiplier:0.00}{penalty} = {score.FateDamage}{landing}{chain}";
             _preview.EnableInClassList("vorschau--toedlich", score.Lethal);
             _previewHint.text = string.Join("   ·   ", score.Hints);
+            RefreshPreviewVisual(score);
         }
 
         private void RefreshPact()
