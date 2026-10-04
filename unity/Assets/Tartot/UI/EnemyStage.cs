@@ -29,6 +29,7 @@ namespace Tartot.Unity
         private string _state = AnimationCues.Idle;
         private int _frame;
         private int _size = 160;
+        private int _displaySize = 212;
         private int _fps = 12;
         private int _tick;
 
@@ -57,13 +58,14 @@ namespace Tartot.Unity
             if (entry != null)
             {
                 _size = entry.GetInt("size", 160);
+                _displaySize = _size + _size / 3;
                 _fps = entry.GetInt("fps", 12);
                 var states = entry.Get("states");
                 if (states?.Members != null)
                     foreach (var pair in states.Members) _frames[pair.Key] = (int)pair.Value.NumberValue;
             }
-            _window.style.width = _size;
-            _window.style.height = _size;
+            _window.style.width = _displaySize;
+            _window.style.height = _displaySize;
             _window.style.display = _frames.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             Play(AnimationCues.Idle);
         }
@@ -106,8 +108,8 @@ namespace Tartot.Unity
             _tick = 0;
             var texture = Resources.Load<Texture2D>(AnimPath + _enemyId + "_" + state);
             _strip.style.backgroundImage = new StyleBackground(texture);
-            _strip.style.width = _size * _frames[state];
-            _strip.style.height = _size;
+            _strip.style.width = _displaySize * _frames[state];
+            _strip.style.height = _displaySize;
             _strip.style.left = 0;
         }
 
@@ -128,7 +130,7 @@ namespace Tartot.Unity
                     return;
                 }
             }
-            _strip.style.left = -_frame * _size;
+            _strip.style.left = -_frame * _displaySize;
         }
     }
 }
