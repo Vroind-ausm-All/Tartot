@@ -75,6 +75,14 @@ namespace UnityEngine
         public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
     }
 
+    public struct Vector3
+    {
+        public float x;
+        public float y;
+        public float z;
+        public Vector3(float x = 0f, float y = 0f, float z = 0f) { this.x = x; this.y = y; this.z = z; }
+    }
+
     public struct Rect
     {
         public float x, y, width, height;
@@ -163,9 +171,9 @@ namespace UnityEngine.UIElements
 
     public class EventBase { public void StopPropagation() { } }
     public class ClickEvent : EventBase { }
-    public class PointerDownEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
-    public class PointerMoveEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
-    public class PointerUpEvent : EventBase { public UnityEngine.Vector2 position; public int pointerId; }
+    public class PointerDownEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
+    public class PointerMoveEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
+    public class PointerUpEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
     public class GeometryChangedEvent : EventBase { public UnityEngine.Rect newRect; }
 
     public class VisualElement
