@@ -15,13 +15,13 @@ namespace Tartot.Unity
     {
         private BossStageView _bossStageView;
         private BossRuleCardView _bossRuleCardView;
-        private VisualElement _previewPanel, _previewCascade, _resolution;
+        private PreviewCascadeView _previewCascadeView;
+        private ResolutionPulseView _resolutionPulseView;
 
         private readonly Dictionary<SlotPosition, VisualElement> _slotArts =
             new Dictionary<SlotPosition, VisualElement>();
         private readonly List<CardElement> _handVisuals = new List<CardElement>();
 
-        private int _resolutionToken;
         private int _presentationToken;
         private int _impactToken;
         private bool _presentationLocked;
@@ -34,9 +34,8 @@ namespace Tartot.Unity
         {
             _bossStageView = new BossStageView(_root, _frame, _stage);
             _bossRuleCardView = new BossRuleCardView(_root);
-            _previewPanel = _root.Q<VisualElement>("vorschau-panel");
-            _previewCascade = _root.Q<VisualElement>("vorschau-kaskade");
-            _resolution = _root.Q<VisualElement>("auflosung");
+            _previewCascadeView = new PreviewCascadeView(_root, _actButton);
+            _resolutionPulseView = new ResolutionPulseView(_root);
 
             _slotArts[SlotPosition.Past] = _root.Q<VisualElement>("platz-past-art");
             _slotArts[SlotPosition.Present] = _root.Q<VisualElement>("platz-present-art");
@@ -332,61 +331,6 @@ namespace Tartot.Unity
             }
         }
 
-        private void ClearPreviewVisual()
-        {
-            _previewCascade?.Clear();
-            _previewPanel?.EnableInClassList("vorschau-panel--toedlich", false);
-            _previewPanel?.EnableInClassList("vorschau-panel--bruch", false);
-            _previewPanel?.EnableInClassList("vorschau-panel--welt", false);
-
-            if (_actButton != null)
-            {
-                _actButton.EnableInClassList("knopf--toedlich", false);
-                _actButton.EnableInClassList("knopf--bruchbereit", false);
-                _actButton.EnableInClassList("knopf--welt", false);
-                _actButton.text = "SCHICKSAL AUSFÜHREN";
-            }
-        }
-
-        private void RefreshPreviewVisual(ScoreBreakdown score)
-        {
-            ClearPreviewVisual();
-            if (score == null || score.Veiled || _previewCascade == null) return;
-
-            foreach (var step in score.Steps.Take(5))
-            {
-                var line = new Label(ScoreStepText(step));
-                line.AddToClassList("kaskade__schritt");
-                if (string.IsNullOrEmpty(step.InstanceId))
-                    line.AddToClassList("kaskade__schritt--muster");
-                _previewCascade.Add(line);
-            }
-
-            _previewPanel?.EnableInClassList("vorschau-panel--toedlich", score.Lethal);
-            _previewPanel?.EnableInClassList("vorschau-panel--bruch", score.BreaksStance);
-            _previewPanel?.EnableInClassList("vorschau-panel--welt", score.IsWorld);
-
-            if (_actButton == null) return;
-            _actButton.EnableInClassList("knopf--toedlich", score.Lethal);
-            _actButton.EnableInClassList("knopf--bruchbereit", score.BreaksStance && !score.Lethal);
-            _actButton.EnableInClassList("knopf--welt", score.IsWorld);
-
-            if (score.Lethal) _actButton.text = "SCHICKSAL BESIEGELN";
-            else if (score.IsWorld) _actButton.text = "DIE WELT AUSFÜHREN";
-            else if (score.BreaksStance) _actButton.text = "HALTUNG BRECHEN";
-        }
-
-        private static string ScoreStepText(ScoreStep step)
-        {
-            var parts = new List<string>();
-            if (step.Chips != 0) parts.Add((step.Chips > 0 ? "+" : "") + step.Chips + " Chips");
-            if (Math.Abs(step.MultAdd) > .001f)
-                parts.Add((step.MultAdd > 0 ? "+" : "") + step.MultAdd.ToString("0.00") + " Mult");
-            if (Math.Abs(step.MultX - 1f) > .001f)
-                parts.Add("×" + step.MultX.ToString("0.00"));
-            return step.Label + (parts.Count > 0 ? "  ·  " + string.Join("  ", parts) : string.Empty);
-        }
-
         /// <summary>
         /// Setzt den reinen Presentation-Lock vor Refresh(), damit Reward-/BossLoot-
         /// Overlays einen finalen Treffer nicht verdecken.
@@ -406,118 +350,23 @@ namespace Tartot.Unity
 
         private void ShowResolution(TurnResult turn, SlotPosition? blockedBefore)
         {
-            if (_resolution == null || turn == null || turn.Score == null)
+            var blockedAfter = _game?.Combat?.BlockedSlot;
+            if (_resolutionPulseView == null)
             {
                 ReleasePresentationLock();
                 return;
             }
 
-            var token = ++_resolutionToken;
-            _resolution.Clear();
-            _resolution.EnableInClassList("auflosung--toedlich", turn.Score.Lethal);
-            _resolution.EnableInClassList("auflosung--welt", turn.Score.IsWorld);
-            _resolution.style.display = DisplayStyle.Flex;
-
-            var delay = 30;
-            foreach (var step in turn.Score.Steps.Take(4))
-            {
-                var captured = step;
-                var when = delay;
-                _resolution.schedule.Execute(() =>
-                {
-                    if (token != _resolutionToken) return;
-                    var line = new Label(ScoreStepText(captured));
-                    line.AddToClassList("auflosung__schritt");
-                    if (string.IsNullOrEmpty(captured.InstanceId))
-                        line.AddToClassList("auflosung__schritt--muster");
-                    _resolution.Add(line);
-                }).StartingIn(when);
-                delay += 85;
-            }
-
-            if (turn.Score.IsWorld)
-            {
-                var when = delay;
-                _resolution.schedule.Execute(() =>
-                {
-                    if (token != _resolutionToken) return;
-                    var world = new Label("XXI  ·  DIE WELT");
-                    world.AddToClassList("auflosung__welt");
-                    _resolution.Add(world);
-                    PulseWorld();
-                }).StartingIn(when);
-                delay += 120;
-            }
-
-            var fateDelay = delay;
-            _resolution.schedule.Execute(() =>
-            {
-                if (token != _resolutionToken) return;
-                var fate = new Label(turn.Score.Chips + " × " + turn.Score.Multiplier.ToString("0.00") +
-                                     "  =  " + turn.Score.FateDamage + " FATE");
-                fate.AddToClassList("auflosung__fate");
-                if (turn.Score.Lethal) fate.AddToClassList("auflosung__fate--toedlich");
-                _resolution.Add(fate);
-                PulseImpact(turn.Score.Lethal ? 2 : 1);
-            }).StartingIn(fateDelay);
-            delay += turn.Score.Lethal ? 145 : 95;
-
-            if (turn.StanceBroken)
-            {
-                var when = delay;
-                _resolution.schedule.Execute(() =>
-                {
-                    if (token != _resolutionToken) return;
-                    var stance = new Label("✦  HALTUNG BRICHT");
-                    stance.AddToClassList("auflosung__moment");
-                    _resolution.Add(stance);
-                    PulseStanceBreak();
-                }).StartingIn(when);
-                delay += 120;
-            }
-
-            if (turn.PhaseChanged)
-            {
-                var when = delay;
-                _resolution.schedule.Execute(() =>
-                {
-                    if (token != _resolutionToken) return;
-                    var phase = new Label("DAS SIEGEL REISST — DIE REGEL VERSCHAERFT SICH");
-                    phase.AddToClassList("auflosung__moment");
-                    phase.AddToClassList("auflosung__moment--blut");
-                    _resolution.Add(phase);
-                    PulseSealBreak();
-                }).StartingIn(when);
-                delay += 150;
-            }
-
-            var blockedAfter = _game?.Combat?.BlockedSlot;
-            if (blockedAfter.HasValue && blockedAfter != blockedBefore)
-            {
-                var collapsed = blockedAfter.Value;
-                var when = delay;
-                _resolution.schedule.Execute(() =>
-                {
-                    if (token != _resolutionToken) return;
-                    var collapse = new Label(CombatSystem.SlotName(collapsed).ToUpperInvariant() + " STUERZT EIN");
-                    collapse.AddToClassList("auflosung__moment");
-                    collapse.AddToClassList("auflosung__moment--blut");
-                    _resolution.Add(collapse);
-                    PulseSlotCollapse(collapsed);
-                }).StartingIn(when);
-                delay += 145;
-            }
-
-            var endDelay = Math.Max(720, delay + 230);
-            _resolution.schedule.Execute(() =>
-            {
-                if (token != _resolutionToken) return;
-                _resolution.style.display = DisplayStyle.None;
-                _resolution.EnableInClassList("auflosung--toedlich", false);
-                _resolution.EnableInClassList("auflosung--welt", false);
-            }).StartingIn(endDelay);
-
-            SchedulePresentationUnlock(endDelay + 20);
+            _resolutionPulseView.Play(
+                turn,
+                blockedBefore,
+                blockedAfter,
+                PulseImpact,
+                PulseStanceBreak,
+                PulseSealBreak,
+                PulseSlotCollapse,
+                PulseWorld,
+                ReleasePresentationLock);
         }
 
         private void PulseStanceBreak()
