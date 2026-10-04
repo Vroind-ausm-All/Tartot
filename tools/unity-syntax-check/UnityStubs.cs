@@ -174,6 +174,8 @@ namespace UnityEngine.UIElements
     public class PointerDownEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
     public class PointerMoveEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
     public class PointerUpEvent : EventBase { public UnityEngine.Vector3 position; public int pointerId; }
+    public class PointerEnterEvent : EventBase { }
+    public class PointerLeaveEvent : EventBase { }
     public class GeometryChangedEvent : EventBase { public UnityEngine.Rect newRect; }
 
     public class VisualElement
