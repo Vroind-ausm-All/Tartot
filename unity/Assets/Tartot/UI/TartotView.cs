@@ -286,7 +286,7 @@ namespace Tartot.Unity
                     if (card.Definition.IsMajor)
                         _meta.EncounterArcanum(card.Definition.Id);
 
-            PrepareResolution(turn);
+            PrepareResolution(turn, blockedBefore);
             Save();
             Refresh();
             ShowResolution(turn, blockedBefore);
@@ -442,15 +442,16 @@ namespace Tartot.Unity
                 content.Clear();
                 var occupied = combat != null && combat.Slots.ContainsKey(slot);
                 var blocked = combat != null && combat.BlockedSlot.HasValue && combat.BlockedSlot.Value == slot;
+                var visibleBlocked = DisplaySlotBlocked(slot, blocked);
                 var effective = combat == null ? slot : _game.CombatSystem.EffectiveSlot(combat, slot);
 
                 _slots[slot].EnableInClassList("platz--belegt", occupied);
-                _slots[slot].EnableInClassList("platz--eingestuerzt", blocked);
+                _slots[slot].EnableInClassList("platz--eingestuerzt", visibleBlocked);
                 _slots[slot].EnableInClassList("platz--verschoben", effective != slot);
-                _slotHints[slot].text = blocked ? "EINGESTÜRZT — der Turm"
+                _slotHints[slot].text = visibleBlocked ? "EINGESTÜRZT — der Turm"
                     : effective != slot ? $"wirkt als {CombatSystem.SlotName(effective)}"
                     : DefaultSlotHints[slot];
-                RefreshSlotVisual(slot, blocked, occupied);
+                RefreshSlotVisual(slot, visibleBlocked, occupied);
                 if (occupied) content.Add(CombatCard(combat.Slots[slot], null));
             }
         }
