@@ -491,3 +491,131 @@
 .karte--edition-glowing { border-color: #7F8FD0; border-width: 3px; }
 .karte--edition-burning { border-color: #E0543A; border-width: 3px; }
 .karte--edition-glass { border-color: #EFE3C8; border-width: 3px; opacity: 0.82; }
+
+
+/* === Vertical Slice: physischer Wahrsagetisch ================================= */
+.wurzel { padding: 10px 12px 12px 12px; background-color: #100d0c; overflow: hidden; }
+.filmrahmen { position: absolute; left: 5px; right: 5px; top: 5px; bottom: 5px; border-width: 1px; border-color: rgba(242,236,221,0.12); }
+.kopfzeile { min-height: 22px; margin-bottom: 6px; color: #8f8777; font-size: 12px; }
+.kampftisch { flex-grow: 1; min-height: 0; }
+.gegner { flex-shrink: 0; padding: 0; margin-bottom: 8px; }
+.gegner__kulisse { position: relative; height: 250px; overflow: hidden; align-items: center; justify-content: center; background-color: #191411; border-width: 1px; border-color: #574d3d; border-radius: 10px; -unity-background-scale-mode: scale-and-crop; }
+.gegner__licht { position: absolute; left: 17%; right: 17%; top: 5%; bottom: 4%; border-width: 1px; border-color: rgba(227,188,99,0.20); border-radius: 120px; background-color: rgba(200,155,60,0.035); }
+.gegner__figurkunst { position: absolute; left: 20%; right: 20%; top: 0; bottom: 0; opacity: 0.20; -unity-background-scale-mode: scale-to-fit; }
+.gegner__bodennebel { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; background-color: rgba(228,220,198,0.07); }
+.gegner__silhouette { margin-top: -4px; }
+.gegner__nameplatte { position: absolute; left: 12px; right: 12px; bottom: 8px; align-items: center; padding: 4px 12px; background-color: rgba(14,12,11,0.74); border-top-width: 1px; border-bottom-width: 1px; border-color: rgba(227,188,99,0.42); }
+.gegner__name { margin: 0; font-size: 25px; letter-spacing: 3px; color: var(--elfenbein); }
+.regelkarte { position: relative; flex-direction: row; align-items: center; min-height: 76px; margin: -4px 18px 8px 18px; padding: 9px 10px 9px 14px; background-color: #dfd3b8; border-width: 2px; border-color: #8f7a5a; border-radius: 7px; rotate: -0.5deg; transition-property: rotate, background-color, border-color; transition-duration: 0.20s; }
+.regelkarte__textblock { flex-grow: 1; min-width: 0; }
+.regelkarte__kopf { font-size: 10px; letter-spacing: 2px; color: #695f4f; -unity-font-style: bold; margin-bottom: 2px; }
+.regelkarte .gegner__regel { color: #241d18; font-size: 13px; margin: 0; -unity-text-align: middle-left; }
+.regelkarte__siegel { width: 48px; height: 48px; flex-shrink: 0; align-items: center; justify-content: center; margin-left: 10px; background-color: #7c2023; border-width: 3px; border-color: #b8874a; border-radius: 28px; rotate: 5deg; transition-property: rotate, scale, opacity; transition-duration: 0.22s; }
+.regelkarte__siegeltext { color: #f1dcc2; font-size: 13px; -unity-font-style: bold; }
+.regelkarte--phase2 { background-color: #c7b49e; border-color: #8e2b2b; rotate: 0.8deg; }
+.regelkarte__siegel--gebrochen { rotate: -18deg; scale: 0.78 0.78; opacity: 0.38; }
+.gegner__werte { flex-direction: row; padding: 0 12px; }
+.gegner__wert { flex-grow: 1; flex-basis: 0; min-width: 0; margin: 0 5px; }
+.gegner__hp, .gegner__haltung { font-size: 13px; -unity-text-align: middle-center; margin-bottom: 2px; }
+.gegner__hp { color: #d0695d; } .gegner__haltung { color: #8090ca; }
+.balken { width: 100%; height: 5px; margin-top: 0; background-color: #211b18; border-width: 1px; border-color: #40382f; }
+.gegner__absicht { align-self: center; margin: 7px 12px 0 12px; padding: 5px 14px; border-width: 1px; border-color: #7a6538; border-radius: 18px; background-color: rgba(200,155,60,0.07); font-size: 14px; color: var(--ocker-hell); }
+.tisch { position: relative; flex-grow: 1; min-height: 0; padding: 8px 10px 10px 10px; background-color: #171310; border-width: 1px; border-color: #3c342a; border-radius: 12px; }
+.leiste { padding: 5px 4px; border-top-width: 0; border-bottom-color: rgba(107,102,89,0.55); }
+.leiste__wert { font-size: 14px; padding: 2px 4px; }
+.charmleiste { min-height: 18px; padding: 3px 0 1px 0; }
+.charm { font-size: 11px; background-color: rgba(200,155,60,0.05); border-color: #54472f; border-radius: 10px; padding: 2px 7px; margin-right: 5px; }
+.legung { flex-grow: 0; min-height: 218px; margin-top: 7px; }
+.platz { position: relative; overflow: hidden; min-height: 212px; margin: 0 4px; padding: 7px 3px 5px 3px; background-color: #14110f; border-width: 1px; border-color: #51483d; border-radius: 8px; transition-property: scale, rotate, border-color, background-color; transition-duration: 0.14s; }
+.platz__art { position: absolute; left: 0; right: 0; top: 0; bottom: 0; opacity: 0.16; -unity-background-scale-mode: scale-and-crop; }
+.platz__riss { position: absolute; left: 48%; top: -8%; width: 3px; height: 116%; background-color: rgba(142,43,43,0.0); rotate: 13deg; transition-property: background-color, width; transition-duration: 0.16s; }
+.platz__titel { position: relative; font-size: 11px; letter-spacing: 1px; margin: 0 0 4px 0; padding: 2px 4px; color: var(--ocker-hell); background-color: rgba(14,12,11,0.70); }
+.platz__inhalt { position: relative; flex-grow: 1; align-items: center; justify-content: center; }
+.platz__hinweis { position: relative; font-size: 10px; color: #a49a87; padding: 2px 4px; background-color: rgba(14,12,11,0.72); border-radius: 4px; }
+.platz--belegt { border-color: #ad8b48; background-color: #1d1811; }
+.platz--ziel { border-color: #e3bc63; scale: 1.015 1.015; background-color: #211b12; }
+.platz--ziel-gesperrt { border-color: #8e2b2b; background-color: #201010; opacity: 0.70; }
+.platz--eingestuerzt, .platz--bruch { border-color: #9f3434; background-color: #1d0e0d; rotate: -1.1deg; scale: 0.97 0.97; }
+.platz--eingestuerzt .platz__art, .platz--bruch .platz__art { opacity: 0.07; }
+.platz--eingestuerzt .platz__riss, .platz--bruch .platz__riss { width: 6px; background-color: rgba(188,54,54,0.82); }
+.platz--eingestuerzt .platz__titel, .platz--bruch .platz__titel { color: #e07367; }
+.vorschau-panel { margin: 8px 4px 4px 4px; padding: 7px 10px; min-height: 66px; align-items: center; background-color: #12100e; border-top-width: 1px; border-bottom-width: 1px; border-color: #4d432f; transition-property: border-color, background-color, scale; transition-duration: 0.14s; }
+.vorschau-panel__kopf { color: #777064; font-size: 9px; letter-spacing: 2px; -unity-font-style: bold; }
+.vorschau { margin: 1px 0; min-height: 18px; font-size: 16px; }
+.kaskade { flex-direction: row; flex-wrap: wrap; justify-content: center; min-height: 15px; }
+.kaskade__schritt { font-size: 9px; color: #a39a89; margin: 0 4px; }
+.kaskade__schritt--muster { color: var(--ocker-hell); -unity-font-style: bold; }
+.vorschau-panel--bruch { border-color: #5f6fa8; background-color: #12131a; }
+.vorschau-panel--toedlich { border-color: #a83b36; background-color: #1d0e0d; scale: 1.008 1.008; }
+.vorschau__hinweis { min-height: 13px; font-size: 11px; }
+.protokoll { min-height: 25px; font-size: 10px; color: #7d766a; margin: 1px 8px 2px 8px; }
+.handkopf { flex-direction: row; justify-content: space-between; align-items: center; margin: 3px 4px 0 4px; }
+.handkopf__titel { font-size: 11px; color: var(--elfenbein); -unity-font-style: bold; letter-spacing: 2px; }
+.handkopf__hilfe { font-size: 9px; color: #777064; }
+.hand { flex-wrap: nowrap; min-height: 174px; align-items: flex-end; justify-content: center; overflow: visible; margin: 0; padding: 7px 0 0 0; }
+
+.karte { position: relative; overflow: hidden; width: 104px; height: 156px; margin: 2px; padding: 7px 7px 6px 7px; border-width: 2px; border-radius: 8px; background-color: #e7dcc4; transition-property: translate, scale, rotate, border-color, opacity; transition-duration: 0.12s; }
+.karte__kopf { position: absolute; left: 8px; top: 7px; font-size: 14px; padding: 1px 3px; background-color: rgba(239,227,200,0.78); border-radius: 3px; }
+.karte__motiv { height: 78px; width: 100%; margin-top: 17px; background-color: #cbbda2; border-width: 1px; border-color: rgba(26,20,18,0.38); -unity-background-scale-mode: scale-and-crop; }
+.karte__symbol { position: absolute; right: 8px; top: 8px; font-size: 16px; padding: 1px 3px; background-color: rgba(239,227,200,0.78); border-radius: 3px; }
+.karte__name { height: 25px; margin-top: 3px; font-size: 8px; color: #211a16; -unity-font-style: bold; -unity-text-align: middle-center; white-space: normal; }
+.karte__text { font-size: 8px; }
+.karte__rage { position: absolute; left: 6px; bottom: 5px; font-size: 7px; }
+.karte__plakette { position: absolute; right: 5px; bottom: 5px; font-size: 7px; border-radius: 5px; margin: 0; padding: 1px 4px; }
+.karte__rahmen { position: absolute; left: 0; right: 0; top: 0; bottom: 0; opacity: 0.82; -unity-background-scale-mode: stretch-to-fill; }
+.karte--ohne-motiv .karte__motiv { opacity: 0.28; }
+.karte--verdeckt .karte__motiv { position: absolute; left: 5px; right: 5px; top: 5px; bottom: 5px; width: auto; height: auto; margin: 0; opacity: 1; -unity-background-scale-mode: scale-and-crop; }
+.karte--verdeckt .karte__name, .karte--verdeckt .karte__text, .karte--verdeckt .karte__plakette, .karte--verdeckt .karte__rage { display: none; }
+.karte--verkehrt .karte__motiv { rotate: 180deg; }
+.karte--kampf { width: 108px; height: 162px; flex-shrink: 0; }
+.karte--kampf .karte__text { display: none; }
+.karte--auf-tisch { width: 86px; height: 129px; margin: 1px; rotate: 0deg; translate: 0 0; }
+.karte--auf-tisch .karte__motiv { height: 59px; }
+.karte--auf-tisch .karte__name { font-size: 7px; height: 20px; }
+.karte--gewaehlt { border-color: #f2ecdd; border-width: 3px; translate: 0 -17px; scale: 1.055 1.055; rotate: 0deg; }
+.karte--gezogen { opacity: 0.94; scale: 1.08 1.08; rotate: 0deg; border-color: #f2ecdd; }
+.karte--faecher-m3 { rotate: -7deg; translate: 0 15px; margin-right: -10px; }
+.karte--faecher-m2 { rotate: -5deg; translate: 0 8px; margin-right: -10px; }
+.karte--faecher-m1 { rotate: -2.5deg; translate: 0 3px; margin-right: -10px; }
+.karte--faecher-c { rotate: 0deg; margin-right: -10px; }
+.karte--faecher-p1 { rotate: 2.5deg; translate: 0 3px; margin-right: -10px; }
+.karte--faecher-p2 { rotate: 5deg; translate: 0 8px; margin-right: -10px; }
+.karte--faecher-p3 { rotate: 7deg; translate: 0 15px; margin-right: -10px; }
+.hand .karte:hover { translate: 0 -20px; scale: 1.07 1.07; rotate: 0deg; border-color: #e3bc63; }
+
+.knopf--schicksal { align-self: center; width: 72%; min-width: 250px; height: 49px; margin-top: 1px; background-color: #b98d34; border-color: #e3bc63; letter-spacing: 1px; font-size: 16px; border-radius: 24px; }
+.kampf--phase2 .gegner__kulisse { border-color: #78302d; }
+.kampf--phase2 .gegner__licht { border-color: rgba(196,67,57,0.35); background-color: rgba(142,43,43,0.05); }
+
+.auflosung { position: absolute; left: 14%; right: 14%; top: 37%; padding: 12px 14px; align-items: center; background-color: rgba(14,12,11,0.95); border-width: 2px; border-color: #8f7a5a; border-radius: 9px; }
+.auflosung__schritt { font-size: 10px; color: #aaa08d; -unity-text-align: middle-center; }
+.auflosung__fate { margin-top: 4px; font-size: 22px; color: var(--ocker-hell); -unity-font-style: bold; -unity-text-align: middle-center; }
+.auflosung__fate--toedlich { color: #e0665b; }
+.auflosung__moment { margin-top: 4px; font-size: 13px; color: #8798da; -unity-font-style: bold; -unity-text-align: middle-center; }
+.auflosung__moment--blut { color: #e0665b; }
+
+.omenkarte { width: 164px; height: 246px; position: relative; overflow: hidden; align-items: center; margin: 8px 18px 12px 18px; background-color: #1d1815; border-width: 2px; border-color: #c89b3c; border-radius: 9px; }
+.omenkarte__motiv { position: absolute; left: 8px; right: 8px; top: 8px; bottom: 42px; -unity-background-scale-mode: scale-and-crop; }
+.omenkarte__nummer { position: absolute; left: 10px; top: 9px; padding: 2px 5px; color: #1a1412; background-color: rgba(239,227,200,0.85); -unity-font-style: bold; }
+.omenkarte__name { position: absolute; left: 8px; right: 8px; bottom: 8px; color: var(--elfenbein); font-size: 12px; letter-spacing: 1px; -unity-font-style: bold; -unity-text-align: middle-center; }
+.omenwahl { border-radius: 8px; min-height: 58px; }
+.omenwahl--traenken { border-color: #8e2b2b; }
+.omenwahl--binden { border-color: #4a5a96; }
+.omenwahl--bannen { border-color: #c89b3c; }
+
+.wurzel--desktop { padding: 14px 20px 16px 20px; }
+.wurzel--desktop .kampftisch { flex-direction: row; align-items: stretch; }
+.wurzel--desktop .gegner { width: 38%; flex-shrink: 0; margin: 0 14px 0 0; justify-content: center; }
+.wurzel--desktop .gegner__kulisse { height: 430px; }
+.wurzel--desktop .regelkarte { margin-left: 28px; margin-right: 28px; }
+.wurzel--desktop .tisch { flex-grow: 1; padding: 12px 16px; }
+.wurzel--desktop .legung { min-height: 270px; }
+.wurzel--desktop .platz { min-height: 265px; margin: 0 7px; }
+.wurzel--desktop .karte--auf-tisch { width: 105px; height: 158px; }
+.wurzel--desktop .karte--auf-tisch .karte__motiv { height: 76px; }
+.wurzel--desktop .hand { min-height: 196px; }
+.wurzel--desktop .karte--kampf { width: 122px; height: 183px; }
+.wurzel--desktop .karte--kampf .karte__motiv { height: 91px; }
+.wurzel--desktop .knopf--schicksal { width: 54%; }
+.wurzel--desktop .auflosung { left: 20%; right: 20%; top: 34%; }
+
