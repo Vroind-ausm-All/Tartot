@@ -1,0 +1,31 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Unity
+unity/Library/
+unity/Temp/
+unity/Obj/
+unity/Build/
+unity/Logs/
+unity/UserSettings/
+unity/*.csproj
+unity/*.sln
+unity/*.slnx
+unity/[Mm]emoryCaptures/
+*.csproj.user
+
+# Godot (Editor-Cache in jedem Projekt, auch im Repo-Wurzelordner)
+.godot/
+*.apk
+*.aab
+*.idsig
+
+# Werkzeuge
+__pycache__/
+*.pyc
+
+# Vorfuehrfilme (zu gross fuers Repo)
+Build/Video/

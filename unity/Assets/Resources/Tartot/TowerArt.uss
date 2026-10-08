@@ -1,0 +1,80 @@
+.kampf--turm {
+    -unity-font: url("Fonts/Oranienbaum-Regular.ttf");
+    padding: 8px 16px;
+    background-color: #100c08;
+    color: #e9ce9b;
+}
+.kampf--turm .kopfzeile { font-size: 15px; color: #c3a374; margin-bottom: 4px; }
+.kampf--turm .filmrahmen { border-radius: 0; border-color: #87683d; }
+.kampf--turm .gegner { margin-bottom: 4px; align-items: stretch; }
+.kampf--turm .gegner__kulisse { height: 420px; border-radius: 0; border-color: #a27b42; }
+.kampf--turm .gegner__figurkunst {
+    left: 16.8%; right: 11%; top: 32px; bottom: 4.6%; opacity: 1;
+    -unity-background-scale-mode: scale-to-fit;
+    transition-property: scale, translate, opacity;
+    transition-duration: 0.18s;
+}
+.kampf--turm .gegner__licht, .kampf--turm .gegner__bodennebel { display: none; }
+.kampf--turm .gegner__nameplatte { top: 0; bottom: auto; left: 0; right: 0; padding: 5px; }
+.kampf--turm .gegner__name { font-size: 29px; letter-spacing: 2px; color: #efd3a0; }
+.kampf--turm .regelkarte { min-height: 58px; margin: 0; padding: 5px 12px; rotate: 0deg; border-radius: 0; background-color: #cbb081; }
+.kampf--turm .regelkarte__kopf { display: none; }
+.kampf--turm .regelkarte .gegner__regel { font-size: 16px; }
+.kampf--turm .regelkarte__siegel { width: 35px; height: 35px; }
+.kampf--turm .gegner__werte { padding: 3px 0; }
+.kampf--turm .gegner__hp, .kampf--turm .gegner__haltung { font-size: 16px; }
+.kampf--turm .gegner__absicht { margin: 2px 0; padding: 2px 12px; border-radius: 0; font-size: 17px; }
+.kampf--turm .tisch { padding: 3px 0 0 0; border-width: 0; border-radius: 0; background-color: #100c08; }
+.kampf--turm .leiste { padding: 2px; min-height: 32px; flex-shrink: 0; }
+.kampf--turm .leiste__wert { font-size: 17px; }
+.kampf--turm .charmleiste { min-height: 0; padding: 0; }
+.kampf--turm .legung { min-height: 190px; height: 190px; margin-top: 4px; flex-shrink: 0; }
+.kampf--turm .platz { min-height: 186px; padding: 4px; border-radius: 2px; border-color: #a88750; background-color: #c9ac78; background-image: url("Ornaments/platz.png"); -unity-background-scale-mode: stretch-to-fill; }
+.kampf--turm .platz__art { top: 28px; bottom: 30px; left: 14%; right: 14%; opacity: 1; -unity-background-scale-mode: scale-to-fit; }
+.kampf--turm .platz__titel { font-size: 15px; letter-spacing: 0; color: #edcf95; }
+.kampf--turm .platz__hinweis { font-size: 12px; color: #ead5ae; border-radius: 0; }
+.kampf--turm .platz--belegt .platz__art { opacity: 0.18; }
+.kampf--turm .platz--bruch .platz__art { opacity: 0.14; }
+.kampf--turm .vorschau-panel { min-height: 100px; margin: 4px; padding: 3px 8px; flex-shrink: 0; }
+.kampf--turm .vorschau-panel__kopf { display: none; }
+.kampf--turm .vorschau__fate { font-size: 21px; }
+.kampf--turm .vorschau { font-size: 15px; min-height: 16px; }
+.kampf--turm .vorschau__hinweis { font-size: 12px; }
+.kampf--turm .vorschau__hinweis, .kampf--turm .vorschau, .kampf--turm .vorschau__fate { width: 100%; flex-shrink: 0; }
+.kampf--turm .vorschau-panel__kopfzeile { min-height: 0; }
+.kampf--turm .vorschau__status { font-size: 12px; }
+.kampf--turm .protokoll { display: none; }
+.kampf--turm .kaskade { display: none; }
+.kampf--turm .handkopf { margin: 2px 5px; }
+.kampf--turm .handkopf__titel { font-size: 13px; }
+.kampf--turm .handkopf__hilfe { font-size: 12px; color: #b89b6e; }
+.kampf--turm .hand { min-height: 180px; flex-shrink: 0; padding-top: 5px; }
+.kampf--turm .karte--kampf { width: 116px; height: 174px; border-radius: 3px; padding: 7px; }
+.kampf--turm .karte__rahmen { opacity: 1; }
+.kampf--turm .karte__kopf { font-size: 18px; top: 4px; background-color: transparent; }
+.kampf--turm .karte__symbol { font-size: 14px; top: 6px; background-color: transparent; }
+.kampf--turm .karte--dunkel .karte__kopf, .kampf--turm .karte--dunkel .karte__symbol { color: #211a16; }
+.kampf--turm .karte--ohne-motiv .karte__symbol { left: 20px; right: 20px; top: 45px; font-size: 42px; -unity-text-align: middle-center; }
+.kampf--turm .karte__motiv { height: 93px; margin-top: 20px; border-width: 0; }
+.kampf--turm .karte__name { height: 28px; margin-top: 2px; font-size: 12px; }
+.kampf--turm .karte__plakette { font-size: 8px; }
+.kampf--turm .karte--auf-tisch { width: 90px; height: 133px; }
+.kampf--turm .karte--auf-tisch .karte__motiv { height: 63px; margin-top: 15px; }
+.kampf--turm .karte--auf-tisch .karte__name { font-size: 10px; height: 21px; }
+.kampf--turm .knopf--schicksal { width: 78%; height: 56px; min-height: 56px; margin-top: 9px; border-radius: 3px; border-width: 3px; border-color: #bf8e49; background-color: #8d231b; color: #f4d69d; font-size: 25px; }
+.kampf--turm .knopf--schicksal:hover { background-color: #ad3425; }
+.kampf--turm .knopf--schicksal { background-image: url("Ornaments/knopf.png"); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 20; -unity-slice-right: 20; -unity-slice-top: 20; -unity-slice-bottom: 20; border-width: 0; background-color: transparent; }
+.kampf--turm .platz__titel { background-image: url("Ornaments/reiter.png"); -unity-background-scale-mode: stretch-to-fill; padding: 3px 8px; background-color: transparent; }
+.kampf--turm .knopf--schicksal:disabled { background-color: #4a3126; color: #ac9774; }
+.kampf--turm.wurzel--desktop .gegner { width: 46%; margin-right: 18px; justify-content: flex-start; }
+.kampf--turm.wurzel--desktop .gegner__kulisse { height: auto; min-height: 390px; flex-grow: 1; }
+.kampf--turm.wurzel--desktop .tisch { justify-content: center; }
+.kampf--turm.wurzel--desktop .legung { height: 225px; min-height: 225px; }
+.kampf--turm.wurzel--desktop .platz { min-height: 221px; }
+.kampf--turm.wurzel--desktop .hand { min-height: 215px; }
+.kampf--turm.wurzel--desktop .karte--kampf { width: 128px; height: 192px; }
+.kampf--turm.wurzel--desktop .karte--kampf .karte__motiv { height: 108px; }
+.kampf--turm.wurzel--desktop .karte--auf-tisch { width: 104px; height: 156px; }
+.kampf--turm.wurzel--desktop .karte--auf-tisch .karte__motiv { height: 76px; }
+.kampf--turm .bossbuehne--treffer .gegner__figurkunst { translate: 5px 2px; rotate: 1.2deg; scale: 0.985 0.985; }
+.kampf--turm .bossbuehne--treffer-stark .gegner__figurkunst { translate: 9px 5px; rotate: 2.2deg; scale: 0.97 0.97; }

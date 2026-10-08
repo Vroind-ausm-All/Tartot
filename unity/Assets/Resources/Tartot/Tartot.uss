@@ -1,0 +1,1840 @@
+/*
+ * Artdirection "Occult Clean": Schwarz und Elfenbein tragen alles, Indigo und
+ * Ocker sind die einzigen Akzente. Schwerter und Staebe ziehen nach Ocker
+ * beziehungsweise Blut, Kelche und Muenzen nach Indigo - so bleiben vier
+ * Farben unterscheidbar, ohne das Zweifarbensystem zu brechen.
+ *
+ * Alle Farben stehen nur hier. Im C#-Code steht kein einziger Farbwert.
+ */
+
+:root {
+    --schwarz: #161616;
+    --tief: #0e0e10;
+    --elfenbein: #f2ecdd;
+    --papier: #e4dcc6;
+    --grau: #6b6659;
+    --indigo: #2e3a67;
+    --indigo-hell: #4a5a96;
+    --ocker: #c89b3c;
+    --ocker-hell: #e3bc63;
+    --blut: #8e2b2b;
+}
+
+.wurzel {
+    flex-grow: 1;
+    background-color: var(--tief);
+    padding: 16px;
+}
+
+/* -------------------------------------------------------- Verdunkelung */
+/* Je dunkler der Run, desto tiefer der Grund. Keine Zahl sagt es - man sieht es. */
+.wurzel--dunkel-1 { background-color: #0d0c0e; }
+.wurzel--dunkel-2 { background-color: #100b0c; }
+.wurzel--dunkel-3 { background-color: #130a0a; }
+.wurzel--dunkel-4 { background-color: #160808; }
+.wurzel--dunkel-5 { background-color: #1a0606; }
+
+/* ----------------------------------------------------------- Kopfzeile */
+.kopfzeile {
+    font-size: 13px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
+/* ------------------------------------------------------------- Gegner */
+.gegner {
+    align-items: center;
+    padding-bottom: 8px;
+}
+
+.gegner__silhouette {
+    width: 200px;
+    height: 200px;
+}
+
+/* Fenster in Bildgroesse; das Streifen-Element darin wird pro Bild verschoben. */
+.gegner__buehne {
+    overflow: hidden;
+    align-self: center;
+}
+
+.gegner__streifen {
+    position: absolute;
+    top: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.gegner__name {
+    -unity-font-style: bold;
+    font-size: 26px;
+    color: var(--elfenbein);
+    margin-top: 6px;
+    -unity-text-align: middle-center;
+}
+
+.gegner__regel {
+    font-size: 14px;
+    color: var(--blut);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 2px 12px;
+}
+
+.gegner__hp {
+    font-size: 22px;
+    color: var(--blut);
+}
+
+.gegner__absicht {
+    font-size: 20px;
+    color: var(--ocker);
+    margin-top: 2px;
+}
+
+.gegner__haltung {
+    font-size: 16px;
+    color: var(--indigo-hell);
+}
+
+.balken {
+    height: 6px;
+    width: 80%;
+    background-color: var(--schwarz);
+    margin-top: 4px;
+}
+
+.balken__fuellung {
+    height: 100%;
+    background-color: var(--blut);
+}
+
+.balken__fuellung--haltung {
+    background-color: var(--indigo-hell);
+}
+
+/* ------------------------------------------------------- Spielerleiste */
+.leiste {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: var(--grau);
+}
+
+.leiste__wert {
+    font-size: 18px;
+    color: var(--elfenbein);
+}
+
+.leiste__wert--schild { color: var(--indigo-hell); }
+.leiste__wert--fate { color: var(--ocker); }
+.leiste__wert--gedaempft { color: var(--grau); }
+.leiste__wert--dunkel { color: var(--blut); }
+
+.charmleiste {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 4px 0;
+    min-height: 24px;
+}
+
+.charm {
+    font-size: 14px;
+    color: var(--ocker);
+    margin-right: 10px;
+    padding: 2px 4px;
+    border-width: 1px;
+    border-color: var(--grau);
+}
+
+/* ------------------------------------------------------------ Legung */
+.legung {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+    flex-grow: 1;
+}
+
+.platz {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 4px;
+    border-width: 2px;
+    border-color: var(--grau);
+    align-items: center;
+    justify-content: flex-start;
+    padding: 6px 2px;
+    min-height: 150px;
+}
+
+.platz--belegt { border-color: var(--ocker); }
+
+/* Der Turm: eingestuerzt. Kein Rahmen, kein Platz. */
+.platz--eingestuerzt {
+    border-color: var(--blut);
+    background-color: #1b0d0d;
+}
+.platz--eingestuerzt .platz__titel { color: var(--blut); }
+
+/* Das Rad, der Gehaengte: der Platz wirkt woanders. */
+.platz--verschoben { border-color: var(--indigo-hell); }
+
+.platz__titel {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.platz__hinweis {
+    font-size: 11px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ------------------------------------------------------------- Karten */
+.karte {
+    width: 92px;
+    height: 132px;
+    background-color: var(--papier);
+    border-width: 2px;
+    border-color: var(--grau);
+    margin: 2px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px;
+}
+
+.karte--gewaehlt { border-color: var(--elfenbein); border-width: 3px; }
+.karte--schwerter { border-color: var(--blut); }
+.karte--staebe { border-color: var(--ocker); }
+.karte--kelche { border-color: var(--indigo-hell); }
+.karte--muenzen { border-color: var(--indigo); }
+.karte--arkana { border-color: var(--ocker-hell); background-color: var(--schwarz); }
+
+/* Schimmer verdunkelt die Karte schrittweise - die Verdunkelung des eigenen
+   Decks ist damit unmittelbar sichtbar, ohne dass eine Zahl es sagt. */
+.karte--matt { background-color: var(--papier); }
+.karte--weiss { background-color: #d8d0ba; }
+.karte--indigoschimmer { background-color: #a8a493; }
+.karte--gold { background-color: #7c765f; }
+.karte--blut { background-color: #4a3230; }
+.karte--schwarz { background-color: #201c1c; }
+
+.karte__kopf {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--schwarz);
+}
+
+.karte__symbol {
+    font-size: 30px;
+    color: var(--schwarz);
+}
+
+.karte__text {
+    font-size: 9px;
+    color: var(--schwarz);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.karte--dunkel .karte__kopf,
+.karte--dunkel .karte__symbol,
+.karte--dunkel .karte__text { color: var(--elfenbein); }
+
+/* Der Mond: verdeckt. Man sieht nur die Rueckseite. */
+.karte--verdeckt { background-color: var(--indigo); border-color: var(--indigo-hell); }
+.karte--verdeckt .karte__kopf,
+.karte--verdeckt .karte__symbol,
+.karte--verdeckt .karte__text { color: var(--elfenbein); }
+
+/* Der Tod: gezeichnet. */
+.karte--gezeichnet { border-color: var(--blut); border-width: 3px; }
+
+.karte__zeichen {
+    font-size: 10px;
+    color: var(--elfenbein);
+    background-color: var(--blut);
+    -unity-font-style: bold;
+    padding: 0 4px;
+}
+
+.karte__rage {
+    font-size: 9px;
+    color: var(--blut);
+    -unity-font-style: bold;
+}
+
+/* -------------------------------------------------------------- Hand */
+.hand {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.vorschau {
+    font-size: 16px;
+    color: var(--ocker-hell);
+    -unity-text-align: middle-center;
+    margin: 4px 0;
+    min-height: 20px;
+}
+
+.vorschau--toedlich { color: var(--blut); -unity-font-style: bold; }
+
+.vorschau__hinweis {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    min-height: 16px;
+}
+
+.protokoll {
+    font-size: 12px;
+    color: var(--grau);
+    white-space: normal;
+    min-height: 34px;
+    -unity-text-align: middle-center;
+}
+
+/* ------------------------------------------------------------ Knoepfe */
+.knopf {
+    height: 52px;
+    background-color: var(--ocker);
+    color: var(--schwarz);
+    font-size: 20px;
+    -unity-font-style: bold;
+    border-width: 2px;
+    border-color: var(--ocker-hell);
+    border-radius: 3px;
+    margin-top: 6px;
+}
+
+.knopf:hover { background-color: var(--ocker-hell); }
+.knopf:disabled { background-color: var(--grau); border-color: var(--grau); }
+
+.knopf--zweitrangig {
+    background-color: var(--schwarz);
+    color: var(--elfenbein);
+    border-color: var(--ocker);
+    height: 44px;
+    font-size: 16px;
+}
+
+/* -------------------------------------------------------------- Pakt */
+.pakt {
+    border-width: 2px;
+    border-color: var(--blut);
+    background-color: #1b0d0d;
+    padding: 8px;
+    margin-top: 4px;
+}
+
+.pakt__text {
+    font-size: 14px;
+    color: var(--elfenbein);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.pakt__knoepfe { flex-direction: row; justify-content: space-between; }
+.pakt__knoepfe .knopf { flex-grow: 1; margin: 6px 4px 0 4px; }
+.knopf--pakt { background-color: var(--blut); color: var(--elfenbein); border-color: var(--ocker); }
+
+/* ------------------------------------------------------------- Toast */
+.toast {
+    position: absolute;
+    left: 16px; right: 16px; top: 40%;
+    padding: 14px;
+    background-color: var(--schwarz);
+    border-width: 2px;
+    border-color: var(--ocker-hell);
+    color: var(--ocker-hell);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ----------------------------------------------------------- Overlay */
+.overlay {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background-color: rgba(14, 14, 16, 0.97);
+    padding: 24px;
+    justify-content: center;
+}
+
+.overlay__titel {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: var(--elfenbein);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.overlay__untertitel {
+    font-size: 15px;
+    color: var(--grau);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 14px;
+}
+
+.overlay__reihe {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+/* ------------------------------------------------ Zwischensequenz */
+.szene__bild {
+    height: 160px;
+    background-color: var(--schwarz);
+    border-width: 1px;
+    border-color: var(--grau);
+    margin-bottom: 14px;
+}
+
+.szene__beat {
+    font-size: 18px;
+    color: var(--elfenbein);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+}
+
+.szene__beat--neu { color: var(--ocker-hell); }
+
+.szene__schluss {
+    font-size: 17px;
+    color: var(--ocker-hell);
+    -unity-font-style: italic;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin: 10px 0;
+}
+
+.wahl__hinweis {
+    font-size: 12px;
+    color: var(--grau);
+    white-space: normal;
+}
+
+/* ------------------------------------------------------- Run-Bericht */
+.bericht__zeile {
+    font-size: 15px;
+    color: var(--elfenbein);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.bericht__abschnitt {
+    font-size: 13px;
+    color: var(--ocker);
+    -unity-font-style: bold;
+    margin-top: 12px;
+    -unity-text-align: middle-center;
+}
+
+.bericht__neu { font-size: 15px; color: var(--ocker-hell); -unity-text-align: middle-center; white-space: normal; }
+
+/* Beinahe: der letzte Blick vor "Noch einmal". */
+.beinahe {
+    border-width: 1px;
+    border-color: var(--ocker);
+    padding: 6px 8px;
+    margin-top: 6px;
+}
+
+.beinahe__titel { font-size: 15px; color: var(--elfenbein); -unity-font-style: bold; }
+.beinahe__text { font-size: 12px; color: var(--grau); white-space: normal; }
+.beinahe__balken { height: 4px; background-color: var(--schwarz); margin-top: 4px; }
+.beinahe__fuellung { height: 100%; background-color: var(--ocker); }
+
+.titel__marke {
+    font-size: 54px;
+    color: var(--elfenbein);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 12px;
+}
+
+/* Seltenheit: Plakette in der Farbe der Stufe (Balatro-Prinzip, TARTOT-Palette). */
+.karte__plakette {
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    color: #EFE3C8;
+    background-color: #8F7A5A;
+    border-radius: 6px;
+    margin: 2px 6px;
+    padding: 0 4px;
+}
+.karte--selten-uncommon .karte__plakette { background-color: #3B4A8C; }
+.karte--selten-rare .karte__plakette { background-color: #B3262B; }
+.karte--selten-legendary .karte__plakette { background-color: #E3A83B; color: #1A1412; }
+
+/* Editionen: UI Toolkit kann keine Shader - hier nur Rahmen und Toenung.
+   Die animierten Effekte (Glanz, Leuchten, Brennen, Glas) zeigt das Godot-Addon. */
+.karte--edition-shimmering { border-color: #F4D27A; border-width: 3px; }
+.karte--edition-glowing { border-color: #7F8FD0; border-width: 3px; }
+.karte--edition-burning { border-color: #E0543A; border-width: 3px; }
+.karte--edition-glass { border-color: #EFE3C8; border-width: 3px; opacity: 0.82; }
+
+
+/* === Vertical Slice: physischer Wahrsagetisch ================================= */
+.wurzel { padding: 10px 12px 12px 12px; background-color: #100d0c; overflow: hidden; }
+.filmrahmen { position: absolute; left: 5px; right: 5px; top: 5px; bottom: 5px; border-width: 1px; border-color: rgba(242,236,221,0.12); }
+.kopfzeile { min-height: 22px; margin-bottom: 6px; color: #8f8777; font-size: 12px; }
+.kampftisch { flex-grow: 1; min-height: 0; }
+.gegner { flex-shrink: 0; padding: 0; margin-bottom: 8px; }
+.gegner__kulisse { position: relative; height: 250px; overflow: hidden; align-items: center; justify-content: center; background-color: #191411; border-width: 1px; border-color: #574d3d; border-radius: 10px; -unity-background-scale-mode: scale-and-crop; }
+.gegner__licht { position: absolute; left: 17%; right: 17%; top: 5%; bottom: 4%; border-width: 1px; border-color: rgba(227,188,99,0.20); border-radius: 120px; background-color: rgba(200,155,60,0.035); }
+.gegner__figurkunst { position: absolute; left: 20%; right: 20%; top: 0; bottom: 0; opacity: 0.20; -unity-background-scale-mode: scale-to-fit; }
+.gegner__bodennebel { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; background-color: rgba(228,220,198,0.07); }
+.gegner__silhouette { margin-top: -4px; }
+.gegner__nameplatte { position: absolute; left: 12px; right: 12px; bottom: 8px; align-items: center; padding: 4px 12px; background-color: rgba(14,12,11,0.74); border-top-width: 1px; border-bottom-width: 1px; border-color: rgba(227,188,99,0.42); }
+.gegner__name { margin: 0; font-size: 25px; letter-spacing: 3px; color: var(--elfenbein); }
+.regelkarte { position: relative; flex-direction: row; align-items: center; min-height: 76px; margin: -4px 18px 8px 18px; padding: 9px 10px 9px 14px; background-color: #dfd3b8; border-width: 2px; border-color: #8f7a5a; border-radius: 7px; rotate: -0.5deg; transition-property: rotate, background-color, border-color; transition-duration: 0.20s; }
+.regelkarte__textblock { flex-grow: 1; min-width: 0; }
+.regelkarte__kopf { font-size: 10px; letter-spacing: 2px; color: #695f4f; -unity-font-style: bold; margin-bottom: 2px; }
+.regelkarte .gegner__regel { color: #241d18; font-size: 13px; margin: 0; -unity-text-align: middle-left; }
+.regelkarte__siegel { width: 48px; height: 48px; flex-shrink: 0; align-items: center; justify-content: center; margin-left: 10px; background-color: #7c2023; border-width: 3px; border-color: #b8874a; border-radius: 28px; rotate: 5deg; transition-property: rotate, scale, opacity; transition-duration: 0.22s; }
+.regelkarte__siegeltext { color: #f1dcc2; font-size: 13px; -unity-font-style: bold; }
+.regelkarte--phase2 { background-color: #c7b49e; border-color: #8e2b2b; rotate: 0.8deg; }
+.regelkarte__siegel--gebrochen { rotate: -18deg; scale: 0.78 0.78; opacity: 0.38; }
+.gegner__werte { flex-direction: row; padding: 0 12px; }
+.gegner__wert { flex-grow: 1; flex-basis: 0; min-width: 0; margin: 0 5px; }
+.gegner__hp, .gegner__haltung { font-size: 13px; -unity-text-align: middle-center; margin-bottom: 2px; }
+.gegner__hp { color: #d0695d; } .gegner__haltung { color: #8090ca; }
+.balken { width: 100%; height: 5px; margin-top: 0; background-color: #211b18; border-width: 1px; border-color: #40382f; }
+.gegner__absicht { align-self: center; margin: 7px 12px 0 12px; padding: 5px 14px; border-width: 1px; border-color: #7a6538; border-radius: 18px; background-color: rgba(200,155,60,0.07); font-size: 14px; color: var(--ocker-hell); }
+.tisch { position: relative; flex-grow: 1; min-height: 0; padding: 8px 10px 10px 10px; background-color: #171310; border-width: 1px; border-color: #3c342a; border-radius: 12px; }
+.leiste { padding: 5px 4px; border-top-width: 0; border-bottom-color: rgba(107,102,89,0.55); }
+.leiste__wert { font-size: 14px; padding: 2px 4px; }
+.charmleiste { min-height: 18px; padding: 3px 0 1px 0; }
+.charm { font-size: 11px; background-color: rgba(200,155,60,0.05); border-color: #54472f; border-radius: 10px; padding: 2px 7px; margin-right: 5px; }
+.legung { flex-grow: 0; min-height: 218px; margin-top: 7px; }
+.platz { position: relative; overflow: hidden; min-height: 212px; margin: 0 4px; padding: 7px 3px 5px 3px; background-color: #14110f; border-width: 1px; border-color: #51483d; border-radius: 8px; transition-property: scale, rotate, border-color, background-color; transition-duration: 0.14s; }
+.platz__art { position: absolute; left: 0; right: 0; top: 0; bottom: 0; opacity: 0.16; -unity-background-scale-mode: scale-and-crop; }
+.platz__riss { position: absolute; left: 48%; top: -8%; width: 3px; height: 116%; background-color: rgba(142,43,43,0.0); rotate: 13deg; transition-property: background-color, width; transition-duration: 0.16s; }
+.platz__titel { position: relative; font-size: 11px; letter-spacing: 1px; margin: 0 0 4px 0; padding: 2px 4px; color: var(--ocker-hell); background-color: rgba(14,12,11,0.70); }
+.platz__inhalt { position: relative; flex-grow: 1; align-items: center; justify-content: center; }
+.platz__hinweis { position: relative; font-size: 10px; color: #a49a87; padding: 2px 4px; background-color: rgba(14,12,11,0.72); border-radius: 4px; }
+.platz--belegt { border-color: #ad8b48; background-color: #1d1811; }
+.platz--ziel { border-color: #e3bc63; scale: 1.015 1.015; background-color: #211b12; }
+.platz--ziel-gesperrt { border-color: #8e2b2b; background-color: #201010; opacity: 0.70; }
+.platz--eingestuerzt, .platz--bruch { border-color: #9f3434; background-color: #1d0e0d; rotate: -1.1deg; scale: 0.97 0.97; }
+.platz--eingestuerzt .platz__art, .platz--bruch .platz__art { opacity: 0.07; }
+.platz--eingestuerzt .platz__riss, .platz--bruch .platz__riss { width: 6px; background-color: rgba(188,54,54,0.82); }
+.platz--eingestuerzt .platz__titel, .platz--bruch .platz__titel { color: #e07367; }
+.vorschau-panel { margin: 8px 4px 4px 4px; padding: 7px 10px; min-height: 66px; align-items: center; background-color: #12100e; border-top-width: 1px; border-bottom-width: 1px; border-color: #4d432f; transition-property: border-color, background-color, scale; transition-duration: 0.14s; }
+.vorschau-panel__kopf { color: #777064; font-size: 9px; letter-spacing: 2px; -unity-font-style: bold; }
+.vorschau { margin: 1px 0; min-height: 18px; font-size: 16px; }
+.kaskade { flex-direction: row; flex-wrap: wrap; justify-content: center; min-height: 15px; }
+.kaskade__schritt { font-size: 9px; color: #a39a89; margin: 0 4px; }
+.kaskade__schritt--muster { color: var(--ocker-hell); -unity-font-style: bold; }
+.vorschau-panel--bruch { border-color: #5f6fa8; background-color: #12131a; }
+.vorschau-panel--toedlich { border-color: #a83b36; background-color: #1d0e0d; scale: 1.008 1.008; }
+.vorschau__hinweis { min-height: 13px; font-size: 11px; }
+.protokoll { min-height: 25px; font-size: 10px; color: #7d766a; margin: 1px 8px 2px 8px; }
+.handkopf { flex-direction: row; justify-content: space-between; align-items: center; margin: 3px 4px 0 4px; }
+.handkopf__titel { font-size: 11px; color: var(--elfenbein); -unity-font-style: bold; letter-spacing: 2px; }
+.handkopf__hilfe { font-size: 9px; color: #777064; }
+.hand { flex-wrap: nowrap; min-height: 174px; align-items: flex-end; justify-content: center; overflow: visible; margin: 0; padding: 7px 0 0 0; }
+
+.karte { position: relative; overflow: hidden; width: 104px; height: 156px; margin: 2px; padding: 7px 7px 6px 7px; border-width: 2px; border-radius: 8px; background-color: #e7dcc4; transition-property: translate, scale, rotate, border-color, opacity; transition-duration: 0.12s; }
+.karte__kopf { position: absolute; left: 8px; top: 7px; font-size: 14px; padding: 1px 3px; background-color: rgba(239,227,200,0.78); border-radius: 3px; }
+.karte__motiv { height: 78px; width: 100%; margin-top: 17px; background-color: #cbbda2; border-width: 1px; border-color: rgba(26,20,18,0.38); -unity-background-scale-mode: scale-and-crop; }
+.karte__symbol { position: absolute; right: 8px; top: 8px; font-size: 16px; padding: 1px 3px; background-color: rgba(239,227,200,0.78); border-radius: 3px; }
+.karte__name { height: 25px; margin-top: 3px; font-size: 8px; color: #211a16; -unity-font-style: bold; -unity-text-align: middle-center; white-space: normal; }
+.karte__text { font-size: 8px; }
+.karte__rage { position: absolute; left: 6px; bottom: 5px; font-size: 7px; }
+.karte__plakette { position: absolute; right: 5px; bottom: 5px; font-size: 7px; border-radius: 5px; margin: 0; padding: 1px 4px; }
+.karte__rahmen { position: absolute; left: 0; right: 0; top: 0; bottom: 0; opacity: 0.82; -unity-background-scale-mode: stretch-to-fill; }
+.karte--ohne-motiv .karte__motiv { opacity: 0.28; }
+.karte--verdeckt .karte__motiv { position: absolute; left: 5px; right: 5px; top: 5px; bottom: 5px; width: auto; height: auto; margin: 0; opacity: 1; -unity-background-scale-mode: scale-and-crop; }
+.karte--verdeckt .karte__name, .karte--verdeckt .karte__text, .karte--verdeckt .karte__plakette, .karte--verdeckt .karte__rage { display: none; }
+.karte--verkehrt .karte__motiv { rotate: 180deg; }
+.karte--kampf { width: 108px; height: 162px; flex-shrink: 0; }
+.karte--kampf .karte__text { display: none; }
+.karte--auf-tisch { width: 86px; height: 129px; margin: 1px; rotate: 0deg; translate: 0 0; }
+.karte--auf-tisch .karte__motiv { height: 59px; }
+.karte--auf-tisch .karte__name { font-size: 7px; height: 20px; }
+.karte--gewaehlt { border-color: #f2ecdd; border-width: 3px; translate: 0 -17px; scale: 1.055 1.055; rotate: 0deg; }
+.karte--gezogen { opacity: 0.94; scale: 1.08 1.08; rotate: 0deg; border-color: #f2ecdd; }
+.karte--faecher-m3 { rotate: -7deg; translate: 0 15px; margin-right: -10px; }
+.karte--faecher-m2 { rotate: -5deg; translate: 0 8px; margin-right: -10px; }
+.karte--faecher-m1 { rotate: -2.5deg; translate: 0 3px; margin-right: -10px; }
+.karte--faecher-c { rotate: 0deg; margin-right: -10px; }
+.karte--faecher-p1 { rotate: 2.5deg; translate: 0 3px; margin-right: -10px; }
+.karte--faecher-p2 { rotate: 5deg; translate: 0 8px; margin-right: -10px; }
+.karte--faecher-p3 { rotate: 7deg; translate: 0 15px; margin-right: -10px; }
+.hand .karte:hover { translate: 0 -20px; scale: 1.07 1.07; rotate: 0deg; border-color: #e3bc63; }
+
+.knopf--schicksal { align-self: center; width: 72%; min-width: 250px; height: 49px; margin-top: 1px; background-color: #b98d34; border-color: #e3bc63; letter-spacing: 1px; font-size: 16px; border-radius: 24px; }
+.kampf--phase2 .gegner__kulisse { border-color: #78302d; }
+.kampf--phase2 .gegner__licht { border-color: rgba(196,67,57,0.35); background-color: rgba(142,43,43,0.05); }
+
+.auflosung { position: absolute; left: 14%; right: 14%; top: 37%; padding: 12px 14px; align-items: center; background-color: rgba(14,12,11,0.95); border-width: 2px; border-color: #8f7a5a; border-radius: 9px; }
+.auflosung__schritt { font-size: 10px; color: #aaa08d; -unity-text-align: middle-center; }
+.auflosung__fate { margin-top: 4px; font-size: 22px; color: var(--ocker-hell); -unity-font-style: bold; -unity-text-align: middle-center; }
+.auflosung__fate--toedlich { color: #e0665b; }
+.auflosung__moment { margin-top: 4px; font-size: 13px; color: #8798da; -unity-font-style: bold; -unity-text-align: middle-center; }
+.auflosung__moment--blut { color: #e0665b; }
+
+.omenkarte { width: 164px; height: 246px; position: relative; overflow: hidden; align-items: center; margin: 8px 18px 12px 18px; background-color: #1d1815; border-width: 2px; border-color: #c89b3c; border-radius: 9px; }
+.omenkarte__motiv { position: absolute; left: 8px; right: 8px; top: 8px; bottom: 42px; -unity-background-scale-mode: scale-and-crop; }
+.omenkarte__nummer { position: absolute; left: 10px; top: 9px; padding: 2px 5px; color: #1a1412; background-color: rgba(239,227,200,0.85); -unity-font-style: bold; }
+.omenkarte__name { position: absolute; left: 8px; right: 8px; bottom: 8px; color: var(--elfenbein); font-size: 12px; letter-spacing: 1px; -unity-font-style: bold; -unity-text-align: middle-center; }
+.omenwahl { border-radius: 8px; min-height: 58px; }
+.omenwahl--traenken { border-color: #8e2b2b; }
+.omenwahl--binden { border-color: #4a5a96; }
+.omenwahl--bannen { border-color: #c89b3c; }
+
+.wurzel--desktop { padding: 14px 20px 16px 20px; }
+.wurzel--desktop .kampftisch { flex-direction: row; align-items: stretch; }
+.wurzel--desktop .gegner { width: 38%; flex-shrink: 0; margin: 0 14px 0 0; justify-content: center; }
+.wurzel--desktop .gegner__kulisse { height: 430px; }
+.wurzel--desktop .regelkarte { margin-left: 28px; margin-right: 28px; }
+.wurzel--desktop .tisch { flex-grow: 1; padding: 12px 16px; }
+.wurzel--desktop .legung { min-height: 270px; }
+.wurzel--desktop .platz { min-height: 265px; margin: 0 7px; }
+.wurzel--desktop .karte--auf-tisch { width: 105px; height: 158px; }
+.wurzel--desktop .karte--auf-tisch .karte__motiv { height: 76px; }
+.wurzel--desktop .hand { min-height: 196px; }
+.wurzel--desktop .karte--kampf { width: 122px; height: 183px; }
+.wurzel--desktop .karte--kampf .karte__motiv { height: 91px; }
+.wurzel--desktop .knopf--schicksal { width: 54%; }
+.wurzel--desktop .auflosung { left: 20%; right: 20%; top: 34%; }
+
+/* =========================================================================
+   TURM VORFUEHRBUILD — SPRINT 1 / FEEL PASS
+   Nur Praesentation: keine dieser Klassen entscheidet Spielregeln.
+   ========================================================================= */
+
+.gegner__kulisse,
+.regelkarte,
+.kampftisch,
+.tisch,
+.hand,
+.gegner__werte {
+    transition-property: translate, scale, rotate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.gegner--eintritt .gegner__kulisse {
+    translate: 0 -18px;
+    scale: 0.975 0.975;
+    opacity: 0.56;
+}
+
+.regelkarte--einflug {
+    translate: 0 -44px;
+    scale: 0.93 0.93;
+    rotate: -4deg;
+    opacity: 0.05;
+}
+
+.regelkarte--bricht {
+    translate: 0 3px;
+    scale: 1.035 1.035;
+    rotate: -2.5deg;
+    border-color: #d15349;
+    background-color: #bca18c;
+}
+
+.regelkarte__siegel--bricht {
+    scale: 1.32 1.32;
+    rotate: 24deg;
+    opacity: 0.72;
+    border-color: #e3bc63;
+}
+
+.gegner--haltung-bruch .gegner__werte {
+    scale: 1.025 1.025;
+}
+
+.gegner--haltung-bruch .gegner__haltung {
+    color: #d9deff;
+    -unity-font-style: bold;
+}
+
+.karte--fokus {
+    translate: 0 -25px;
+    scale: 1.085 1.085;
+    rotate: 0deg;
+    border-color: #f0cf82;
+    border-bottom-width: 5px;
+}
+
+.karte--nachbar-links {
+    translate: -8px 8px;
+    rotate: -8deg;
+    opacity: 0.94;
+}
+
+.karte--nachbar-rechts {
+    translate: 8px 8px;
+    rotate: 8deg;
+    opacity: 0.94;
+}
+
+.karte--einrasten {
+    translate: 0 -8px;
+    scale: 1.095 1.095;
+    rotate: 1.2deg;
+    border-color: #f0cf82;
+    border-bottom-width: 5px;
+}
+
+.karte--abgewiesen-a {
+    translate: -11px 0;
+    rotate: -4deg;
+    border-color: #d15349;
+}
+
+.karte--abgewiesen-b {
+    translate: 9px 0;
+    rotate: 3deg;
+    border-color: #d15349;
+}
+
+.platz--ziel {
+    opacity: 0.90;
+}
+
+.platz--ziel-aktiv {
+    border-width: 2px;
+    border-color: #f0cf82;
+    background-color: #292113;
+    scale: 1.035 1.035;
+}
+
+.platz--ziel-gesperrt-aktiv {
+    border-width: 2px;
+    border-color: #d15349;
+    background-color: #2a0d0c;
+    scale: 0.975 0.975;
+    rotate: -1.2deg;
+}
+
+.platz--reject {
+    border-width: 3px;
+    border-color: #e0665b;
+    translate: -5px 0;
+    rotate: -1.8deg;
+}
+
+.platz--einsturz-cue {
+    border-width: 3px;
+    border-color: #e0665b;
+    background-color: #2b0c0a;
+    translate: 0 9px;
+    scale: 0.93 0.93;
+    rotate: -3.4deg;
+}
+
+.platz--einsturz-cue .platz__riss {
+    width: 10px;
+    background-color: rgba(224,102,91,0.95);
+}
+
+.platz--einsturz-nachhall {
+    border-color: #b33a35;
+    background-color: #1f0c0b;
+    rotate: -1.8deg;
+}
+
+.kampf--stoss-a .kampftisch {
+    translate: -4px 1px;
+    rotate: -0.12deg;
+}
+
+.kampf--stoss-b .kampftisch {
+    translate: 3px -1px;
+    rotate: 0.10deg;
+}
+
+.kampf--stoss-stark.kampf--stoss-a .kampftisch {
+    translate: -8px 2px;
+    rotate: -0.24deg;
+}
+
+.kampf--stoss-stark.kampf--stoss-b .kampftisch {
+    translate: 6px -2px;
+    rotate: 0.20deg;
+}
+
+.kampf--aufloesung .hand {
+    opacity: 0.70;
+    scale: 0.99 0.99;
+}
+
+.kampf--aufloesung .knopf--schicksal {
+    opacity: 0.55;
+}
+
+.kampf--welt .tisch {
+    border-color: #e3bc63;
+}
+
+.kampf--welt .vorschau-panel {
+    border-color: #e3bc63;
+    background-color: #211b10;
+    scale: 1.02 1.02;
+}
+
+.vorschau-panel--welt {
+    border-color: #d2a74d;
+    background-color: #1d190f;
+}
+
+.knopf--bruchbereit {
+    background-color: #4a5a96;
+    border-color: #8798da;
+    color: #f2ecdd;
+}
+
+.knopf--welt {
+    background-color: #d0a03e;
+    border-color: #f0cf82;
+    color: #16120e;
+}
+
+.knopf--toedlich {
+    background-color: #8e2b2b;
+    border-color: #e0665b;
+    color: #f2ecdd;
+    scale: 1.015 1.015;
+}
+
+.auflosung {
+    transition-property: scale, translate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__schritt {
+    margin-top: 2px;
+    padding: 2px 7px;
+    border-left-width: 1px;
+    border-color: #5c5143;
+}
+
+.auflosung__schritt--muster {
+    color: #e3bc63;
+    -unity-font-style: bold;
+    border-color: #c89b3c;
+}
+
+.auflosung__welt {
+    margin-top: 5px;
+    padding: 4px 12px;
+    color: #f0cf82;
+    font-size: 17px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: #c89b3c;
+}
+
+.auflosung--welt {
+    border-color: #e3bc63;
+    background-color: rgba(28,23,13,0.97);
+}
+
+.auflosung--toedlich {
+    border-color: #d15349;
+    background-color: rgba(31,11,10,0.97);
+}
+
+/* =========================================================================
+   PHASE B — BOSS STAGING
+   BossStageView + BossRuleCardView besitzen diese Zustandsklassen.
+   ========================================================================= */
+
+.gegner__buehnenbild {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.92;
+    -unity-background-scale-mode: scale-and-crop;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.28s;
+}
+
+.gegner__phaseglut {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    top: 3%;
+    bottom: 3%;
+    opacity: 0;
+    background-color: rgba(116, 24, 24, 0.00);
+    border-width: 1px;
+    border-color: rgba(200, 77, 62, 0.00);
+    border-radius: 120px;
+    transition-property: opacity, scale, background-color, border-color;
+    transition-duration: 0.26s;
+}
+
+.gegner__blitz {
+    position: absolute;
+    left: 67%;
+    top: -12%;
+    width: 7px;
+    height: 128%;
+    opacity: 0;
+    rotate: 17deg;
+    scale: 0.55 1;
+    background-color: #efe5c9;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-color: #ffffff;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.09s;
+}
+
+.gegner__staub {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 3%;
+    height: 23%;
+    opacity: 0;
+    scale: 0.82 0.62;
+    background-color: rgba(215, 201, 167, 0.12);
+    border-radius: 100px;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.24s;
+}
+
+.bossbuehne--boss .gegner__nameplatte {
+    border-color: rgba(227, 188, 99, 0.62);
+    background-color: rgba(10, 8, 7, 0.82);
+}
+
+.bossbuehne--turm .gegner__licht {
+    border-color: rgba(227, 188, 99, 0.28);
+    background-color: rgba(200, 155, 60, 0.045);
+}
+
+.bossbuehne--intro-start .gegner__kulisse {
+    translate: 0 -28px;
+    scale: 0.94 0.94;
+    opacity: 0.42;
+    border-color: #8c7041;
+}
+
+.bossbuehne--intro-start .gegner__figurkunst,
+.bossbuehne--intro-start .gegner__silhouette {
+    translate: 0 -18px;
+    scale: 1.07 1.07;
+    opacity: 0.18;
+}
+
+.bossbuehne--intro-settle .gegner__kulisse {
+    translate: 0 3px;
+    scale: 1.012 1.012;
+    border-color: #8f7847;
+}
+
+.bossbuehne--intro-settle .gegner__nameplatte {
+    scale: 1.02 1.02;
+    border-color: #d0a84f;
+}
+
+.gegner__blitz--intro {
+    opacity: 0.72;
+    scale: 1.2 1.0;
+    translate: -7px 0;
+}
+
+.gegner__staub--intro {
+    opacity: 0.72;
+    scale: 1.12 0.88;
+    translate: 0 -8px;
+}
+
+.bossbuehne--phase2 .gegner__buehnenbild {
+    opacity: 0.76;
+    scale: 1.025 1.025;
+}
+
+.bossbuehne--phase2 .gegner__phaseglut {
+    opacity: 0.42;
+    background-color: rgba(132, 31, 29, 0.16);
+    border-color: rgba(210, 73, 61, 0.34);
+}
+
+.bossbuehne--phase2 .gegner__figurkunst {
+    opacity: 0.31;
+    scale: 1.025 1.025;
+}
+
+.bossbuehne--phase2 .gegner__nameplatte {
+    border-color: rgba(209, 83, 73, 0.72);
+    background-color: rgba(27, 8, 8, 0.82);
+}
+
+.bossbuehne--phase2 .gegner__name {
+    color: #f0d7c9;
+}
+
+.bossbuehne--phase-cue .gegner__kulisse {
+    scale: 1.025 1.025;
+    border-color: #d15349;
+}
+
+.bossbuehne--phase-cue .gegner__figurkunst,
+.bossbuehne--phase-cue .gegner__silhouette {
+    scale: 1.055 1.055;
+}
+
+.gegner__phaseglut--cue {
+    opacity: 0.72;
+    scale: 1.05 1.05;
+    background-color: rgba(174, 42, 35, 0.24);
+    border-color: rgba(239, 111, 87, 0.62);
+}
+
+.gegner__blitz--aktiv {
+    opacity: 0.94;
+    scale: 1.6 1;
+    translate: -12px 0;
+}
+
+.gegner__staub--aktiv {
+    opacity: 0.88;
+    scale: 1.22 1.04;
+    translate: 0 -13px;
+}
+
+.bossbuehne--haltung-bruch .gegner__kulisse {
+    translate: 0 3px;
+    scale: 1.018 0.985;
+    border-color: #8798da;
+}
+
+.bossbuehne--haltung-bruch .gegner__werte {
+    scale: 1.04 1.04;
+}
+
+.bossbuehne--haltung-bruch .gegner__haltung {
+    color: #dbe0ff;
+    -unity-font-style: bold;
+}
+
+/* Regelkarte: erste Lesart -> gebrochenes Siegel -> zweite Lesart. */
+.regelkarte {
+    overflow: visible;
+}
+
+.regelkarte__phase {
+    display: none;
+    align-self: flex-start;
+    margin-bottom: 2px;
+    padding: 1px 6px;
+    color: #8e2b2b;
+    background-color: rgba(142, 43, 43, 0.08);
+    border-left-width: 2px;
+    border-color: #8e2b2b;
+    font-size: 9px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+}
+
+.regelkarte__siegelriss {
+    position: absolute;
+    left: 22px;
+    top: 2px;
+    width: 3px;
+    height: 44px;
+    opacity: 0;
+    rotate: 23deg;
+    background-color: #261512;
+    transition-property: opacity, width, rotate;
+    transition-duration: 0.12s;
+}
+
+.regelkarte__siegelriss--sichtbar {
+    opacity: 0.86;
+}
+
+.regelkarte__siegelriss--aktiv {
+    opacity: 1;
+    width: 6px;
+    rotate: 35deg;
+}
+
+.regelkarte--intro-start {
+    translate: 0 -58px;
+    scale: 0.88 0.88;
+    rotate: -6deg;
+    opacity: 0.04;
+}
+
+.regelkarte--intro-settle {
+    translate: 0 3px;
+    scale: 1.018 1.018;
+    rotate: -1.4deg;
+    border-color: #d0a84f;
+}
+
+.regelkarte--phase2 {
+    background-color: #c7b09b;
+    border-color: #a03a33;
+    border-left-width: 4px;
+    rotate: 0.9deg;
+}
+
+.regelkarte--phase2 .regelkarte__kopf {
+    color: #7d2925;
+}
+
+.regelkarte--phase2 .gegner__regel {
+    color: #2f1714;
+}
+
+.regelkarte--phase2 .regelkarte__phase {
+    display: flex;
+}
+
+.regelkarte--bricht {
+    translate: 0 5px;
+    scale: 1.055 1.055;
+    rotate: -3.2deg;
+    border-color: #e0665b;
+    background-color: #b99782;
+}
+
+.regelkarte__siegel--bricht {
+    scale: 1.42 1.42;
+    rotate: 31deg;
+    opacity: 0.62;
+    border-color: #f0cf82;
+}
+
+.regelkarte__siegel--gebrochen {
+    rotate: -19deg;
+    scale: 0.78 0.78;
+    opacity: 0.42;
+    border-color: #6d2a25;
+}
+
+.regelkarte__phase--cue {
+    color: #f2ecdd;
+    background-color: #8e2b2b;
+    border-color: #e0665b;
+    scale: 1.08 1.08;
+}
+
+.wurzel--desktop .bossbuehne--boss .gegner__kulisse {
+    min-height: 430px;
+}
+
+.wurzel--desktop .regelkarte__phase {
+    font-size: 10px;
+}
+
+/* =========================================================================
+   PHASE C — PREVIEW + RESOLVE
+   PreviewCascadeView / ResolutionPulseView
+   ========================================================================= */
+
+.vorschau-panel {
+    position: relative;
+    overflow: hidden;
+    transition-property: scale, border-color, background-color, opacity;
+    transition-duration: 0.12s;
+}
+
+.vorschau-panel__kopfzeile {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vorschau__status {
+    min-width: 112px;
+    padding: 2px 7px;
+    border-left-width: 2px;
+    border-color: #655b4c;
+    color: #a89f8e;
+    font-size: 9px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+.vorschau__fate {
+    min-height: 27px;
+    margin-top: 2px;
+    color: #e3bc63;
+    font-size: 22px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    transition-property: scale, color;
+    transition-duration: 0.12s;
+}
+
+.vorschau {
+    margin-top: 0;
+    color: #c8beaa;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+}
+
+.vorschau-panel--aktiv {
+    border-color: #675943;
+    background-color: #15120f;
+}
+
+.vorschau-panel--aktiv .vorschau__fate {
+    scale: 1.02 1.02;
+}
+
+.vorschau-panel--bruch {
+    border-color: #7a89c4;
+    background-color: #12141c;
+    scale: 1.008 1.008;
+}
+
+.vorschau-panel--bruch .vorschau__status,
+.vorschau-panel--bruch .vorschau__fate {
+    color: #bfc9ff;
+    border-color: #7887c0;
+}
+
+.vorschau-panel--welt {
+    border-color: #d4aa4e;
+    background-color: #211b0f;
+    scale: 1.012 1.012;
+}
+
+.vorschau-panel--welt .vorschau__status,
+.vorschau-panel--welt .vorschau__fate {
+    color: #f0cf82;
+    border-color: #d4aa4e;
+}
+
+.vorschau-panel--toedlich {
+    border-width: 2px;
+    border-color: #df665b;
+    background-color: #260d0b;
+    scale: 1.018 1.018;
+}
+
+.vorschau-panel--toedlich .vorschau__status {
+    color: #f3b0a7;
+    border-color: #e0665b;
+}
+
+.vorschau-panel--toedlich .vorschau__fate {
+    color: #f08a7e;
+    scale: 1.07 1.07;
+}
+
+.vorschau-panel--verschleiert {
+    border-color: #5f5c79;
+    background-color: #12111a;
+    opacity: 0.92;
+}
+
+.vorschau-panel--verschleiert .vorschau__fate {
+    color: #8a88ae;
+}
+
+.kaskade {
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top-width: 1px;
+    border-color: rgba(108, 94, 67, 0.36);
+}
+
+.kaskade__schritt {
+    margin: 1px 3px;
+    padding: 2px 5px;
+    background-color: rgba(239, 227, 200, 0.025);
+    border-bottom-width: 1px;
+    border-color: rgba(103, 89, 67, 0.34);
+    border-radius: 4px;
+}
+
+.kaskade__schritt--muster {
+    color: #e3bc63;
+    background-color: rgba(200, 155, 60, 0.065);
+    border-color: rgba(211, 171, 82, 0.50);
+}
+
+/* Auflösung ist eine kurze Bühne über dem Tisch, kein Log-Fenster. */
+.auflosung {
+    overflow: hidden;
+    min-height: 170px;
+    justify-content: center;
+    padding: 14px 16px 16px 16px;
+    transition-property: scale, translate, opacity, border-color, background-color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__halo {
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    top: 8%;
+    bottom: 8%;
+    opacity: 0.10;
+    scale: 0.84 0.84;
+    background-color: rgba(214, 179, 89, 0.04);
+    border-width: 1px;
+    border-color: rgba(222, 190, 105, 0.12);
+    border-radius: 120px;
+    transition-property: opacity, scale, background-color, border-color;
+    transition-duration: 0.16s;
+}
+
+.auflosung__kopf {
+    position: relative;
+    margin-bottom: 3px;
+    color: #8d8474;
+    font-size: 9px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.auflosung__stempel {
+    position: relative;
+    display: none;
+    margin: 2px 0 5px 0;
+    padding: 4px 13px;
+    color: #f0cf82;
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: #c89b3c;
+    scale: 0.88 0.88;
+    opacity: 0.12;
+    transition-property: scale, opacity, color, border-color, background-color;
+    transition-duration: 0.11s;
+}
+
+.auflosung__stempel--sichtbar {
+    display: flex;
+    scale: 1.04 1.04;
+    opacity: 1;
+}
+
+.auflosung__stempel--toedlich {
+    color: #f3b0a7;
+    border-color: #e0665b;
+    background-color: rgba(142, 43, 43, 0.12);
+    scale: 1.10 1.10;
+}
+
+.auflosung__schritte {
+    position: relative;
+    align-items: center;
+    min-height: 36px;
+    width: 100%;
+}
+
+.auflosung__schritt {
+    min-width: 58%;
+    margin-top: 2px;
+    padding: 2px 8px;
+    color: #aaa08d;
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    border-left-width: 2px;
+    border-color: #5c5143;
+    background-color: rgba(239, 227, 200, 0.018);
+}
+
+.auflosung__schritt--muster {
+    color: #e3bc63;
+    border-color: #c89b3c;
+    background-color: rgba(200, 155, 60, 0.06);
+    -unity-font-style: bold;
+}
+
+.auflosung__fate {
+    position: relative;
+    min-height: 33px;
+    margin-top: 6px;
+    color: var(--ocker-hell);
+    font-size: 23px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0.15;
+    scale: 0.84 0.84;
+    transition-property: scale, opacity, color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__fate--aktiv {
+    opacity: 1;
+    scale: 1.08 1.08;
+}
+
+.auflosung__moment {
+    position: relative;
+    min-height: 20px;
+    margin-top: 5px;
+    color: #8798da;
+    font-size: 13px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0;
+    scale: 0.86 0.86;
+    transition-property: scale, opacity, color;
+    transition-duration: 0.10s;
+}
+
+.auflosung__moment--sichtbar {
+    opacity: 1;
+    scale: 1.06 1.06;
+}
+
+.auflosung__moment--blut {
+    color: #e0665b;
+}
+
+.auflosung--schritt-puls {
+    scale: 1.012 1.012;
+}
+
+.auflosung--bruch {
+    border-color: #7d8fcb;
+    background-color: rgba(14, 15, 25, 0.97);
+}
+
+.auflosung__halo--bruch {
+    opacity: 0.54;
+    scale: 1.03 1.03;
+    background-color: rgba(86, 102, 170, 0.13);
+    border-color: rgba(135, 152, 218, 0.48);
+}
+
+.auflosung--welt {
+    border-color: #e3bc63;
+    background-color: rgba(30, 24, 12, 0.98);
+}
+
+.auflosung__halo--welt {
+    opacity: 0.64;
+    scale: 1.08 1.08;
+    background-color: rgba(200, 155, 60, 0.16);
+    border-color: rgba(240, 207, 130, 0.60);
+}
+
+.auflosung--welt .auflosung__fate {
+    color: #f0cf82;
+}
+
+.auflosung--toedlich {
+    border-width: 3px;
+    border-color: #e0665b;
+    background-color: rgba(37, 8, 8, 0.98);
+}
+
+.auflosung--toedlich .auflosung__fate {
+    color: #f08a7e;
+}
+
+.auflosung__halo--toedlich {
+    opacity: 0.70;
+    scale: 1.14 1.14;
+    background-color: rgba(159, 38, 31, 0.19);
+    border-color: rgba(224, 102, 91, 0.68);
+}
+
+.auflosung--urteil {
+    scale: 1.035 1.035;
+    border-color: #f18b7f;
+}
+
+.auflosung--urteil .auflosung__stempel {
+    scale: 1.14 1.14;
+}
+
+.wurzel--desktop .vorschau__fate {
+    font-size: 25px;
+}
+
+.wurzel--desktop .auflosung {
+    left: 18%;
+    right: 18%;
+    top: 32%;
+    min-height: 190px;
+}
+
+.wurzel--desktop .auflosung__fate {
+    font-size: 27px;
+}
+
+/* =========================================================================
+   PHASE D — XVI DER TURM / SIGNATURE MOMENTS
+   TowerSignatureView steuert nur Darstellung des vom Core gesetzten Slots.
+   ========================================================================= */
+
+.legung {
+    position: relative;
+    overflow: visible;
+}
+
+.turm-einschlag {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 8%;
+    bottom: 5%;
+    opacity: 0;
+    scale: 0.82 1;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-color: rgba(238, 225, 191, 0.0);
+    background-color: rgba(239, 228, 194, 0.0);
+    transition-property: opacity, scale, translate, border-color, background-color;
+    transition-duration: 0.09s;
+}
+
+.turm-einschlag--warnung {
+    opacity: 0.22;
+    scale: 0.94 1;
+    border-color: rgba(220, 180, 91, 0.34);
+    background-color: rgba(198, 152, 54, 0.035);
+}
+
+.turm-einschlag--schlag {
+    opacity: 0.82;
+    scale: 1.04 1;
+    translate: 0 4px;
+    border-color: rgba(255, 240, 199, 0.82);
+    background-color: rgba(239, 225, 191, 0.11);
+}
+
+.turm-einschlag--siegel {
+    opacity: 0.48;
+    scale: 1.08 1.04;
+    border-color: rgba(224, 102, 91, 0.56);
+    background-color: rgba(142, 43, 43, 0.08);
+}
+
+.tisch--turm-warnung {
+    border-color: #8c7041;
+    scale: 1.004 1.004;
+}
+
+.tisch--turm-schlag {
+    border-color: #e3bc63;
+    translate: 0 4px;
+    scale: 0.992 0.985;
+}
+
+.tisch--siegelbruch {
+    border-width: 2px;
+    border-color: #d15349;
+    scale: 1.012 0.995;
+    rotate: -0.18deg;
+}
+
+.platz__staub {
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    bottom: 4%;
+    height: 27%;
+    opacity: 0;
+    scale: 0.68 0.45;
+    background-color: rgba(216, 201, 166, 0.12);
+    border-radius: 90px;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.18s;
+}
+
+.platz__splitter {
+    position: absolute;
+    left: 47%;
+    top: 26%;
+    width: 7px;
+    height: 58%;
+    opacity: 0;
+    rotate: 14deg;
+    scale: 0.55 0.55;
+    background-color: rgba(224, 213, 185, 0.70);
+    border-width: 1px;
+    border-color: rgba(72, 56, 43, 0.86);
+    transition-property: opacity, scale, translate, rotate;
+    transition-duration: 0.17s;
+}
+
+.platz__staub--aktiv {
+    opacity: 0.92;
+    scale: 1.28 1.04;
+    translate: 0 -18px;
+}
+
+.platz__splitter--aktiv {
+    opacity: 0.88;
+    scale: 1.18 1.08;
+    translate: 18px -23px;
+    rotate: 33deg;
+}
+
+.platz__staub--rueckkehr {
+    opacity: 0.38;
+    scale: 1.02 0.72;
+    translate: 0 -7px;
+}
+
+.platz--einsturz-vorwarnung {
+    border-width: 2px;
+    border-color: #b88b45;
+    background-color: #21170f;
+    scale: 1.018 1.018;
+}
+
+.platz--einsturz-vorwarnung .platz__riss {
+    width: 4px;
+    background-color: rgba(202, 148, 59, 0.46);
+}
+
+.platz--einsturz-cue {
+    border-width: 3px;
+    border-color: #f08a7e;
+    background-color: #2d0b09;
+    translate: 0 13px;
+    scale: 0.91 0.90;
+    rotate: -4.2deg;
+}
+
+.platz--einsturz-cue .platz__art {
+    opacity: 0.04;
+    scale: 1.08 1.08;
+}
+
+.platz--einsturz-cue .platz__riss {
+    width: 11px;
+    background-color: rgba(241, 114, 92, 0.98);
+}
+
+.platz--einsturz-nachhall {
+    border-color: #bd463d;
+    background-color: #200b0a;
+    translate: 0 5px;
+    rotate: -2.1deg;
+}
+
+.platz--rueckkehr {
+    border-color: #aa9b7b;
+    background-color: #1b1711;
+    translate: 0 -5px;
+    scale: 1.018 1.018;
+    rotate: 0.6deg;
+}
+
+.platz--rueckkehr .platz__riss {
+    width: 2px;
+    background-color: rgba(153, 136, 104, 0.18);
+}
+
+.bossbuehne--turm-schlag .gegner__kulisse {
+    translate: 0 5px;
+    scale: 1.015 0.985;
+    border-color: #f0cf82;
+}
+
+.bossbuehne--turm-schlag .gegner__figurkunst,
+.bossbuehne--turm-schlag .gegner__silhouette {
+    translate: 0 7px;
+    scale: 1.045 0.97;
+}
+
+.gegner__blitz--turm-schlag {
+    opacity: 1;
+    scale: 2.1 1.02;
+    translate: -18px 0;
+    background-color: #fff1c9;
+}
+
+.gegner__staub--turm-schlag {
+    opacity: 0.96;
+    scale: 1.34 1.12;
+    translate: 0 -18px;
+}
+
+.regelkarte__wachssplitter {
+    position: absolute;
+    left: 20px;
+    top: 19px;
+    width: 8px;
+    height: 7px;
+    opacity: 0;
+    background-color: #7c2023;
+    border-width: 1px;
+    border-color: #b8874a;
+    transition-property: opacity, translate, rotate, scale;
+    transition-duration: 0.24s;
+}
+
+.regelkarte__wachssplitter--a { rotate: 12deg; }
+.regelkarte__wachssplitter--b { rotate: -18deg; scale: 0.78 0.78; }
+.regelkarte__wachssplitter--c { rotate: 31deg; scale: 0.62 0.62; }
+
+.regelkarte__wachssplitter--fliegt-a {
+    opacity: 0.96;
+    translate: -22px -25px;
+    rotate: -38deg;
+    scale: 1.08 1.08;
+}
+
+.regelkarte__wachssplitter--fliegt-b {
+    opacity: 0.88;
+    translate: 28px -16px;
+    rotate: 47deg;
+    scale: 0.92 0.92;
+}
+
+.regelkarte__wachssplitter--fliegt-c {
+    opacity: 0.82;
+    translate: 18px 25px;
+    rotate: 78deg;
+    scale: 0.76 0.76;
+}
+
+.auflosung__moment--ruhe {
+    color: #b7ad95;
+}
+
+.wurzel--desktop .platz__splitter {
+    height: 64%;
+}
+
+.wurzel--desktop .turm-einschlag {
+    left: 5%;
+    right: 5%;
+}
+
+/* Phase-D Cue-Ueberlagerungen bleiben getrennt, damit Haltung und Phase 2
+   im selben Zug ihre eigenen Cleanups behalten. */
+.gegner__staub--haltung {
+    opacity: 0.74;
+    scale: 1.14 0.94;
+    translate: 0 -10px;
+}
+
+.gegner__staub--phase {
+    opacity: 0.92;
+    scale: 1.26 1.08;
+    translate: 0 -16px;
+}
+
+/* =========================================================================
+   PHASE E — DEMO POLISH
+   Kleine Impulse statt dauernder Kamera-Bewegung. Audio/Haptik liegt in
+   PresentationFeedbackView; diese Klassen liefern nur den visuellen Nachhall.
+   ========================================================================= */
+
+.kampf--stoss-a .kampftisch {
+    translate: -3px 1px;
+    rotate: -0.10deg;
+}
+
+.kampf--stoss-b .kampftisch {
+    translate: 2px -1px;
+    rotate: 0.08deg;
+}
+
+.kampf--stoss-c .kampftisch {
+    translate: -1px 0;
+    rotate: -0.03deg;
+    scale: 1.002 1.002;
+}
+
+.kampf--stoss-stark.kampf--stoss-a .kampftisch {
+    translate: -6px 2px;
+    rotate: -0.18deg;
+    scale: 0.996 0.996;
+}
+
+.kampf--stoss-stark.kampf--stoss-b .kampftisch {
+    translate: 5px -2px;
+    rotate: 0.15deg;
+    scale: 1.004 1.004;
+}
+
+.kampf--stoss-stark.kampf--stoss-c .kampftisch {
+    translate: -2px 1px;
+    rotate: -0.05deg;
+    scale: 1.001 1.001;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-a .kampftisch {
+    translate: -9px 3px;
+    rotate: -0.26deg;
+    scale: 0.991 0.986;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-b .kampftisch {
+    translate: 7px -2px;
+    rotate: 0.22deg;
+    scale: 1.006 1.006;
+}
+
+.kampf--stoss-sehr-stark.kampf--stoss-c .kampftisch {
+    translate: -2px 1px;
+    rotate: -0.04deg;
+    scale: 1.002 1.002;
+}
+
+.kampf--stoss-sehr-stark .filmrahmen {
+    border-color: rgba(240, 207, 130, 0.30);
+}
+
+.kampf--phase2 .gegner__phaseglut {
+    opacity: 0.46;
+}
+
+.kampf--aufloesung .gegner__absicht {
+    opacity: 0.72;
+}
+
+.auflosung--urteil {
+    translate: 0 -2px;
+}
+
+.auflosung--urteil .auflosung__halo {
+    scale: 1.18 1.18;
+}
+
+.platz--einsturz-cue .platz__splitter {
+    opacity: 0.96;
+}
+
+.regelkarte--bricht .regelkarte__siegelriss {
+    width: 7px;
+    opacity: 1;
+}
+

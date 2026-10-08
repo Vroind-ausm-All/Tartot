@@ -1,0 +1,22 @@
+<Project Sdk="Godot.NET.Sdk/4.4.1">
+
+  <!--
+    Der Kartentisch spricht direkt mit dem Regelkern. Die Kernquellen liegen
+    unter unity/Assets und werden hier nur verlinkt - wie in
+    src/Tartot.Core. Es gibt also eine einzige Kopie der Regeln fuer Unity,
+    Godot, Tests und Simulation.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Nullable>disable</Nullable>
+    <RootNamespace>TartotKartentisch</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../unity/Assets/Tartot/Core/**/*.cs">
+      <Link>Kern/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>

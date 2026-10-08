@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <!-- TARTOT: eine Tarotkarte mit Auge, Palette der Stilbibel -->
+  <rect width="192" height="192" fill="#1A1412"/>
+  <rect x="44" y="20" width="104" height="152" rx="4" fill="#EFE3C8" stroke="#E3A83B" stroke-width="6"/>
+  <g fill="#1A1412">
+    <rect x="50" y="30" width="5" height="9"/><rect x="50" y="50" width="5" height="9"/>
+    <rect x="50" y="70" width="5" height="9"/><rect x="50" y="90" width="5" height="9"/>
+    <rect x="50" y="110" width="5" height="9"/><rect x="50" y="130" width="5" height="9"/>
+    <rect x="50" y="150" width="5" height="9"/>
+    <rect x="137" y="30" width="5" height="9"/><rect x="137" y="50" width="5" height="9"/>
+    <rect x="137" y="70" width="5" height="9"/><rect x="137" y="90" width="5" height="9"/>
+    <rect x="137" y="110" width="5" height="9"/><rect x="137" y="130" width="5" height="9"/>
+    <rect x="137" y="150" width="5" height="9"/>
+  </g>
+  <ellipse cx="96" cy="92" rx="30" ry="20" fill="#1A1412"/>
+  <circle cx="100" cy="90" r="9" fill="#EFE3C8"/>
+  <circle cx="102" cy="88" r="4" fill="#B3262B"/>
+  <rect x="70" y="128" width="52" height="16" fill="#1A1412"/>
+  <g fill="#EFE3C8"><rect x="74" y="131" width="6" height="6"/><rect x="85" y="131" width="6" height="6"/><rect x="96" y="131" width="6" height="6"/><rect x="107" y="131" width="6" height="6"/></g>
+  <text x="96" y="58" font-family="serif" font-size="20" text-anchor="middle" fill="#B3262B">XVI</text>
+</svg>

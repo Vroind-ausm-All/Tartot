@@ -1,0 +1,28 @@
+name: Validate TARTOT
+
+on:
+  push:
+    branches:
+      - claude/compassionate-archimedes-ebvgo2
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build solution
+        run: dotnet build Tartot.sln -c Release
+
+      - name: Run core tests
+        run: dotnet test src/Tartot.Tests/Tartot.Tests.csproj -c Release --no-restore
+
+      - name: Build Unity syntax check
+        run: dotnet build tools/unity-syntax-check/UnitySyntaxCheck.csproj -c Release

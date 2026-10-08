@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Kein Auslieferungsartefakt. Dieses Projekt kompiliert den Unity-Code gegen
+    minimale Stubs, damit Tippfehler und falsche Zugriffe auf Tartot.Core nicht
+    erst in Unity auffallen. Es ist bewusst NICHT Teil von Tartot.sln.
+
+      dotnet build tools/unity-syntax-check
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>Tartot.UnitySyntaxCheck</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0067;CS0414</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="UnityStubs.cs" />
+    <Compile Include="../../unity/Assets/Tartot/UI/*.cs" />
+    <Compile Include="../../unity/Assets/Tartot/Scripts/*.cs" />
+    <Compile Include="../../unity/Assets/Tartot/Editor/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Tartot.Core/Tartot.Core.csproj" />
+  </ItemGroup>
+
+</Project>

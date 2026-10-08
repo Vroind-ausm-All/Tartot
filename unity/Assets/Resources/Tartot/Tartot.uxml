@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <Style src="project://database/Assets/Resources/Tartot/Tartot.uss" />
+  <Style src="project://database/Assets/Resources/Tartot/TowerArt.uss" />
+  <ui:VisualElement name="wurzel" class="wurzel">
+    <ui:VisualElement class="filmrahmen" />
+    <ui:Label name="spieler-runde" class="kopfzeile" text="" />
+
+    <ui:VisualElement name="kampftisch" class="kampftisch">
+      <ui:VisualElement name="gegner" class="gegner">
+        <ui:VisualElement name="gegner-kulisse" class="gegner__kulisse">
+          <ui:VisualElement name="gegner-buehnenbild" class="gegner__buehnenbild" />
+          <ui:VisualElement name="gegner-figurkunst" class="gegner__figurkunst" />
+          <ui:VisualElement name="gegner-phaseglut" class="gegner__phaseglut" />
+          <ui:VisualElement name="gegner-blitz" class="gegner__blitz" />
+          <ui:VisualElement class="gegner__licht" />
+          <ui:VisualElement name="gegner-staub" class="gegner__staub" />
+          <ui:VisualElement class="gegner__bodennebel" />
+          <ui:VisualElement name="gegner-silhouette" class="gegner__silhouette" />
+          <ui:VisualElement class="gegner__nameplatte">
+            <ui:Label name="gegner-name" class="gegner__name" text="—" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="gegner-regelkarte" class="regelkarte">
+          <ui:VisualElement class="regelkarte__textblock">
+            <ui:Label class="regelkarte__kopf" text="REGEL DES OMENS" />
+            <ui:Label name="gegner-regelphase" class="regelkarte__phase" text="ERSTE LESART" />
+            <ui:Label name="gegner-regel" class="gegner__regel" text="" />
+          </ui:VisualElement>
+          <ui:VisualElement name="gegner-regelsiegel" class="regelkarte__siegel">
+            <ui:VisualElement name="gegner-regelsiegel-riss" class="regelkarte__siegelriss" />
+            <ui:VisualElement name="gegner-wachssplitter-a" class="regelkarte__wachssplitter regelkarte__wachssplitter--a" />
+            <ui:VisualElement name="gegner-wachssplitter-b" class="regelkarte__wachssplitter regelkarte__wachssplitter--b" />
+            <ui:VisualElement name="gegner-wachssplitter-c" class="regelkarte__wachssplitter regelkarte__wachssplitter--c" />
+            <ui:Label name="gegner-regelsiegel-text" class="regelkarte__siegeltext" text="✦" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="gegner__werte">
+          <ui:VisualElement class="gegner__wert">
+            <ui:Label name="gegner-hp" class="gegner__hp" text="— / —" />
+            <ui:VisualElement class="balken">
+              <ui:VisualElement name="gegner-hp-balken" class="balken__fuellung" />
+            </ui:VisualElement>
+          </ui:VisualElement>
+          <ui:VisualElement class="gegner__wert">
+            <ui:Label name="gegner-haltung" class="gegner__haltung" text="" />
+            <ui:VisualElement class="balken">
+              <ui:VisualElement name="gegner-haltung-balken" class="balken__fuellung balken__fuellung--haltung" />
+            </ui:VisualElement>
+          </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="gegner-absicht" class="gegner__absicht" text="" />
+      </ui:VisualElement>
+
+      <ui:VisualElement name="tisch" class="tisch">
+        <ui:VisualElement class="leiste">
+          <ui:Label name="spieler-hp" class="leiste__wert" text="—" />
+          <ui:Label name="spieler-schild" class="leiste__wert leiste__wert--schild" text="0 Schild" />
+          <ui:Label name="spieler-fate" class="leiste__wert leiste__wert--fate" text="0 Fate" />
+          <ui:Label name="spieler-luck" class="leiste__wert leiste__wert--gedaempft" text="Luck 0" />
+          <ui:Label name="spieler-dunkel" class="leiste__wert leiste__wert--dunkel" text="" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="charmleiste" class="charmleiste" />
+
+        <ui:VisualElement name="legung" class="legung">
+          <ui:VisualElement name="turm-einschlag" class="turm-einschlag" />
+          <ui:VisualElement name="platz-past" class="platz">
+            <ui:VisualElement name="platz-past-art" class="platz__art" />
+            <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-past-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-past-splitter" class="platz__splitter" />
+            <ui:Label class="platz__titel" text="VERGANGENHEIT" />
+            <ui:VisualElement name="platz-past-inhalt" class="platz__inhalt" />
+            <ui:Label name="platz-past-hinweis" class="platz__hinweis" text="90 % — Vorbereitung" />
+          </ui:VisualElement>
+          <ui:VisualElement name="platz-present" class="platz">
+            <ui:VisualElement name="platz-present-art" class="platz__art" />
+            <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-present-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-present-splitter" class="platz__splitter" />
+            <ui:Label class="platz__titel" text="GEGENWART" />
+            <ui:VisualElement name="platz-present-inhalt" class="platz__inhalt" />
+            <ui:Label name="platz-present-hinweis" class="platz__hinweis" text="100 % — sicher" />
+          </ui:VisualElement>
+          <ui:VisualElement name="platz-future" class="platz">
+            <ui:VisualElement name="platz-future-art" class="platz__art" />
+            <ui:VisualElement class="platz__riss" />
+            <ui:VisualElement name="platz-future-staub" class="platz__staub" />
+            <ui:VisualElement name="platz-future-splitter" class="platz__splitter" />
+            <ui:Label class="platz__titel" text="ZUKUNFT" />
+            <ui:VisualElement name="platz-future-inhalt" class="platz__inhalt" />
+            <ui:Label name="platz-future-hinweis" class="platz__hinweis" text="150 % — nach dem Gegner" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="vorschau-panel" class="vorschau-panel">
+          <ui:VisualElement class="vorschau-panel__kopfzeile">
+            <ui:Label class="vorschau-panel__kopf" text="DIE LEGUNG SAGT" />
+            <ui:Label name="vorschau-status" class="vorschau__status" text="" />
+          </ui:VisualElement>
+          <ui:Label name="vorschau-fate" class="vorschau__fate" text="" />
+          <ui:Label name="vorschau" class="vorschau" text="" />
+          <ui:VisualElement name="vorschau-kaskade" class="kaskade" />
+          <ui:Label name="vorschau-hinweis" class="vorschau__hinweis" text="" />
+        </ui:VisualElement>
+
+        <ui:Label name="protokoll" class="protokoll" text="" />
+
+        <ui:VisualElement name="pakt" class="pakt" style="display: none;">
+          <ui:Label name="pakt-text" class="pakt__text" text="" />
+          <ui:VisualElement class="pakt__knoepfe">
+            <ui:Button name="pakt-ja" class="knopf knopf--pakt" text="UNTERSCHREIBEN" />
+            <ui:Button name="pakt-nein" class="knopf knopf--zweitrangig" text="ABLEHNEN" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="handkopf">
+          <ui:Label class="handkopf__titel" text="DEINE HAND" />
+          <ui:Label class="handkopf__hilfe" text="Tippen oder auf einen Schicksalsplatz ziehen" />
+        </ui:VisualElement>
+        <ui:VisualElement name="hand" class="hand" />
+        <ui:Button name="ausfuehren" class="knopf knopf--schicksal" text="SCHICKSAL AUSFÜHREN" />
+        <ui:VisualElement name="auflosung" class="auflosung" style="display: none;">
+          <ui:VisualElement name="auflosung-halo" class="auflosung__halo" />
+          <ui:Label name="auflosung-kopf" class="auflosung__kopf" text="" />
+          <ui:Label name="auflosung-stempel" class="auflosung__stempel" text="" />
+          <ui:VisualElement name="auflosung-schritte" class="auflosung__schritte" />
+          <ui:Label name="auflosung-fate" class="auflosung__fate" text="" />
+          <ui:Label name="auflosung-moment" class="auflosung__moment" text="" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:Label name="toast" class="toast" text="" style="display: none;" />
+
+    <ui:VisualElement name="overlay" class="overlay" style="display: none;">
+      <ui:Label name="overlay-titel" class="overlay__titel" text="" />
+      <ui:Label name="overlay-untertitel" class="overlay__untertitel" text="" />
+      <ui:VisualElement name="overlay-reihe" class="overlay__reihe" />
+      <ui:VisualElement name="overlay-knoepfe" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>
