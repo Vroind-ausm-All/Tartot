@@ -2,12 +2,17 @@ extends Control
 ## Hauptbildschirm: Titel, dann je Spielphase eine Seite. Jede Entscheidung
 ## geht an den GameController; die Texte folgen dem Unity-Frontend
 ## (TartotView.Overlays.cs), damit beide Oberflaechen dasselbe sagen.
+##
+## Der Kampf ist der Kartentisch (ui/tisch/kampftisch.gd, 1080 x 1920); die
+## anderen Seiten stehen im selben Stil (Thema -> TarotStil). Musik, Klaenge
+## und Haptik kommen aus einem KartenKlang-Knoten. Karten auf den Seiten
+## sind dieselben TarotKarten wie am Tisch; langes Druecken erklaert sie.
 
 const P := Enums.GamePhase
 
 var current: Control
-var music: AudioStreamPlayer
-var projector: AudioStreamPlayer
+var klang: KartenKlang
+var detail: KartenDetail
 ## Shop: false = Vergessen, true = Veredeln.
 var shop_refine := false
 ## Ritual-Modus: 0 Vergessen, 1 Spiegeln, 2 Umkehren, 3 Entwickeln.
@@ -27,16 +32,13 @@ func _ready() -> void:
 	show_current()
 
 func _setup_audio() -> void:
-	music = AudioStreamPlayer.new()
-	music.stream = AudioBank.music()
-	music.volume_db = -18
-	music.autoplay = true
-	add_child(music)
-	projector = AudioStreamPlayer.new()
-	projector.stream = AudioBank.projector()
-	projector.volume_db = -25
-	projector.autoplay = true
-	add_child(projector)
+	klang = KartenKlang.new()
+	add_child(klang)
+	var oben := CanvasLayer.new()
+	oben.layer = 15
+	add_child(oben)
+	detail = KartenDetail.new()
+	oben.add_child(detail)
 
 # ------------------------------------------------------------ Seiten
 func _replace(node: Control) -> void:
@@ -49,8 +51,10 @@ func _page(title: String, subtitle: String = "") -> VBoxContainer:
 	var root := Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
-	bg.color = Thema.DEEP
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.material = ShaderMaterial.new()
+	(bg.material as ShaderMaterial).shader = load("res://ui/tisch/filmgrund.gdshader")
 	root.add_child(bg)
 	var film := FilmOverlay.new()
 	film.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -64,13 +68,13 @@ func _page(title: String, subtitle: String = "") -> VBoxContainer:
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 10)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+		margin.add_theme_constant_override("margin_" + side, 64)
+	margin.add_theme_constant_override("margin_top", 80)
+	margin.add_theme_constant_override("margin_bottom", 64)
 	scroll.add_child(margin)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 5)
+	box.add_theme_constant_override("separation", 22)
 	margin.add_child(box)
 	box.add_child(Thema.label(title, 14, Thema.PAPER, HORIZONTAL_ALIGNMENT_CENTER, true))
 	if subtitle != "":
@@ -100,20 +104,27 @@ func _act(action: Callable) -> void:
 func _card_grid(box: Container, cards: Array, on_card: Callable, enabled: Callable = Callable()) -> void:
 	var grid := GridContainer.new()
 	grid.columns = 5
-	grid.add_theme_constant_override("h_separation", 3)
-	grid.add_theme_constant_override("v_separation", 3)
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 10)
 	var center := CenterContainer.new()
 	center.add_child(grid)
 	box.add_child(center)
 	for c in cards:
-		var view := Kartenblatt.new(c)
+		var view := _kartenblatt(c)
 		var ok: bool = enabled.call(c) if enabled.is_valid() else true
 		if ok:
 			view.chosen.connect(on_card)
 		else:
 			view.modulate = Color(1, 1, 1, 0.35)
-		view.tooltip_text = "%s · Stufe %d · %s" % [c.definition.name, c.level, GameController.shimmer_name(c.shimmer)]
 		grid.add_child(view)
+
+## Eine Karte zum Antippen; langes Druecken zeigt sie gross mit Erklaerung.
+func _kartenblatt(c: CardInstance) -> Kartenblatt:
+	var view := Kartenblatt.new(c)
+	view.lange_gedrueckt.connect(func(k, punkt): detail.zeigen(k, punkt))
+	view.lang_bewegt.connect(func(punkt): detail.finger(punkt))
+	view.lang_losgelassen.connect(func(): detail.verbergen())
+	return view
 
 # ---------------------------------------------------------- Ablauf
 func show_current() -> void:
@@ -124,7 +135,9 @@ func show_current() -> void:
 	if Spiel.vorfuehrung and game.phase not in [P.COMBAT, P.BOSS_LOOT, P.GAME_OVER]:
 		_show_vorfuehrung_ende()
 		return
-	_update_audio(game.run.darkness)
+	detail.verbergen(true)
+	if game.phase != P.COMBAT:
+		KartenKlang.musik("walzer", false)
 	match game.phase:
 		P.COMBAT: _show_combat()
 		P.REWARD: _show_reward()
@@ -172,7 +185,7 @@ func _show_title() -> void:
 		show_current(), true)
 
 	if OS.is_debug_build():
-		for vorf in [["boss_turm", "XVI DER TURM"], ["boss_mond", "XVIII DER MOND"]]:
+		for vorf in [["boss_turm", "XVI DER TURM"], ["boss_tod", "XIII DER TOD"], ["boss_mond", "XVIII DER MOND"]]:
 			var boss_id: String = vorf[0]
 			_button(box, "VORFÜHRUNG — %s\nder Bosskampf aus einem echten Run, ohne Speichern" % vorf[1],
 				func():
@@ -186,7 +199,7 @@ func _show_title() -> void:
 		func(): Spiel.new_run(daily); show_current())
 
 func _show_combat() -> void:
-	var view := Kampfschirm.new(Spiel.game)
+	var view := Kampftisch.new(Spiel.game)
 	view.finished.connect(show_current)
 	_replace(view)
 
@@ -289,7 +302,8 @@ func _show_ritual() -> void:
 	for i in RITUAL_MODES.size():
 		var m := i
 		var b := Thema.button(RITUAL_MODES[i][0], i == ritual_mode)
-		b.add_theme_font_size_override("font_size", 6)
+		b.custom_minimum_size = Vector2(228, 110)
+		b.add_theme_font_size_override("font_size", 28)
 		b.pressed.connect(func(): ritual_mode = m; _show_ritual())
 		row.add_child(b)
 	_button(box, "WEITERGEHEN", func(): _act(game.continue_from_offgame), true)
@@ -321,11 +335,7 @@ func _show_event() -> void:
 		event_id = scene.id
 		event_beat = 0
 	var box := _page(scene.title.to_upper(), "— eine Geschichte, die sich erinnert —" if scene.is_story() else "")
-	var art := PixelArt.new(scene.art)
-	art.custom_minimum_size = Vector2(160, 96)
-	var center := CenterContainer.new()
-	center.add_child(art)
-	box.add_child(center)
+	box.add_child(_szenenbild(scene.art))
 	var beats := scene.beats_for(game.run)
 	var shown := beats.size() if game.event_resolved else mini(event_beat + 1, beats.size())
 	for i in shown:
@@ -353,7 +363,7 @@ func _show_boss_loot() -> void:
 		vorschau.shimmer = Enums.Shimmer.BLOOD
 		vorschau.orientation = Enums.Orientation.REVERSED
 		var mitte := CenterContainer.new()
-		mitte.add_child(Kartenblatt.new(vorschau))
+		mitte.add_child(_kartenblatt(vorschau))
 		box.add_child(mitte)
 	var soak: Array[String] = []
 	for c in game.soak_targets():
@@ -408,7 +418,7 @@ func _show_report() -> void:
 			bar.max_value = 1.0
 			bar.value = clampf(n.progress, 0.0, 1.0)
 			bar.show_percentage = false
-			bar.custom_minimum_size = Vector2(0, 4)
+			bar.custom_minimum_size = Vector2(0, 16)
 			box.add_child(bar)
 	# Ein Tipp bis zum naechsten Run - mit derselben Figur, demselben Schleier.
 	_button(box, "NOCH EINMAL", func():
@@ -424,8 +434,24 @@ func _show_vorfuehrung_ende() -> void:
 			show_current(), true)
 	_button(box, "ZUM TITEL", func(): Spiel.abandon_to_title(); show_current())
 
-func _update_audio(darkness: int) -> void:
-	if music != null:
-		music.pitch_scale = 1.0 - minf(0.08, darkness * 0.0008)
-	if projector != null:
-		projector.pitch_scale = 1.0 - minf(0.045, darkness * 0.00045)
+## Bild einer Szene: eine gemalte Buehne der Boss-Blaetter im Goldrahmen.
+## Welche Buehne, haengt fest am Schluessel der Szene.
+func _szenenbild(schluessel: String) -> Control:
+	var buehnen: Array[String] = []
+	for name in DirAccess.get_directories_at("res://buehnen"):
+		buehnen.append(name)
+	buehnen.sort()
+	var rahmen := PanelContainer.new()
+	rahmen.add_theme_stylebox_override("panel", TarotStil.platte("tafel.png", Vector4(30, 30, 30, 30), Vector4(14, 14, 14, 14)))
+	rahmen.custom_minimum_size = Vector2(0, 470)
+	rahmen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if buehnen.is_empty():
+		return rahmen
+	var bild := TextureRect.new()
+	bild.texture = load("res://buehnen/%s/hintergrund.jpg" % buehnen[absi(hash(schluessel)) % buehnen.size()])
+	bild.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bild.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	bild.modulate = Color(0.85, 0.8, 0.72)
+	bild.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rahmen.add_child(bild)
+	return rahmen

@@ -5,5 +5,4 @@
 [node name="MondSlice" type="Node"]
 script = ExtResource("1")
 boss_id = "boss_mond"
-darstellung = "MondBoss"
 pflicht = PackedStringArray("wertung:", "fate:", "boss:veil", "verhuellen:")

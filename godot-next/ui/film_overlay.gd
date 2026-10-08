@@ -25,12 +25,12 @@ func _draw() -> void:
 	for i in range(24 + int(darkness / 3)):
 		var x := float(posmod(seed * 17 + i * 41, maxi(1, int(size.x))))
 		var y := float(posmod(seed * 29 + i * 67, maxi(1, int(size.y))))
-		draw_rect(Rect2(x, y, 1, 1), Color(0.94, 0.89, 0.78, alpha))
+		draw_rect(Rect2(x, y, 3, 3), Color(0.94, 0.89, 0.78, alpha))
 	if darkness >= 20:
 		var x := float(posmod(frame * 19 + 37, maxi(1, int(size.x))))
-		draw_line(Vector2(x, 0), Vector2(x, size.y), Color(0.94, 0.89, 0.78, 0.12 + darkness * 0.001), 1)
+		draw_line(Vector2(x, 0), Vector2(x, size.y), Color(0.94, 0.89, 0.78, 0.12 + darkness * 0.001), 2)
 	var vignette := clampf(0.05 + darkness * 0.004, 0.05, 0.48)
-	var w := maxf(3.0, size.x * (0.03 + darkness * 0.0005))
+	var w := maxf(12.0, size.x * (0.03 + darkness * 0.0005))
 	draw_rect(Rect2(0, 0, size.x, w), Color(Thema.INK, vignette))
 	draw_rect(Rect2(0, size.y - w, size.x, w), Color(Thema.INK, vignette))
 	draw_rect(Rect2(0, 0, w, size.y), Color(Thema.INK, vignette))

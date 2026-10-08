@@ -4,7 +4,7 @@ config_version=5
 [application]
 config/name="TARTOT"
 config/description="Schicksal auf Zelluloid — ein groteskes Tarot-Roguelike."
-config/version="0.2.0-godot-prototype"
+config/version="0.3.0-godot-prototype"
 run/main_scene="res://ui/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -13,14 +13,13 @@ config/icon="res://icon.svg"
 Spiel="*res://ui/spiel.gd"
 
 [display]
-window/size/viewport_width=270
-window/size/viewport_height=480
+window/size/viewport_width=1080
+window/size/viewport_height=1920
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/handheld/orientation=1
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
-window/stretch/scale_mode="integer"
 
 [gui]
 theme/default_font_subpixel_positioning=0
@@ -34,6 +33,6 @@ textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
-textures/canvas_textures/default_texture_filter=0
+textures/canvas_textures/default_texture_filter=1
 anti_aliasing/quality/msaa_2d=0
 environment/defaults/default_clear_color=Color(0.05098, 0.03922, 0.03529, 1)

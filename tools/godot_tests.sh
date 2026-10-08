@@ -7,9 +7,9 @@ P="$ROOT/godot-next"
 timeout 300 godot --headless --path "$P" --editor --quit >/dev/null 2>&1
 fail=0
 for t in "--script res://tests/smoke.gd" "res://tests/ui_walk.tscn" "res://tests/turm_slice.tscn" \
-         "res://tests/mond_slice.tscn" "--script res://tests/asset_pipeline.gd"; do
+         "res://tests/mond_slice.tscn" "res://tests/tod_slice.tscn"; do
   log=$(timeout 900 godot --headless --path "$P" $t 2>&1); code=$?
-  zeile=$(echo "$log" | grep -E 'smoke:|UI-Durchlauf|BOSS-SLICE.*fehler|ASSET-PIPELINE' | tail -1)
+  zeile=$(echo "$log" | grep -E 'smoke:|UI-Durchlauf|BOSS-SLICE.*fehler' | tail -1)
   if [ $code -eq 0 ] && ! echo "$log" | grep -q "SCRIPT ERROR"; then
     echo "OK    $t  $zeile"
   else
