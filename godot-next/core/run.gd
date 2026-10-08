@@ -223,7 +223,12 @@ func resolve_event(choice_index:int) -> void:
 	event_resolved=true
 
 func continue_event()->void: current_event={}; event_resolved=false; phase=Konst.Phase.PATH; build_paths()
-func _strongest()->Karte: if deck.is_empty():return null;var s=deck.duplicate();s.sort_custom(func(a,b):return a.strength()>b.strength());return s[0]
+func _strongest()->Karte:
+	if deck.is_empty():
+		return null
+	var s:=deck.duplicate()
+	s.sort_custom(func(a,b):return a.strength()>b.strength())
+	return s[0]
 func _random_card()->Karte:return null if deck.is_empty() else deck[rng_progression.int_bis(deck.size())]
 func _remove_weakest()->void:
 	if deck.size()<=Konst.MIN_DECK:return

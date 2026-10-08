@@ -70,7 +70,8 @@ func preview()->Dictionary:
 	return _score(false)
 
 func _score(commit:bool)->Dictionary:
-	var cards:Array[Karte]=slots.values()
+	var cards:Array[Karte]=[]
+	cards.assign(slots.values())
 	var chips:=0;var mult:=1.0;var ranks:Array[int]=[];var suits:Array[int]=[];var reversed_count:=0
 	for slot in slots:
 		var card:Karte=slots[slot];var eff:=effective_slot(int(slot));var value=card.effective_rank();chips+=value;ranks.append(card.rank());suits.append(card.suit())
@@ -97,7 +98,7 @@ func _score(commit:bool)->Dictionary:
 	var stance_damage=int(chips/9)
 	for c in cards:if c.suit()==Konst.Suit.SWORDS:stance_damage+=2
 	var breaks:=enemy_stance>0 and stance_damage>=enemy_stance
-	var expected:=fate_damage
+	var expected:int=fate_damage
 	if enemy_stance>0 and not breaks:expected=mini(expected,int(enemy_def["hp"]*Konst.STANCE_HIT_CAP))
 	elif breaks:expected=int(round(expected*Konst.STANCE_BREAK_MULT))
 	var lethal:=expected>=enemy_hp and enemy_sigils<=0

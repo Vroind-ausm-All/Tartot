@@ -134,7 +134,7 @@ func _slot_hint(pos: int) -> String:
 		_: return "150 % · nach Gegner"
 
 func _slot_input(event: InputEvent, pos: int) -> void:
-	var pressed := (event is InputEventMouseButton and event.pressed) or (event is InputEventScreenTouch and event.pressed)
+	var pressed: bool = (event is InputEventMouseButton and event.pressed) or (event is InputEventScreenTouch and event.pressed)
 	if not pressed:
 		return
 	if combat.slots.has(pos):
