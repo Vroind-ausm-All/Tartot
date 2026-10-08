@@ -1,5 +1,7 @@
 # Balancing: Zahlen und Messungen
 
+> **HISTORISCH** — beschreibt den alten Godot-4.4-Prototyp mit überholten Regeln (Positionen 70/100/200 %, Schicksalsfäden, Artdirection „Occult Clean“). Gültig sind der C#-Kern `unity/Assets/Tartot/Core/` und sein Port `godot-next/`. Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](../../../docs/GODOT_HANDOFF.md).
+
 Balancing wird hier **gemessen, nicht geschätzt**. `tools/sim.gd` spielt
 komplette Runs mit einem Autopiloten, der die Regeln kennt, aber nicht
 rechnet — ungefähr das Niveau eines aufmerksamen Spielers im dritten Run.

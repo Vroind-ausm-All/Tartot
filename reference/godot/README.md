@@ -1,5 +1,7 @@
 # TARTOT
 
+> **HISTORISCH** — beschreibt den alten Godot-4.4-Prototyp mit überholten Regeln (Positionen 70/100/200 %, Schicksalsfäden, Artdirection „Occult Clean“). Gültig sind der C#-Kern `unity/Assets/Tartot/Core/` und sein Port `godot-next/`. Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](../../docs/GODOT_HANDOFF.md).
+
 Ein groteskes Tarot-Roguelike für Android und iOS, Hochformat.
 
 > Du spielst nicht einfach Tarotkarten aus — du legst in jedem Zug eine

@@ -1,24 +1,18 @@
-# TARTOT · Godot Next (aktueller Regelport)
+# TARTOT · godot-next
 
-Dieser Ordner enthält den laufenden Port des aktuellen C#-Regelkerns auf Godot/GDScript.
+Das Godot-Hauptprojekt (Godot 4.7.x, GDScript, Hochformat 270 × 480).
 
-**Status:** umfangreich umgesetzt, aber in der ChatGPT-Umgebung nicht mit einem echten Godot-4.7.2-Parser ausgeführt. Deshalb ist `godot/` im selben Branch derzeit die direkt startbare, bekannte Basis; `godot-next/` ist der aktuelle Paritätsport, der beim ersten lokalen Godot-Lauf syntaktisch bereinigt und anschließend zur Hauptversion werden soll.
-
-Umgesetzt sind bereits:
-- 78 Karten, 50 Charms, 22 Items, 4 Deuter
-- Schleier 0–8
-- drei Akte, sechs Bossregeln, Welt und Spirale
-- 90/100/150-%-Positionen, Haltung, Siegel, Musterkette, Wiederholungsmalus
-- Bossbeute, Ereignisstruktur, Prophezeiungen, Lesarten, Meta-Speicher
-- neue Godot-Control-UI, Kartenansicht und Zelluloid-Pixel-Art
-- synthetischer Projektor-/Jahrmarkt-Sound
-- Android-Exportpreset und headless Smoke-Test
-
-Erster lokaler Check:
+`core/` ist ein Port des C#-Regelkerns `unity/Assets/Tartot/Core/` in derselben
+Ordnerstruktur. Gleicher Seed und gleiche Entscheidungen ergeben in beiden
+Kernen denselben Run, Zug für Zug; das prüft `tools/paritaet.sh` im
+Wurzelverzeichnis. `ui/` ist die Oberfläche, Autoload `Spiel` (`ui/spiel.gd`).
 
 ```bash
-godot --headless --path godot-next --editor --quit
-godot --headless --path godot-next --script tests/smoke.gd
+godot --headless --path godot-next --editor --quit                # Import und Parser
+godot --headless --path godot-next --script res://tests/smoke.gd  # Rauchtest Kern
+godot --headless --path godot-next res://tests/ui_walk.tscn       # alle Seiten zur Laufzeit
+godot --path godot-next                                           # spielen
 ```
 
-Nach erfolgreichem Parser-/Smoke-Durchlauf kann dieser Ordner `godot/` ersetzen.
+Stand, Mechanik, Testergebnisse, Lücken und nächste Schritte:
+[`docs/GODOT_HANDOFF.md`](../docs/GODOT_HANDOFF.md).

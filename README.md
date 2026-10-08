@@ -1,7 +1,11 @@
 # TARTOT
 
 Ein groteskes Tarot-Roguelike für Android und iOS, Hochformat.
-**Unity 6000.6.2f1 · C# · netstandard2.1**
+**Unity 6000.6.2f1 · C# · netstandard2.1** (Regelkern und Referenz)
+
+> **Zielengine ist Godot 4.7** (`godot-next/`, GDScript). Der C#-Kern bleibt die Regel- und
+> Testreferenz; der Godot-Port ist Zug für Zug gleich (`tools/paritaet.sh`).
+> Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](docs/GODOT_HANDOFF.md).
 
 > Du spielst nicht einfach Tarotkarten aus — du legst in jedem Zug eine Legung
 > aus **Vergangenheit**, **Gegenwart** und **Zukunft** und versuchst, das

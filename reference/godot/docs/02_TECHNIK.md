@@ -1,5 +1,7 @@
 # Technik: Sprache, Engine und Veröffentlichung für 2,49 €
 
+> **HISTORISCH** — beschreibt den alten Godot-4.4-Prototyp mit überholten Regeln (Positionen 70/100/200 %, Schicksalsfäden, Artdirection „Occult Clean“). Gültig sind der C#-Kern `unity/Assets/Tartot/Core/` und sein Port `godot-next/`. Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](../../../docs/GODOT_HANDOFF.md).
+
 ## Kurze Antwort
 
 **Godot 4 mit GDScript.** Ein einziges Projekt, aus dem Android- und

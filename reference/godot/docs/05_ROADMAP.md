@@ -1,5 +1,7 @@
 # Roadmap
 
+> **HISTORISCH** — beschreibt den alten Godot-4.4-Prototyp mit überholten Regeln (Positionen 70/100/200 %, Schicksalsfäden, Artdirection „Occult Clean“). Gültig sind der C#-Kern `unity/Assets/Tartot/Core/` und sein Port `godot-next/`. Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](../../../docs/GODOT_HANDOFF.md).
+
 Der Regelkern steht und ist gemessen. Was fehlt, ist überwiegend Kunst,
 Gefühl und Ladenarbeit — nicht Mechanik.
 

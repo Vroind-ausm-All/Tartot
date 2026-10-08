@@ -1,5 +1,7 @@
 # TARTOT — Game Design Document
 
+> **HISTORISCH** — beschreibt den alten Godot-4.4-Prototyp mit überholten Regeln (Positionen 70/100/200 %, Schicksalsfäden, Artdirection „Occult Clean“). Gültig sind der C#-Kern `unity/Assets/Tartot/Core/` und sein Port `godot-next/`. Stand und Übergabe: [`docs/GODOT_HANDOFF.md`](../../docs/GODOT_HANDOFF.md).
+
 > Einfach zu spielen. Einfach zu lesen. Aber je länger der Run dauert, desto
 > mehr verwandeln Deck, Charms und Welt sich in eine völlig entgleiste
 > Tarot-Maschine.
