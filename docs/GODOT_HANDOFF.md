@@ -15,7 +15,7 @@ ist immer der Code.
 |---|---|
 | Zielengine | **Godot 4.7.x**, GDScript (getestet mit 4.7.2.stable) |
 | Renderer | GL Compatibility (Mobil und Desktop) |
-| Bildformat | Hochformat, Viewport 270 × 480, ganzzahlig skaliert |
+| Bildformat | Hochformat, Viewport 1080 × 1920 (`canvas_items`, linear gefiltert) |
 | Hauptprojekt | `godot-next/` |
 | Regel- und Testreferenz | C#-Kern `unity/Assets/Tartot/Core/` (Unity 6000.6.2f1, netstandard2.1) |
 
@@ -48,16 +48,22 @@ godot-next/                 Hauptprojekt Godot 4.7
     game_controller.gd      Ablauf eines Runs
     combat/animation_cues.gd  welche Bossanimation ein Zug auslöst (Port von AnimationCues.cs)
   ui/                       Oberfläche (Autoload Spiel = ui/spiel.gd)
-    kampf/                  Kampftisch: Kampfschirm, CueBuilder, Bühne, Regelkarte, Schicksalsplatz
-    bosse/                  BossDarstellung (Basis), BossRegistry, allgemeine Figur, turm/
-  assets/                   Spezifikationen und (später) Sprites/Klänge, z. B. sprites/bosses/turm/
+    main.gd                 Seiten je Spielphase (Titel, Belohnung, Wege, Händler, ...)
+    thema.gd, kartenblatt.gd  Stil der Seiten und Karten auf den Seiten
+    tisch/                  Kampftisch (kampftisch.gd), KernBruecke, CueBuilder, Filmgrund
+  addons/tartot_karten/     Karten (karte.gd, karten_front.gd, Shader), Hand und Plätze
+                            (tisch.gd, platz.gd), Erklärung bei langem Druck (detail.gd),
+                            Bühne (buehne.gd, effekte.gd, choreografie.gd), Greifarm
+                            (greifarm.gd), Wertungskaskade, Klang und Musik (klang.gd)
+  buehnen/<boss>/           gemalte Bühne, Figur, Plätze je Boss (aus den Boss-Blättern)
+  assets/                   HISTORISCH: Pixel-Spezifikationen; REAPER-Cue-Blätter
   tests/smoke.gd            Rauchtest Kern
   tests/ui_walk.tscn        Laufzeittest aller Seiten mit echtem Spielzustand
-  tests/boss_slice.gd       Laufzeittest eines Bosskampfs; turm_slice.tscn und mond_slice.tscn
-                            setzen Boss, Darstellung und Pflicht-Cues (optional mit Bildschirmabzügen)
-  tests/asset_pipeline.gd   Aseprite-Blatt → SpriteFrames → Bossdarstellung
+  tests/boss_slice.gd       Bosskampf am Tisch; turm_slice, mond_slice, tod_slice setzen
+                            Boss und Pflicht-Cues (optional mit Bildschirmabzügen)
+  tests/karten_galerie.tscn Karten in allen Zuständen (nur zum Anschauen, --foto=)
+  tests/video.tscn          Vorführfilm für den Movie Maker
   tools/trace.gd            Paritätsspur
-  tools/aseprite_import*.gd Asset-Pipeline: Aseprite-JSON → SpriteFrames
 godot/                      HISTORISCH: Prototyp Godot 4.4 (70/100/200, Schicksalsfäden).
                             Enthält die Turm-Darstellung (turm_boss.gd, turm_audio.gd) und
                             die Turm-Asset-Spezifikation, die noch zu portieren sind.
@@ -115,7 +121,7 @@ godot --headless --path godot-next --script res://tests/smoke.gd  # Rauchtest, E
 godot --headless --path godot-next res://tests/ui_walk.tscn       # alle Seiten zur Laufzeit
 godot --headless --path godot-next res://tests/turm_slice.tscn    # Turm-Slice
 godot --headless --path godot-next res://tests/mond_slice.tscn    # Mond-Slice
-godot --headless --path godot-next --script res://tests/asset_pipeline.gd
+godot --headless --path godot-next res://tests/tod_slice.tscn     # Tod-Slice
 tools/godot_tests.sh                                              # alle Godot-Tests auf einmal
 tools/paritaet.sh                                                 # C# gegen Godot, Zeile für Zeile
 ```
@@ -126,10 +132,10 @@ Stand 2026-10-08 (Godot 4.7.2, .NET 8):
 |---|---|
 | C#-Tests | 281 / 281 grün |
 | Rauchtest godot-next | grün (0 Fehler) |
-| UI-Durchlauf | alle 11 Phasen gebaut, keine Laufzeitfehler |
-| Turm-Slice | echter Run bis zum Turm, Kampf über den Tisch: Einsturz, Wiederaufrichten, Siegelbruch, Phase 2, Turmtod, Omen-Beute |
-| Mond-Slice | echter Run bis zum Mond (Akt III): Fluch, Verhüllen (verdeckte Karten), Siegelbruch, Blutmond, Aussaugen, Mondtod, Omen-Beute |
-| Asset-Pipeline | künstliches Aseprite-Blatt → SpriteFrames → Darstellung spielt es |
+| UI-Durchlauf | alle 11 Phasen gebaut (Kampf am neuen Tisch), keine Skriptfehler |
+| Turm-Slice | echter Run bis zum Turm, der Tisch spielt selbst (Ziehen, Knopf): Turm packt einen Platz und schlägt ihn ein, Wiederaufrichten, Siegelbruch, Phase 2, Turmtod, Omen-Beute |
+| Mond-Slice | echter Run bis zum Mond (Akt III): Fluch, der Mond zieht ein Sternentuch über die Hand (Verhüllen), Siegelbruch, Blutmond, Mondtod, Omen-Beute |
+| Tod-Slice | echter Run bis zum Tod (Akt II): der Tod zeigt auf die gezeichnete Karte (auch aus dem Stapel) und greift sich eine Karte (Verlust), Siegelbruch, Omen-Beute |
 | Parität | **99 / 99 Fälle identisch**: 40 Seeds, 4 Deuter × 5, Schleier 1–8 × 3, Spirale × 6, Tageskarte × 2, Laufbahn 2 × 25 Runs mit Meta-Fortschritt, Speichern/Laden nach jedem Zug × 5 |
 
 Die Spur enthält je Kampfzug Legung, Wertung (floats als Bitmuster), Gegner,
@@ -148,8 +154,13 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
 ## 6. Android
 
 - **Debug-APK gebaut** am 2026-10-08 mit `tools/android_apk.sh`:
-  `Build/Android/TARTOT-godot-next-debug.apk` (≈ 28,6 MB, arm64-v8a,
-  Paket `com.tartot.prototype`, Version 0.2.0). Signatur v2/v3, `apksigner verify` grün.
+  `Build/Android/TARTOT-godot-next-debug.apk` (≈ 75,6 MB, arm64-v8a,
+  Paket `com.tartot.prototype`, Version 0.3.0, mit Kartentisch, Bühnen und
+  Klängen). Signatur v2/v3, `apksigner verify` grün. Berechtigung `VIBRATE`
+  für die Haptik; `tests/` und `tools/` sind vom Export ausgenommen.
+- **Vorführfilm**: `tests/video.tscn` mit dem Movie Maker aufgenommen
+  (Befehl im Kopf von `tests/video.gd`). Er liegt unter
+  `Build/Video/TARTOT-schritt1.mp4` und wird nicht eingecheckt.
 - **Auf keinem Gerät getestet.** Im Container gibt es weder Gerät noch Emulator.
   Die Emulator-Images kämen von dl.google.com, und das sperrt die Netzrichtlinie
   dieser Umgebung.
@@ -163,42 +174,65 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
 
 ## 7. Assets und Darstellung
 
-- Die Oberfläche zeichnet prozedural (Palette in `ui/thema.gd`: #1A1412 #EFE3C8
-  #C9B48E #8F7A5A #4E4032 #E3A83B #B3262B #3B4A8C). Allgemeine Klänge erzeugt
-  `ui/audio_bank.gd`.
-- **Bossdarstellungen**: `ui/bosse/boss_darstellung.gd` ist die Basis mit den
-  Zuständen intro, idle, attack, hit, collapse, phase2, death. Bewegung,
-  Blitz und Wackeln kommen von dort. `ui/bosse/boss_registry.gd` ordnet einem
-  Gegner Figur und Klänge zu; ohne Eintrag zeigt `AllgemeinDarstellung` die
-  Pixel-Silhouette.
-- **Der Turm** (`ui/bosse/turm/`) ist aus `godot/` portiert; die Zeichnung ist
-  unverändert. Die Klänge (`turm_audio.gd`) sind prozedurale Platzhalter.
-- **Der Mond** (`ui/bosse/mond/`) ist nach demselben Muster gebaut: eine grinsende
-  Sichel mit Schlafmütze und Sternen an Fäden, in Phase 2 ein Blutmond.
-  Jede Absicht hat ihr eigenes Motiv (Aussaugen, Fluch aus Sternen, Wolken),
-  dazu Nebel beim Verhüllen. `mond_audio.gd` liefert Platzhalter mit
-  Theremin, Spieluhr und Rauschen. Die Bühne „Spiegelsee“ ist ein Nachthimmel
-  mit See. Aseprite-Vorlage `create_boss_mond.lua`, Spezifikationen unter
-  `assets/sprites/bosses/mond/` und `assets/audio/bosses/mond/`.
-- Fertige Sprites oder WAVs gibt es für keinen Boss.
-- **Asset-Pipeline**: Für die Aseprite-Vorlage `assets/source/aseprite/create_boss_turm.lua`
-  ausführen und das Blatt mit JSON exportieren. Dann
-  `tools/aseprite_import_cli.gd` aufrufen; es schreibt
-  `boss_turm_frames.tres`, und die Turmfigur nutzt diese Datei automatisch.
-  Klänge unter `assets/audio/bosses/turm/turm_<cue>.wav|ogg` ersetzen die
-  Platzhalter ebenfalls ohne Codeänderung. Spezifikationen:
-  `assets/sprites/bosses/<boss>/ASSET_SPEC.md`, `assets/audio/bosses/<boss>/REAPER_CUES.md`.
-  Fehlende Aseprite-Tags fallen zurück (`attack1` → `attack` → `idle`).
-- **Kampftisch** (`ui/kampf/`): Bühne (Jahrmarktzelt, in Phase 2 rot),
-  Regelkarte mit Wachssiegel (splittert beim Siegelbruch, Text aus
-  `ActiveRuleTexts`), drei Plätze mit Einsturz (Riss, Staub, Absacken;
-  der Zustand kommt nur aus `CombatState.blocked_slot`), Tippen und Ziehen,
-  Wertungskaskade aus `ScoreBreakdown.steps`. `CueBuilder` baut die Folge
-  allein aus Kernfakten (Zustand vorher, `TurnResult`, Zustand nachher,
-  `AnimationCues`).
-- **Vorführung**: Im Titel (nur Debug-Builds) starten „VORFÜHRUNG — XVI DER
-  TURM“ und „— XVIII DER MOND“ einen echten Run, den der Autopilot bis vor
-  diesen Boss spielt. Nichts wird gespeichert oder verbucht.
+Seit 2026-10-08 zeigt godot-next den Kartentisch aus `godot-karten/` bei
+1080 × 1920 auf dem GDScript-Kern. Die Pixel-Oberfläche (270 × 480,
+`ui/kampf/`, `ui/bosse/`, Aseprite-Import) ist entfernt.
+
+- **Kampftisch** (`ui/tisch/kampftisch.gd`): Aufbau wie die Boss-Blätter:
+  Kopf mit Akt, Name, Leben und Runde, darunter die Bühne mit Absicht, Regel
+  und Haltung, dann die drei Plätze, die Hand und der Fuß mit dem Knopf
+  SCHICKSAL AUSFÜHREN. Er rechnet nichts selbst: `KernBruecke` liest den
+  Kernzustand als Dictionary und gibt Legung und Ausführen an den Kern.
+  Nach jeder Folge gleicht der Tisch sich mit dem Kern ab. `CueBuilder` baut
+  die Folge allein aus Kernfakten.
+- **Karten** (`addons/tartot_karten/karte.gd`, `karten_front.gd`): randlos wie
+  Tarotkarten. Das Motiv füllt die ganze Karte, darüber liegen ein Goldrahmen,
+  eine Zahlkartusche, ein Namensband und der Seltenheitsstein. Karten ohne
+  eigenes Motiv zeigen die Sinnbilder ihrer Farbe auf einem Strahlengrund,
+  also nie das Motiv einer anderen Karte. Zustände:
+  - umgekehrt (Motiv steht kopf, rote Dreiecke),
+  - Stufe (Goldpunkte),
+  - Schimmer (Rahmenfarbe),
+  - vom Mond verhüllt (Rückseite mit Nebel),
+  - vom Tod gezeichnet (Wachssiegel mit Rundenzahl).
+- **Kartenshader** (`shader/karte_basis.gdshaderinc`):
+  - falsche 3D-Neigung zum Finger und runde Ecken;
+  - Metallglanz auf allem Gold;
+  - Holo-Folie nach Seltenheit (gewöhnlich keine, legendär voll), mit Regenbogen, Beugungslinien und Funken, die mit der Neigung wandern;
+  - Editionen (schimmernd, leuchtend, brennend, gläsern).
+
+  Unter dem Finger verschiebt sich das Motiv gegen den Rahmen (Parallaxe).
+- **Langes Drücken** (`detail.gd`, `tisch.gd`): Nach 0,4 s ohne Ziehen kommt
+  die Karte groß in die Mitte und darunter klappt die Erklärung auf. Sie zeigt:
+  - Name, Zahl, Farbe und Seltenheit,
+  - den Kerntext und die Edition,
+  - den Umkehrpreis,
+  - Rang und Wirkungsfaktor aus dem Kern,
+  - das Todesmal.
+
+  Bewegt man den Finger, kippt die große Karte mit. Loslassen schließt die Erklärung. Das gilt am Tisch und auf allen Seiten mit Karten (Händler, Ritual, Rast, Omen). Verhüllte Karten bleiben verhüllt.
+- **Bühne** (`buehne.gd`, `buehnen/<boss>/`): gemalte Figur auf gemalter
+  Kulisse. Die Figur bewegt sich als Gummischlauch-Puppe über Federn und einen
+  Biege-Shader. Mehrere Ebenen verschieben sich verschieden weit (Kulisse,
+  Schlagschatten, Figur, Nebel, Staub). Den Blick steuert am Handy der
+  Neigungssensor, sonst der Finger.
+- **Greifende Bosse** (`greifarm.gd`): Ein Gummischlauch-Arm mit weißem
+  Handschuh wächst aus der Schulter der Figur über den Bühnenrahmen auf den
+  Tisch. Der Boss beugt sich dabei vor.
+  - **Turm**, Einsturz: packt den Platz, holt aus und schlägt ihn in Trümmer.
+  - **Tod**, neues Mal: zeigt auf die Karte, die notfalls kurz aus dem Stapel kommt.
+  - **Tod**, Verlust: greift sich die Karte und zieht sie in die Bühne, wo sie zerfällt.
+  - **Mond**, Verhüllen: zieht ein Sternentuch über die ganze Hand.
+
+  Ausgelöst wird nur von Kernfakten (`CueBuilder`, `KernBruecke`).
+- **Seiten außerhalb des Kampfes** (`ui/main.gd`, `ui/thema.gd`): derselbe Stil
+  wie der Tisch, mit IM Fell, dunklen Zierplatten und roten Zierknöpfen.
+  Ereignisse zeigen eine gemalte Bühne statt Pixelbildern.
+- **Klang** (`klang.gd`): Musik (Walzer, Bossschicht), Kartengeräusche,
+  Angriffe, Haptik. Die Pixel-Klänge `ui/audio_bank.gd` sind entfernt.
+- **Vorführung**: Im Titel starten (nur in Debug-Builds) „VORFÜHRUNG“ für
+  Turm, Tod und Mond je einen echten Run, den der Autopilot bis vor diesen
+  Boss spielt. Nichts wird gespeichert oder verbucht.
 
 ## 8. Übergabe-Aussagen: bestätigt und widerlegt
 
@@ -222,12 +256,17 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 
 ## 9. Bekannte Lücken
 
-- Nur Turm und Mond haben eine eigene Figur. Alle anderen Gegner zeigen die
-  allgemeine Pixel-Silhouette mit derselben Bewegung.
-- Keine fertigen Sprites oder Klänge; alles ist prozedural.
-- Kein Haptik-Feedback, keine Kamerastöße, kein „Reduced Motion“-Schalter.
-  Das Intro lässt sich noch nicht beschleunigen.
-- Ziehen nutzt Godots eingebautes Drag-and-drop (Vorschau ohne Feder).
+- Eigene Motive gibt es für 27 von 78 Karten (aus den Boss-Blättern). Die
+  übrigen zeigen Sinnbilder statt Malerei. Die Motive sind 344 × 416 groß
+  und werden für die große Ansicht hochskaliert.
+- Gemalte Figuren gibt es für 13 Boss-Blätter; Gegner ohne Figur zeigen
+  die Blockout-Animation vor der Bühne ihres Akts. Nur Turm, Tod und Mond
+  greifen nach dem Tisch.
+- Der Greifarm ist gezeichnet (Bezier, Handschuh) und nicht gemalt. Er passt
+  zum Gummischlauch-Stil, aber nicht ganz zur Malerei der Figuren.
+- Godot im Headless-Modus meldet beim Übersetzen des Kartenshaders
+  `custom_samplers.has(...)` (Dummy-Renderer). Unter OpenGL tritt das nicht auf.
+- Kein „Reduced Motion“-Schalter. Das Intro lässt sich noch nicht beschleunigen.
 - Items sind im Kampf benutzbar; Zielkarten-Items wirken auf die gewählte
   Handkarte. Das Unity-Frontend bietet Items gar nicht an.
 - Lesarten wachsen wie im Unity-Frontend nach jedem gewonnenen Kampf
@@ -242,12 +281,17 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 ## 10. Nächste Aufgabe
 
 1. Das Debug-APK auf einem Android-Gerät installieren
-   (`adb install -r Build/Android/TARTOT-godot-next-debug.apk`) und Turm und
-   Mond über die Vorführung spielen: Touch, Ziehen, Lesbarkeit bei 270 × 480, Ton.
-2. Kunst für Turm und Mond nach Spezifikation: Aseprite-Blätter importieren
-   und REAPER-Cues rendern. Der Code muss dafür nicht geändert werden.
-3. Weitere Bosse nach demselben Muster (Tod, Rad, Teufel, Gehängter,
-   Mäßigkeit, Hierophant, Welt, Sonne). Jeder bekommt eine Darstellung unter
-   `ui/bosse/<name>/`, einen Eintrag in `BossRegistry`, eine eigene `*_slice.tscn`
-   mit Pflicht-Cues und seine Spezifikationen.
+   (`adb install -r Build/Android/TARTOT-godot-next-debug.apk`) und Turm, Tod
+   und Mond über die Vorführung spielen. Zu prüfen sind:
+   - Touch und Ziehen,
+   - langes Drücken,
+   - Lesbarkeit,
+   - Neigungssensor (Parallaxe),
+   - Bildrate mit vielen Karten-Viewports,
+   - Ton und Vibration.
+2. Kartenkunst: Motive für die übrigen 51 Karten in höherer Auflösung (das
+   Motiv füllt jetzt die ganze Karte). Dateiname `kunst/motive/<id>.png` reicht.
+3. Weitere Bosse greifen lassen, etwa Rad (dreht die Plätze), Teufel (Pakt auf
+   den Tisch legen) und Gehängter (Zeit verkehrt), jeweils mit eigener
+   `*_slice.tscn` und Pflicht-Cues.
 4. Optional: Godot-Tests und `tools/paritaet.sh quick` in die CI aufnehmen.

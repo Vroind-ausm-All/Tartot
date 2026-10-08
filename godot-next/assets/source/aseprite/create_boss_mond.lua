@@ -1,3 +1,5 @@
+-- HISTORISCH (2026-10-08): Pixel-Vorlage fuer den entfernten Aseprite-Import.
+-- godot-next zeigt Bosse jetzt als gemalte Figuren (buehnen/, docs/GODOT_HANDOFF.md).
 -- TARTOT · XVIII Der Mond
 -- Aseprite-Helfer: legt das Produktionsdokument mit Ebenen und Tags an.
 -- Ausfuehren: File -> Scripts -> Open Script Folder, Datei hineinlegen, starten.

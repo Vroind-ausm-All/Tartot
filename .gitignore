@@ -26,3 +26,6 @@ unity/[Mm]emoryCaptures/
 # Werkzeuge
 __pycache__/
 *.pyc
+
+# Vorfuehrfilme (zu gross fuers Repo)
+Build/Video/

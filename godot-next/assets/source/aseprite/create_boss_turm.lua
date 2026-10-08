@@ -1,3 +1,5 @@
+-- HISTORISCH (2026-10-08): Pixel-Vorlage fuer den entfernten Aseprite-Import.
+-- godot-next zeigt Bosse jetzt als gemalte Figuren (buehnen/, docs/GODOT_HANDOFF.md).
 -- TARTOT · XVI Der Turm
 -- Aseprite helper: creates a production-ready sprite document with layers/tags.
 -- Run via File -> Scripts -> Open Script Folder, copy this file there, then run it.

@@ -1,5 +1,12 @@
 # XVI · DER TURM — Asset- und Animationsspezifikation
 
+> **HISTORISCH (2026-10-08).** Diese Spezifikation beschreibt Pixel-Sprites
+> (Aseprite, 270 × 480). godot-next zeigt Bosse jetzt als gemalte Figuren auf
+> gemalten Bühnen bei 1080 × 1920 (`godot-next/buehnen/<boss>/`, Bewegung in
+> `addons/tartot_karten/buehne.gd`, siehe `docs/GODOT_HANDOFF.md` Abschnitt 7).
+> Der Aseprite-Import wurde entfernt. Abläufe, Cues und Regeln unten gelten
+> als Bewegungs- und Tonvorlage weiter.
+
 Der Turm ist der Referenzboss für die gesamte Art-, Animations- und
 Audio-Pipeline. Jeder weitere Boss folgt diesem Muster.
 
