@@ -143,10 +143,19 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
 
 ## 6. Android
 
-- `godot-next/export_presets.cfg`: Preset „Android Prototype“, arm64-v8a, Ziel
-  `Build/Android/TARTOT-godot-prototype.apk`.
-- **Noch kein APK gebaut.** Dazu fehlen im Container Android-SDK,
-  Export-Templates 4.7.2 und ein Debug-Keystore. Das ist der nächste Schritt.
+- **Debug-APK gebaut** am 2026-10-08 mit `tools/android_apk.sh`:
+  `Build/Android/TARTOT-godot-next-debug.apk` (≈ 28,6 MB, arm64-v8a,
+  Paket `com.tartot.prototype`, Version 0.2.0). Signatur v2/v3, `apksigner verify` grün.
+- **Auf keinem Gerät getestet.** Im Container gibt es weder Gerät noch Emulator.
+  Die Emulator-Images kämen von dl.google.com, und das sperrt die Netzrichtlinie
+  dieser Umgebung.
+- Weil dl.google.com gesperrt war, lief der Bau mit einem Minimal-SDK aus
+  Ubuntu-Paketen (`apksigner`, `zipalign`, `adb`). Für den Export ohne Gradle
+  reicht das. Wie man es einrichtet, steht im Kopf von `tools/android_apk.sh`.
+- Projekteinstellungen für Android: `textures/vram_compression/import_etc2_astc=true`
+  und das Projektsymbol `icon.svg`. Preset „Android Prototype“ steht in
+  `godot-next/export_presets.cfg`.
+- Release-APK/AAB, ein eigener Keystore und Gradle-Builds fehlen noch.
 
 ## 7. Assets und Darstellung
 
@@ -211,7 +220,7 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
   Handkarte. Das Unity-Frontend bietet Items gar nicht an.
 - Lesarten wachsen wie im Unity-Frontend nach jedem gewonnenen Kampf
   (`ui/spiel.gd: after_turn`). Diese Regel liegt in der Oberfläche, nicht im Kern.
-- Kein APK, kein iOS-Export.
+- Kein iOS-Export, kein Release-Build.
 - Godot-JSON liest Zahlen als double, deshalb verlieren Seeds über 2^53
   Stellen. Der Port erzeugt Seeds unter 2^53 (`Spiel.fresh_seed`).
   C#-Speicherstände mit Tick-Seeds laden zwar, aber der Seed wird ungenau angezeigt.
@@ -220,8 +229,9 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 
 ## 10. Nächste Aufgabe
 
-1. Android-Debug-APK bauen (SDK, Export-Templates 4.7.2, Debug-Keystore) und
-   den Turm-Slice auf einem Gerät spielen.
+1. Das Debug-APK auf einem Android-Gerät installieren
+   (`adb install -r Build/Android/TARTOT-godot-next-debug.apk`) und den
+   Turm-Slice spielen: Touch, Ziehen, Lesbarkeit bei 270 × 480, Ton.
 2. Der Mond nach demselben Muster: `ui/bosse/mond/mond_boss.gd`,
    `mond_audio.gd`, Aseprite-Vorlage, `ASSET_SPEC.md`, `REAPER_CUES.md`,
    Eintrag in `BossRegistry`; dazu Cues für verdeckte Karten und verborgene Absicht.

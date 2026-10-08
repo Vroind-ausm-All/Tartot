@@ -7,6 +7,7 @@ config/description="Schicksal auf Zelluloid — ein groteskes Tarot-Roguelike."
 config/version="0.2.0-godot-prototype"
 run/main_scene="res://ui/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.svg"
 
 [autoload]
 Spiel="*res://ui/spiel.gd"
@@ -28,6 +29,8 @@ theme/default_font_subpixel_positioning=0
 pointing/emulate_touch_from_mouse=true
 
 [rendering]
+
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
