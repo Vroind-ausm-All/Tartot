@@ -13,8 +13,8 @@ func _ready() -> void:
 	add_child(timer)
 
 func _process(_delta: float) -> void:
-	if Spiel.run != null:
-		var d := Spiel.run.darkness
+	if Spiel.game != null:
+		var d := Spiel.game.run.darkness
 		if d != darkness:
 			darkness = d
 			queue_redraw()

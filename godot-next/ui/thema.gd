@@ -14,8 +14,11 @@ const RED:=Color("#B3262B")
 const INDIGO:=Color("#3B4A8C")
 const INDIGO_LIGHT:=Color("#6170B4")
 
+## Kleinste lesbare Schriftgroesse bei 270 x 480 (doppelt skaliert auf dem Handy).
+const MIN_FONT:=6
+
 static func label(text:String,size:int=12,color:Color=PAPER,align:=HORIZONTAL_ALIGNMENT_LEFT,wrap:=false)->Label:
-	var l:=Label.new();l.text=text;l.add_theme_font_size_override("font_size",size);l.add_theme_color_override("font_color",color);l.horizontal_alignment=align
+	var l:=Label.new();l.text=text;l.add_theme_font_size_override("font_size",maxi(MIN_FONT,size));l.add_theme_color_override("font_color",color);l.horizontal_alignment=align
 	if wrap:l.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	return l
 
