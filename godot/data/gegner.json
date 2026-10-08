@@ -1,0 +1,1315 @@
+{
+ "_hinweis": "Generiert von tools/gen_gegner.py.",
+ "gegner": [
+  {
+   "id": "lachender_henker",
+   "name": "Der lachende Henker",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    26,
+    32
+   ],
+   "silhouette": "henker",
+   "beschreibung": "Ein viel zu langer Hals, ein viel zu breites Grinsen. Der Strick haengt lose.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 8,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "BLUTUNG",
+      "wert": 2
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "zahnmuenze",
+   "name": "Die Muenze mit Zaehnen",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    20,
+    25
+   ],
+   "silhouette": "muenze_zaehne",
+   "beschreibung": "Sie rollt. Sie klappert. Wenn sie sich oeffnet, sieht man das Gebiss.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "block",
+      "wert": 8
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 5,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 5,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 6
+     },
+     {
+      "art": "angriff",
+      "wert": 4,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "kelchtrinker",
+   "name": "Der Kelchtrinker",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    30,
+    36
+   ],
+   "silhouette": "kelchtrinker",
+   "beschreibung": "Er trinkt aus einem Kelch, in dem ein Auge schwimmt. Das Auge sieht dich.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "heilen",
+      "wert": 6
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 11,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "schreiende_klinge",
+   "name": "Die schreiende Klinge",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    15,
+    19
+   ],
+   "silhouette": "klinge_mund",
+   "beschreibung": "Ein Schwert mit einem Mund in der Schneide. Es schreit den eigenen Namen.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 4,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "VERWUNDBAR",
+      "wert": 2
+     }
+    ]
+   ]
+  },
+  {
+   "id": "zwillingsschatten",
+   "name": "Die Zwillingsschatten",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    17,
+    21
+   ],
+   "silhouette": "schatten_paar",
+   "beschreibung": "Zwei Schatten einer Figur, die es nicht gibt. Sie tun nicht dasselbe.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 5,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 5
+     },
+     {
+      "art": "angriff",
+      "wert": 5,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "debuff",
+      "st": "SCHWACH",
+      "wert": 2
+     },
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "kleiner_mond",
+   "name": "Der kleine grinsende Mond",
+   "typ": "NORMAL",
+   "abschnitt": 1,
+   "hp": [
+    23,
+    28
+   ],
+   "silhouette": "mond_klein",
+   "beschreibung": "Er haengt zu niedrig und grinst zu breit. Manchmal blinzelt er nicht.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "debuff",
+      "st": "VERHUELLT",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "SCHWACH",
+      "wert": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "papierpriester",
+   "name": "Der Papierpriester",
+   "typ": "ELITE",
+   "abschnitt": 1,
+   "hp": [
+    52,
+    60
+   ],
+   "silhouette": "priester_papier",
+   "beschreibung": "Sein Gewand ist aus Vertraegen. Er liest laut, aber niemand hoert Worte.",
+   "muster": "gewicht",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 11,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "verdeckte_karte",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 8,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 10
+     },
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "verdeckte_karte",
+     "intervall": 2,
+     "wert": 1
+    }
+   ],
+   "gold": [
+    26,
+    34
+   ]
+  },
+  {
+   "id": "fette_ratte",
+   "name": "Die fette Ratte des Haendlers",
+   "typ": "ELITE",
+   "abschnitt": 1,
+   "hp": [
+    44,
+    50
+   ],
+   "silhouette": "ratte",
+   "beschreibung": "Sie hat Muenzen gefressen. Man hoert sie klimpern, wenn sie atmet.",
+   "muster": "gewicht",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     },
+     {
+      "art": "regel",
+      "id": "gold_stehlen",
+      "wert": 6
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 12
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 13,
+      "mal": 1
+     }
+    ]
+   ],
+   "gold": [
+    30,
+    40
+   ]
+  },
+  {
+   "id": "hutmann",
+   "name": "Der Hutmann",
+   "typ": "NORMAL",
+   "abschnitt": 2,
+   "hp": [
+    34,
+    40
+   ],
+   "silhouette": "hutmann",
+   "beschreibung": "Unter dem Hut ist noch ein Hut. Und darunter wieder einer.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 13,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 8,
+      "mal": 1
+     },
+     {
+      "art": "block",
+      "wert": 8
+     }
+    ],
+    [
+     {
+      "art": "debuff",
+      "st": "VERWUNDBAR",
+      "wert": 2
+     },
+     {
+      "art": "angriff",
+      "wert": 10,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "augensammlerin",
+   "name": "Die Augensammlerin",
+   "typ": "NORMAL",
+   "abschnitt": 2,
+   "hp": [
+    30,
+    36
+   ],
+   "silhouette": "augensammlerin",
+   "beschreibung": "Sie traegt die Augen anderer an einer Schnur. Keines davon ist ihres.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "debuff",
+      "st": "VERHUELLT",
+      "wert": 2
+     },
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 15,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "heilen",
+      "wert": 8
+     },
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "blutorgel",
+   "name": "Die Blutorgel",
+   "typ": "NORMAL",
+   "abschnitt": 2,
+   "hp": [
+    40,
+    46
+   ],
+   "silhouette": "orgel",
+   "beschreibung": "Jede Pfeife ein Finger. Sie spielt sich selbst und trifft nie denselben Ton.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 6,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 14
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 18,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "wachsbote",
+   "name": "Der Wachsbote",
+   "typ": "NORMAL",
+   "abschnitt": 2,
+   "hp": [
+    28,
+    33
+   ],
+   "silhouette": "wachsbote",
+   "beschreibung": "Er bringt eine Nachricht, die schmilzt, bevor man sie lesen kann.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "debuff",
+      "st": "SCHWACH",
+      "wert": 2
+     },
+     {
+      "art": "debuff",
+      "st": "VERWUNDBAR",
+      "wert": 2
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     },
+     {
+      "art": "heilen",
+      "wert": 5
+     }
+    ]
+   ]
+  },
+  {
+   "id": "spiegelschwester",
+   "name": "Die Spiegelschwester",
+   "typ": "ELITE",
+   "abschnitt": 2,
+   "hp": [
+    78,
+    88
+   ],
+   "silhouette": "spiegel_schwester",
+   "beschreibung": "Sie ahmt dich nach, aber immer eine Sekunde zu spaet - und etwas zu genau.",
+   "muster": "gewicht",
+   "absichten": [
+    [
+     {
+      "art": "regel",
+      "id": "letzte_karte_kopieren",
+      "wert": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 16,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 14
+     },
+     {
+      "art": "angriff",
+      "wert": 10,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 8,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "BLUTUNG",
+      "wert": 4
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "letzte_karte_kopieren",
+     "intervall": 2,
+     "wert": 1
+    }
+   ],
+   "gold": [
+    32,
+    42
+   ]
+  },
+  {
+   "id": "uhrenwurm",
+   "name": "Der Uhrenwurm",
+   "typ": "NORMAL",
+   "abschnitt": 3,
+   "hp": [
+    52,
+    60
+   ],
+   "silhouette": "uhrenwurm",
+   "beschreibung": "Er frisst Minuten. In seinem Bauch schlaegt es immer eins.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 17,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "zukunft_stehlen",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 10,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 16
+     },
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "zukunft_stehlen",
+     "intervall": 3,
+     "wert": 1
+    }
+   ]
+  },
+  {
+   "id": "sieben_finger",
+   "name": "Die Sieben Finger",
+   "typ": "NORMAL",
+   "abschnitt": 3,
+   "hp": [
+    46,
+    54
+   ],
+   "silhouette": "finger",
+   "beschreibung": "Sieben Finger ohne Hand. Sie zaehlen mit, wie oft du getroffen hast.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 7,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "debuff",
+      "st": "BLUTUNG",
+      "wert": 5
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 21,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "laecheln_ohne_gesicht",
+   "name": "Das Laecheln ohne Gesicht",
+   "typ": "NORMAL",
+   "abschnitt": 3,
+   "hp": [
+    58,
+    66
+   ],
+   "silhouette": "laecheln",
+   "beschreibung": "Nur ein Mund, frei schwebend. Er wird breiter, je laenger der Kampf dauert.",
+   "muster": "gewicht",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "SCHWACH",
+      "wert": 2
+     }
+    ],
+    [
+     {
+      "art": "heilen",
+      "wert": 12
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 20,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "debuff",
+      "st": "VERWUNDBAR",
+      "wert": 3
+     },
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ]
+   ]
+  },
+  {
+   "id": "henker_verkehrt",
+   "name": "Der Henker (umgekehrt)",
+   "typ": "ELITE",
+   "abschnitt": 3,
+   "hp": [
+    104,
+    116
+   ],
+   "silhouette": "henker_verkehrt",
+   "beschreibung": "Derselbe Hals, dasselbe Grinsen - aber der Strick haelt jetzt ihn.",
+   "muster": "gewicht",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 20,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 11,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "BLUTUNG",
+      "wert": 6
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 18
+     },
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "schild_klauen",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     }
+    ]
+   ],
+   "gold": [
+    38,
+    48
+   ]
+  },
+  {
+   "id": "boss_turm",
+   "name": "XVI - Der Turm",
+   "typ": "BOSS",
+   "abschnitt": 1,
+   "hp": [
+    84,
+    84
+   ],
+   "silhouette": "turm",
+   "beschreibung": "Er waechst hinter dir hoch. Jeder Blitz nimmt dir eine Moeglichkeit.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 9,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "position_zerstoeren",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 10,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 22,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "position_zerstoeren",
+     "intervall": 4,
+     "wert": 1,
+     "text": "Ab Runde 4 zerstoert der Turm alle 4 Runden eine Position deiner Legung."
+    }
+   ],
+   "gold": [
+    45,
+    60
+   ]
+  },
+  {
+   "id": "boss_mond",
+   "name": "XVIII - Der Mond",
+   "typ": "BOSS",
+   "abschnitt": 2,
+   "hp": [
+    190,
+    190
+   ],
+   "silhouette": "mond_gross",
+   "beschreibung": "Du siehst sein Grinsen. Sonst siehst du nichts - nicht einmal deine eigenen Karten.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 17,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "karte_verdecken",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "heilen",
+      "wert": 15
+     },
+     {
+      "art": "angriff",
+      "wert": 10,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 11,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "VERHUELLT",
+      "wert": 3
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 26,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "karte_verdecken",
+     "intervall": 2,
+     "wert": 1,
+     "text": "Jede 2. Runde ist eine deiner Handkarten verdeckt - Orientierung unbekannt."
+    },
+    {
+     "id": "hp_verborgen",
+     "intervall": 0,
+     "wert": 1,
+     "text": "Seine HP werden nur ungefaehr angezeigt."
+    }
+   ],
+   "gold": [
+    45,
+    60
+   ]
+  },
+  {
+   "id": "boss_tod",
+   "name": "XIII - Der Tod",
+   "typ": "BOSS",
+   "abschnitt": 3,
+   "hp": [
+    260,
+    260
+   ],
+   "silhouette": "tod",
+   "beschreibung": "Ein weisses Gesicht, ein roter Schnitt. Er nimmt nicht dich - er nimmt deine Karten.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 22,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "karte_markieren",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 20
+     },
+     {
+      "art": "angriff",
+      "wert": 16,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 13,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "BLUTUNG",
+      "wert": 8
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 34,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "karte_markieren",
+     "intervall": 3,
+     "wert": 1,
+     "text": "Alle 3 Runden markiert er eine Karte. Endet der Kampf nicht rechtzeitig, ist sie fuer den Run verloren."
+    }
+   ],
+   "gold": [
+    55,
+    70
+   ]
+  },
+  {
+   "id": "boss_teufel",
+   "name": "XV - Der Teufel",
+   "typ": "BOSS",
+   "abschnitt": 4,
+   "hp": [
+    320,
+    320
+   ],
+   "silhouette": "teufel",
+   "beschreibung": "Er kaempft nicht gern. Er verhandelt. Und er gewinnt fast immer.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 20,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "pakt_anbieten",
+      "wert": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 15,
+      "mal": 1
+     },
+     {
+      "art": "debuff",
+      "st": "VERWUNDBAR",
+      "wert": 3
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 28,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "heilen",
+      "wert": 25
+     },
+     {
+      "art": "angriff",
+      "wert": 12,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "pakt_anbieten",
+     "intervall": 3,
+     "wert": 1,
+     "text": "Er bietet dir Pakte an: +100 % Schaden, aber eine Karte wird verflucht."
+    }
+   ],
+   "gold": [
+    60,
+    80
+   ]
+  },
+  {
+   "id": "boss_rad",
+   "name": "X - Rad des Schicksals",
+   "typ": "BOSS",
+   "abschnitt": 5,
+   "hp": [
+    380,
+    380
+   ],
+   "silhouette": "rad",
+   "beschreibung": "Es dreht. Deine Positionen bleiben nicht, wo du sie gelegt hast.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 24,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "positionen_tauschen",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 16,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 24
+     },
+     {
+      "art": "angriff",
+      "wert": 18,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 36,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "positionen_tauschen",
+     "intervall": 1,
+     "wert": 1,
+     "text": "Jede Runde werden deine gelegten Positionen zufaellig vertauscht."
+    }
+   ],
+   "gold": [
+    65,
+    85
+   ]
+  },
+  {
+   "id": "boss_gehaengter",
+   "name": "XII - Der Gehaengte",
+   "typ": "BOSS",
+   "abschnitt": 6,
+   "hp": [
+    420,
+    420
+   ],
+   "silhouette": "gehaengter",
+   "beschreibung": "Er haengt verkehrt. Von seiner Seite aus liegt deine Zukunft links.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 26,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "legung_spiegeln",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 18,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 14,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 40,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "legung_spiegeln",
+     "intervall": 0,
+     "wert": 1,
+     "text": "Die Legung ist dauerhaft gespiegelt: Zukunft <- Gegenwart <- Vergangenheit."
+    }
+   ],
+   "gold": [
+    70,
+    90
+   ]
+  },
+  {
+   "id": "boss_welt",
+   "name": "XXI - Die Welt",
+   "typ": "BOSS",
+   "abschnitt": 7,
+   "hp": [
+    520,
+    520
+   ],
+   "silhouette": "welt",
+   "beschreibung": "Alles, was du besiegt hast, ist noch da. Es sieht nur jetzt zusammen aus.",
+   "muster": "zyklus",
+   "absichten": [
+    [
+     {
+      "art": "angriff",
+      "wert": 28,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "regel",
+      "id": "alle_bossregeln",
+      "wert": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 20,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "block",
+      "wert": 30
+     },
+     {
+      "art": "angriff",
+      "wert": 22,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 18,
+      "mal": 1
+     },
+     {
+      "art": "angriff",
+      "wert": 18,
+      "mal": 1
+     }
+    ],
+    [
+     {
+      "art": "angriff",
+      "wert": 48,
+      "mal": 1
+     }
+    ]
+   ],
+   "regeln": [
+    {
+     "id": "alle_bossregeln",
+     "intervall": 0,
+     "wert": 1,
+     "text": "Alle Bossregeln dieses Runs sind gleichzeitig aktiv, jeweils abgeschwaecht."
+    }
+   ],
+   "gold": [
+    90,
+    120
+   ]
+  }
+ ]
+}

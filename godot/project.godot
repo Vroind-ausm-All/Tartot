@@ -1,0 +1,43 @@
+; TARTOT — Engine-Konfiguration
+; Godot 4.4 · Hochformat · Mobile (Android + iOS)
+
+config_version=5
+
+[application]
+
+config/name="Tartot"
+config/description="Ein groteskes Tarot-Roguelike. Lege in jedem Zug eine Legung aus Vergangenheit, Gegenwart und Zukunft — und manipuliere das vorhergesagte Schicksal."
+config/version="0.1.0"
+run/main_scene="res://ui/scenes/main.tscn"
+config/features=PackedStringArray("4.4", "GL Compatibility")
+config/icon="res://assets/placeholder/icon.svg"
+
+[autoload]
+
+Spiel="*res://core/spiel.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/window_width_override=432
+window/size/window_height_override=768
+window/handheld/orientation=1
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/default_font_subpixel_positioning=0
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_2d=1
+environment/defaults/default_clear_color=Color(0.086, 0.086, 0.086, 1)

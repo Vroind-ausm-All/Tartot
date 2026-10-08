@@ -17,9 +17,11 @@ unity/*.slnx
 unity/[Mm]emoryCaptures/
 *.csproj.user
 
-# Godot
-reference/godot/.godot/
-godot-karten/.godot/
+# Godot (Editor-Cache in jedem Projekt, auch im Repo-Wurzelordner)
+.godot/
+*.apk
+*.aab
+*.idsig
 
 # Werkzeuge
 __pycache__/

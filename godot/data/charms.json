@@ -1,0 +1,717 @@
+{
+ "_hinweis": "Generiert von tools/gen_charms_items.py.",
+ "charms": [
+  {
+   "nr": 1,
+   "id": "klingenanhaenger",
+   "name": "Klingenanhaenger",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Schwerter verursachen +1 Schaden.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "SCHWERTER"
+     },
+     "flach": {
+      "schaden": 1
+     }
+    }
+   ]
+  },
+  {
+   "nr": 2,
+   "id": "glutknoten",
+   "name": "Glutknoten",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Stabkarten erzeugen +2 Glut.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "STAEBE"
+     },
+     "flach": {
+      "status_GLUT": 2
+     }
+    }
+   ]
+  },
+  {
+   "nr": 3,
+   "id": "blutmondsplitter",
+   "name": "Blutmondsplitter",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Karten mit Selbstschaden wirken mit +15 %.",
+   "mod": [
+    {
+     "wenn": {
+      "hat_op": "selbstschaden"
+     },
+     "promille": 150
+    }
+   ]
+  },
+  {
+   "nr": 4,
+   "id": "raubzahn",
+   "name": "Raubzahn",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Angriffe auf Gegner mit Debuff heilen 1 HP.",
+   "haken": [
+    {
+     "bei": "schaden_verursacht",
+     "wenn": {
+      "ziel_hat_debuff": true
+     },
+     "ops": [
+      {
+       "op": "heilung",
+       "wert": 1,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 5,
+   "id": "jagdglocke",
+   "name": "Jagdglocke",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Der erste Angriff eines Kampfes verursacht +4 Schaden.",
+   "mod": [
+    {
+     "wenn": {
+      "erster_angriff_im_kampf": true
+     },
+     "flach": {
+      "schaden": 4
+     }
+    }
+   ]
+  },
+  {
+   "nr": 6,
+   "id": "schwarzer_nagel",
+   "name": "Schwarzer Nagel",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Jede dritte gelegte Karte verursacht zusaetzlich 3 Schaden.",
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "zaehler_modulo": 3
+     },
+     "ops": [
+      {
+       "op": "schaden",
+       "wert": 3,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 7,
+   "id": "falkenauge",
+   "name": "Falkenauge",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Greift der Gegner diese Runde an, verursachen deine Angriffe +2 Schaden.",
+   "mod": [
+    {
+     "wenn": {
+      "gegner_greift_an": true
+     },
+     "flach": {
+      "schaden": 2
+     }
+    }
+   ]
+  },
+  {
+   "nr": 8,
+   "id": "aschekranz",
+   "name": "Aschekranz",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Nach einem Kill verursachen deine Angriffe +1 Schaden fuer den Rest des Kampfes.",
+   "regel": "aschekranz",
+   "regelwert": 1
+  },
+  {
+   "nr": 9,
+   "id": "dornenring",
+   "name": "Dornenring",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Reflektiere 2 geblockten Schaden.",
+   "regel": "dornenring",
+   "regelwert": 2
+  },
+  {
+   "nr": 10,
+   "id": "henkerkette",
+   "name": "Henkerkette",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Zukunftskarten wirken mit +10 %.",
+   "mod": [
+    {
+     "wenn": {
+      "position": "ZUKUNFT"
+     },
+     "promille": 100
+    }
+   ]
+  },
+  {
+   "nr": 11,
+   "id": "eiserne_muenze",
+   "name": "Eiserne Muenze",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Muenzkarten geben +2 Schild.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "MUENZEN"
+     },
+     "flach": {
+      "schild": 2
+     }
+    }
+   ]
+  },
+  {
+   "nr": 12,
+   "id": "kelchrand",
+   "name": "Kelchrand",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "20 % deiner Ueberheilung wird zu Schild.",
+   "regel": "kelchrand",
+   "regelwert": 20
+  },
+  {
+   "nr": 13,
+   "id": "weisser_faden",
+   "name": "Weisser Faden",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Beginne jeden Kampf mit 3 Schild.",
+   "haken": [
+    {
+     "bei": "kampf_start",
+     "ops": [
+      {
+       "op": "schild",
+       "wert": 3,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 14,
+   "id": "salzsiegel",
+   "name": "Salzsiegel",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Negiere den ersten gegnerischen Debuff pro Kampf.",
+   "regel": "salzsiegel",
+   "regelwert": 1
+  },
+  {
+   "nr": 15,
+   "id": "knochenperle",
+   "name": "Knochenperle",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Unter 50 % HP geben Muenzkarten +2 Schild zusaetzlich.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "MUENZEN",
+      "hp_unter_prozent": 50
+     },
+     "flach": {
+      "schild": 2
+     }
+    }
+   ]
+  },
+  {
+   "nr": 16,
+   "id": "mondbrosche",
+   "name": "Mondbrosche",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Umgekehrte Karten geben zusaetzlich 1 Schild.",
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "umgekehrt": true
+     },
+     "ops": [
+      {
+       "op": "schild",
+       "wert": 1,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 17,
+   "id": "siegel_des_herrschers",
+   "name": "Siegel des Herrschers",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "10 % deines Schildes bleibt zwischen den Runden bestehen.",
+   "regel": "schild_rest",
+   "regelwert": 10
+  },
+  {
+   "nr": 18,
+   "id": "heiligennadel",
+   "name": "Heiligennadel",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Jede fuenfte gelegte Karte heilt 1 HP.",
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "zaehler_modulo": 5
+     },
+     "ops": [
+      {
+       "op": "heilung",
+       "wert": 1,
+       "unskaliert": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 19,
+   "id": "phoenixfeder",
+   "name": "Phoenixfeder",
+   "selten": "MYTHOS",
+   "max": 3,
+   "text": "Einmal pro Abschnitt verhindert toedlicher Schaden den Tod (1 HP). Weitere Stacks: +5 HP.",
+   "regel": "phoenixfeder",
+   "regelwert": 5
+  },
+  {
+   "nr": 20,
+   "id": "glasherz",
+   "name": "Glasherz",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "-3 maximale HP, aber Heilung wirkt mit +25 %.",
+   "regel": "glasherz",
+   "regelwert": 25
+  },
+  {
+   "nr": 21,
+   "id": "silberspiegel",
+   "name": "Silberspiegel",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Kopierte Karten wirken mit +10 %.",
+   "mod": [
+    {
+     "wenn": {
+      "ist_kopie": true
+     },
+     "promille": 100
+    }
+   ]
+  },
+  {
+   "nr": 22,
+   "id": "rasieramulett",
+   "name": "Rasieramulett",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Kartenloeschen kostet 15 % weniger.",
+   "regel": "rabatt_loeschen",
+   "regelwert": 15
+  },
+  {
+   "nr": 23,
+   "id": "leere_karte",
+   "name": "Leere Karte",
+   "selten": "ARKAN",
+   "max": 2,
+   "text": "Ziehe zu Kampfbeginn 1 Karte zusaetzlich.",
+   "haken": [
+    {
+     "bei": "kampf_start",
+     "ops": [
+      {
+       "op": "ziehen",
+       "wert": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 24,
+   "id": "fadenspule",
+   "name": "Fadenspule",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Wirfst du eine Karte ab, erhaelt die naechste Karte +1 Effektwert.",
+   "regel": "fadenspule",
+   "regelwert": 1
+  },
+  {
+   "nr": 25,
+   "id": "wachssiegel",
+   "name": "Wachssiegel",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Verbesserte Karten wirken mit +8 %.",
+   "mod": [
+    {
+     "wenn": {
+      "stufe_min": 1
+     },
+     "promille": 80
+    }
+   ]
+  },
+  {
+   "nr": 26,
+   "id": "kraehenfeder",
+   "name": "Kraehenfeder",
+   "selten": "SELTEN",
+   "max": 2,
+   "text": "Beim Mischen des Decks ziehst du 1 Karte zusaetzlich.",
+   "haken": [
+    {
+     "bei": "mischen",
+     "ops": [
+      {
+       "op": "ziehen",
+       "wert": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 27,
+   "id": "erinnerungssplitter",
+   "name": "Erinnerungssplitter",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Die erste Karte jedes Kampfes kehrt naechste Runde auf die Hand zurueck. Weitere Stacks: die zweite, dritte ...",
+   "regel": "erinnerungssplitter",
+   "regelwert": 1
+  },
+  {
+   "nr": 28,
+   "id": "zwillingsmuenze",
+   "name": "Zwillingsmuenze",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Permanente Kartenkopien erhalten +1 auf ihren Basiswert.",
+   "mod": [
+    {
+     "wenn": {
+      "ist_kopie": true
+     },
+     "flach": {
+      "schaden": 1,
+      "schild": 1,
+      "heilung": 1
+     }
+    }
+   ]
+  },
+  {
+   "nr": 29,
+   "id": "leerer_rahmen",
+   "name": "Leerer Rahmen",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Jede permanent geloeschte Karte gibt +1 maximales Leben.",
+   "regel": "leerer_rahmen",
+   "regelwert": 1
+  },
+  {
+   "nr": 30,
+   "id": "auge_des_orakels",
+   "name": "Auge des Orakels",
+   "selten": "GEMEIN",
+   "max": 3,
+   "text": "Du siehst 1 Karte mehr oben auf deinem Deck.",
+   "regel": "sicht_deck",
+   "regelwert": 1
+  },
+  {
+   "nr": 31,
+   "id": "klingenrose",
+   "name": "Klingenrose",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Nach zwei Schwertern erhaelt die naechste Nicht-Schwert-Karte +2 Effekt.",
+   "regel": "klingenrose",
+   "regelwert": 2
+  },
+  {
+   "nr": 32,
+   "id": "stabgeflecht",
+   "name": "Stabgeflecht",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Aufeinanderfolgende Stabkarten erhalten jeweils +1 Combo-Schaden.",
+   "regel": "stabgeflecht",
+   "regelwert": 1
+  },
+  {
+   "nr": 33,
+   "id": "kelchperle",
+   "name": "Kelchperle",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Spielst du einen Kelch nach einem Angriff, heilt er +2.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "KELCHE",
+      "nach_angriff": true
+     },
+     "flach": {
+      "heilung": 2
+     }
+    }
+   ]
+  },
+  {
+   "nr": 34,
+   "id": "pentakelkette",
+   "name": "Pentakelkette",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Endest du einen Kampf mit mindestens 10 Schild, erhaeltst du +2 Gold.",
+   "haken": [
+    {
+     "bei": "kampf_ende",
+     "wenn": {
+      "schild_min": 10
+     },
+     "ops": [
+      {
+       "op": "gold",
+       "wert": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 35,
+   "id": "vierfachknoten",
+   "name": "Vierfachknoten",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Sind alle vier Farben gelegt, erhalten alle Karten +2 Effekt fuer den Rest des Kampfes.",
+   "regel": "vierfachknoten",
+   "regelwert": 2
+  },
+  {
+   "nr": 36,
+   "id": "schwarzer_kelch",
+   "name": "Schwarzer Kelch",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Heilung schaedigt den Gegner fuer 20 % ihres Wertes.",
+   "regel": "schwarzer_kelch",
+   "regelwert": 20
+  },
+  {
+   "nr": 37,
+   "id": "messingstab",
+   "name": "Messingstab",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Glut verursacht pro Tick +1 Schaden.",
+   "regel": "glut_bonus",
+   "regelwert": 1
+  },
+  {
+   "nr": 38,
+   "id": "silberklinge",
+   "name": "Silberklinge",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Schwerter ignorieren 1 gegnerisches Schild.",
+   "mod": [
+    {
+     "wenn": {
+      "farbe": "SCHWERTER"
+     },
+     "schild_durchdringung": 1
+    }
+   ]
+  },
+  {
+   "nr": 39,
+   "id": "goldenes_pentakel",
+   "name": "Goldenes Pentakel",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Jede dritte Muenzkarte erzeugt +1 temporaeres Luck.",
+   "haken": [
+    {
+     "bei": "karte_ausgeloest",
+     "wenn": {
+      "farbe": "MUENZEN",
+      "zaehler_modulo": 3
+     },
+     "ops": [
+      {
+       "op": "luck",
+       "wert": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 40,
+   "id": "blaues_band",
+   "name": "Blaues Band",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Jede dritte Kelchkarte entfernt 1 Debuff. Jeder Stack senkt die benoetigte Anzahl um 1 (min. 1).",
+   "regel": "blaues_band",
+   "regelwert": 3
+  },
+  {
+   "nr": 41,
+   "id": "narrenklee",
+   "name": "Narrenklee",
+   "selten": "SELTEN",
+   "max": 3,
+   "text": "Beginne jeden Abschnitt mit +1 Luck.",
+   "haken": [
+    {
+     "bei": "abschnitt_start",
+     "ops": [
+      {
+       "op": "luck",
+       "wert": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nr": 42,
+   "id": "auge_des_haendlers",
+   "name": "Auge des Haendlers",
+   "selten": "GEMEIN",
+   "max": 5,
+   "text": "Haendlerpreise -5 %.",
+   "regel": "rabatt_laden",
+   "regelwert": 5
+  },
+  {
+   "nr": 43,
+   "id": "gebogene_muenze",
+   "name": "Gebogene Muenze",
+   "selten": "GEMEIN",
+   "max": 3,
+   "text": "+1 kostenloser Belohnungs-Reroll pro Abschnitt.",
+   "regel": "reroll_frei",
+   "regelwert": 1
+  },
+  {
+   "nr": 44,
+   "id": "katzenzahn",
+   "name": "Katzenzahn",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Chance auf seltene Karten +4 Prozentpunkte.",
+   "regel": "selten_bonus",
+   "regelwert": 4
+  },
+  {
+   "nr": 45,
+   "id": "gluecksglocke",
+   "name": "Gluecksglocke",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Positive Ereignisvarianten werden um 6 Prozentpunkte wahrscheinlicher.",
+   "regel": "ereignis_glueck",
+   "regelwert": 6
+  },
+  {
+   "nr": 46,
+   "id": "giermotte",
+   "name": "Giermotte",
+   "selten": "VERKEHRT",
+   "max": 5,
+   "text": "+10 % Gold, aber Gegner erhalten +3 % maximale HP.",
+   "regel": "giermotte",
+   "regelwert": 10
+  },
+  {
+   "nr": 47,
+   "id": "goldener_wuerfel",
+   "name": "Goldener Wuerfel",
+   "selten": "ARKAN",
+   "max": 4,
+   "text": "Jeder zweite Stack gibt eine zusaetzliche Auswahl bei Kartenbelohnungen.",
+   "regel": "wuerfel",
+   "regelwert": 1
+  },
+  {
+   "nr": 48,
+   "id": "sternenstaub",
+   "name": "Sternenstaub",
+   "selten": "SELTEN",
+   "max": 5,
+   "text": "Kartenbelohnungen sind mit +8 Prozentpunkten Chance bereits verbessert.",
+   "regel": "sternenstaub",
+   "regelwert": 8
+  },
+  {
+   "nr": 49,
+   "id": "gebrochene_krone",
+   "name": "Gebrochene Krone",
+   "selten": "ARKAN",
+   "max": 5,
+   "text": "Elitegegner geben +20 % Chance auf einen zusaetzlichen Charm.",
+   "regel": "krone",
+   "regelwert": 20
+  },
+  {
+   "nr": 50,
+   "id": "weltenfaden",
+   "name": "Weltenfaden",
+   "selten": "MYTHOS",
+   "max": 5,
+   "text": "Fuer je 5 unterschiedliche Charms erhalten alle Karten +2 % Wirkung pro Stack.",
+   "regel": "weltenfaden",
+   "regelwert": 2
+  }
+ ]
+}
