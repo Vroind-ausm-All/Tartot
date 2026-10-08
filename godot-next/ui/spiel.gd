@@ -90,7 +90,9 @@ func after_turn(turn: TurnResult) -> String:
 	if game == null:
 		return ""
 	if vorfuehrung:
-		return "DER TURM IST GEFALLEN" if turn != null and turn.victory else ""
+		if turn != null and turn.victory:
+			return "%s FÄLLT" % game.combat.enemy.definition.name.to_upper()
+		return ""
 	for p in meta.pending_fulfilled(game.run):
 		if not _announced.has(p.id):
 			_announced[p.id] = true

@@ -1,6 +1,9 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://tests/turm_slice.gd" id="1"]
+[ext_resource type="Script" path="res://tests/boss_slice.gd" id="1"]
 
 [node name="TurmSlice" type="Node"]
 script = ExtResource("1")
+boss_id = "boss_turm"
+darstellung = "TurmBoss"
+pflicht = PackedStringArray("wertung:", "fate:", "boss:collapse", "einsturz:")

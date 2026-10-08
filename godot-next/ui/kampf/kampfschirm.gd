@@ -89,6 +89,7 @@ func _ready() -> void:
 	# --- Bühne mit Bossfigur, Name und Balken
 	var def := game.combat.enemy.definition
 	buehne = Buehne.new()
+	buehne.stil = def.stage
 	buehne.custom_minimum_size = Vector2(0, 132)
 	root.add_child(buehne)
 	boss = BossRegistry.erzeuge(def)
@@ -315,6 +316,8 @@ func _spiele(cues: Array[Dictionary]) -> void:
 					t2.set_speed_scale(tempo)
 					t2.tween_property(player_line, "modulate", Color.WHITE, 0.3)
 				await _warte(0.12)
+			"verhuellen":
+				await buehne.nebel(tempo)
 			"verlust":
 				toast.text = String(c["text"])
 				toast.visible = true

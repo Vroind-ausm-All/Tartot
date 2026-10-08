@@ -9,6 +9,7 @@ class_name BossRegistry
 
 const DARSTELLUNGEN := {
 	"boss_turm": preload("res://ui/bosse/turm/turm_boss.gd"),
+	"boss_mond": preload("res://ui/bosse/mond/mond_boss.gd"),
 }
 
 
@@ -27,4 +28,5 @@ static func erzeuge(definition: EnemyDefinition) -> BossDarstellung:
 static func ton(definition: EnemyDefinition, cue: String) -> AudioStream:
 	match schluessel(definition):
 		"boss_turm": return TurmAudio.cue(cue)
+		"boss_mond": return MondAudio.cue(cue)
 	return null

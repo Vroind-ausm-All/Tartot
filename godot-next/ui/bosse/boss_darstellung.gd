@@ -70,9 +70,12 @@ func _lade_sprite() -> void:
 func _sprite_spielen(name: String) -> void:
 	if _sprite == null:
 		return
-	if _sprite.sprite_frames.has_animation(name):
+	var sf := _sprite.sprite_frames
+	if sf.has_animation(name):
 		_sprite.play(name)
-	elif _sprite.sprite_frames.has_animation("idle"):
+	elif name.begins_with("attack") and sf.has_animation("attack"):
+		_sprite.play("attack")
+	elif sf.has_animation("idle"):
 		_sprite.play("idle")
 
 func _tick() -> void:
@@ -118,7 +121,7 @@ func spiele(cue: String) -> void:
 		"phase2": await play_phase_two()
 		"collapse": await play_collapse()
 		"death": await play_death()
-		"idle", "summon": await play_bob()
+		"idle", "summon", "veil": await play_bob()
 		_: await play_attack()
 
 func _start(name: String) -> int:
@@ -150,16 +153,16 @@ func play_intro() -> void:
 	await t.finished
 	_ende(token, "intro")
 
-func play_bob() -> void:
-	var token := _start("idle")
+func play_bob(name := "idle") -> void:
+	var token := _start(name)
 	var t := _tween()
 	t.tween_property(self, "offset_px", Vector2(0, -6), 0.10)
 	t.tween_property(self, "offset_px", Vector2.ZERO, 0.14)
 	await t.finished
-	_ende(token, "idle")
+	_ende(token, name)
 
-func play_attack() -> void:
-	var token := _start("attack")
+func play_attack(name := "attack") -> void:
+	var token := _start(name)
 	var t := _tween()
 	t.tween_property(self, "squash", Vector2(0.88, 1.14), 0.10)
 	t.tween_property(self, "offset_px", Vector2(0, 12), 0.07)
@@ -168,7 +171,7 @@ func play_attack() -> void:
 	t.tween_property(self, "offset_px", Vector2.ZERO, 0.12)
 	t.tween_property(self, "squash", Vector2.ONE, 0.09)
 	await t.finished
-	_ende(token, "attack")
+	_ende(token, name)
 
 func play_hit(strong := false) -> void:
 	var token := _start("hit")

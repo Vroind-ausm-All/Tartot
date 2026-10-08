@@ -1,12 +1,20 @@
 extends Node
-## Laufzeittest des Turm-Slices: echter Run bis vor den Turm, dann der
+## Laufzeittest eines Boss-Slices: echter Run bis vor den Boss, dann der
 ## Bosskampf über den Kampftisch (Legung per Autopilot, Ausführen über den
 ## Knopfpfad, Cue-Folge mit hohem Tempo), Omen-Beute, Ende der Vorführung.
 ##
 ##   godot --headless --path godot-next res://tests/turm_slice.tscn
-##   xvfb-run godot --path godot-next res://tests/turm_slice.tscn -- --shots=ordner
+##   godot --headless --path godot-next res://tests/mond_slice.tscn
+##   xvfb-run godot --path godot-next res://tests/mond_slice.tscn -- --shots=ordner
 ##
-## Exit 1, wenn der Turm nicht erscheint oder ein Pflicht-Cue fehlt.
+## Exit 1, wenn der Boss nicht erscheint, die eigene Darstellung fehlt oder
+## ein Pflicht-Cue fehlt.
+
+@export var boss_id := "boss_turm"
+## Klassenname der erwarteten Darstellung.
+@export var darstellung := "TurmBoss"
+## Cues "typ:cue", die im Kampf mindestens einmal vorkommen muessen.
+@export var pflicht: PackedStringArray = ["wertung:", "fate:", "boss:collapse", "einsturz:"]
 
 var _cues := {}
 var _shots := ""
@@ -24,9 +32,9 @@ func _ready() -> void:
 	spiel.use_test_storage()
 	var fehler: Array[String] = []
 
-	var game: GameController = spiel.starte_vorfuehrung("boss_turm")
+	var game: GameController = spiel.starte_vorfuehrung(boss_id)
 	if game == null:
-		print("TURM-SLICE: kein Seed mit dem Turm gefunden")
+		print("BOSS-SLICE %s: kein Seed gefunden" % boss_id)
 		get_tree().quit(1)
 		return
 	main.show_current()
@@ -37,8 +45,8 @@ func _ready() -> void:
 		schirm.tempo = tempo
 		schirm.boss.tempo = tempo
 		schirm.cue_gespielt.connect(func(c: Dictionary): _cues[String(c["typ"]) + ":" + String(c.get("cue", ""))] = true)
-		if not schirm.boss is TurmBoss:
-			fehler.append("Turm-Darstellung fehlt")
+		if schirm.boss.get_script().get_global_name() != darstellung:
+			fehler.append("Darstellung %s fehlt" % darstellung)
 		# Der Auftritt sperrt die Eingabe, bis Turm und Regelkarte stehen.
 		if not schirm.gesperrt:
 			fehler.append("Auftritt sperrt die Eingabe nicht")
@@ -50,6 +58,7 @@ func _ready() -> void:
 		var zuege := 0
 		var einsturz_gezeigt := false
 		var phase2_gezeigt := false
+		var verhuellt_gezeigt := false
 		while game.phase == Enums.GamePhase.COMBAT and zuege < 40:
 			zuege += 1
 			if game.combat.pact_pending:
@@ -64,6 +73,9 @@ func _ready() -> void:
 			if not einsturz_gezeigt and game.combat.blocked_slot >= 0:
 				einsturz_gezeigt = true
 				await _shot("4_eingestuerzt", 0.1)
+			if not verhuellt_gezeigt and not game.combat.veiled_cards.is_empty():
+				verhuellt_gezeigt = true
+				await _shot("4_verhuellt", 0.1)
 			if not phase2_gezeigt and game.combat.enemy.phase >= 1:
 				phase2_gezeigt = true
 				await _shot("5_phase2", 0.1)
@@ -72,12 +84,12 @@ func _ready() -> void:
 		while main.current == schirm and warte < 600:
 			warte += 1
 			await get_tree().process_frame
-		print("TURM-SLICE: %d Züge, Phase %s, Cues %s" % [zuege, Enums.NAMES_PHASE[game.phase], str(_cues.keys())])
-		for pflicht in ["wertung:", "fate:", "boss:collapse", "einsturz:"]:
-			if not _cues.has(pflicht):
-				fehler.append("Cue fehlt: " + pflicht)
+		print("BOSS-SLICE %s: %d Züge, Phase %s, Cues %s" % [boss_id, zuege, Enums.NAMES_PHASE[game.phase], str(_cues.keys())])
+		for p in pflicht:
+			if not _cues.has(p):
+				fehler.append("Cue fehlt: " + p)
 		if not (_cues.has("boss:death") or game.phase == Enums.GamePhase.GAME_OVER):
-			fehler.append("weder Turmtod noch Niederlage")
+			fehler.append("weder Bosstod noch Niederlage")
 		if game.phase == Enums.GamePhase.BOSS_LOOT:
 			await _shot("6_omen_beute", 0.3)
 			game.choose_boss_loot(Enums.BossLootChoice.BIND)
@@ -85,7 +97,7 @@ func _ready() -> void:
 			await _shot("7_ende", 0.3)
 			if not main.current.find_children("*", "Button", true, false).size() > 0:
 				fehler.append("Ende der Vorführung ohne Knöpfe")
-	print("TURM-SLICE: fehler=%s" % str(fehler))
+	print("BOSS-SLICE %s: fehler=%s" % [boss_id, str(fehler)])
 	spiel.abandon_to_title()
 	get_tree().quit(1 if not fehler.is_empty() else 0)
 

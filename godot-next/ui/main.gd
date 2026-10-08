@@ -172,10 +172,12 @@ func _show_title() -> void:
 		show_current(), true)
 
 	if OS.is_debug_build():
-		_button(box, "VORFÜHRUNG — XVI DER TURM\nder Bosskampf aus einem echten Run, ohne Speichern",
-			func():
-				if Spiel.starte_vorfuehrung("boss_turm") != null:
-					show_current())
+		for vorf in [["boss_turm", "XVI DER TURM"], ["boss_mond", "XVIII DER MOND"]]:
+			var boss_id: String = vorf[0]
+			_button(box, "VORFÜHRUNG — %s\nder Bosskampf aus einem echten Run, ohne Speichern" % vorf[1],
+				func():
+					if Spiel.starte_vorfuehrung(boss_id) != null:
+						show_current())
 
 	var daily := RunSetup.daily()
 	var daily_done := meta.last_daily_seed == MetaProgress.daily_seed()

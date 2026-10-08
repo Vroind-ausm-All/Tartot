@@ -53,7 +53,8 @@ godot-next/                 Hauptprojekt Godot 4.7
   assets/                   Spezifikationen und (später) Sprites/Klänge, z. B. sprites/bosses/turm/
   tests/smoke.gd            Rauchtest Kern
   tests/ui_walk.tscn        Laufzeittest aller Seiten mit echtem Spielzustand
-  tests/turm_slice.tscn     Laufzeittest des Turm-Slices (optional mit Bildschirmabzügen)
+  tests/boss_slice.gd       Laufzeittest eines Bosskampfs; turm_slice.tscn und mond_slice.tscn
+                            setzen Boss, Darstellung und Pflicht-Cues (optional mit Bildschirmabzügen)
   tests/asset_pipeline.gd   Aseprite-Blatt → SpriteFrames → Bossdarstellung
   tools/trace.gd            Paritätsspur
   tools/aseprite_import*.gd Asset-Pipeline: Aseprite-JSON → SpriteFrames
@@ -113,7 +114,9 @@ godot --headless --path godot-next --editor --quit                # Import/Parse
 godot --headless --path godot-next --script res://tests/smoke.gd  # Rauchtest, Exit 1 bei Fehler
 godot --headless --path godot-next res://tests/ui_walk.tscn       # alle Seiten zur Laufzeit
 godot --headless --path godot-next res://tests/turm_slice.tscn    # Turm-Slice
+godot --headless --path godot-next res://tests/mond_slice.tscn    # Mond-Slice
 godot --headless --path godot-next --script res://tests/asset_pipeline.gd
+tools/godot_tests.sh                                              # alle Godot-Tests auf einmal
 tools/paritaet.sh                                                 # C# gegen Godot, Zeile für Zeile
 ```
 
@@ -125,6 +128,7 @@ Stand 2026-10-08 (Godot 4.7.2, .NET 8):
 | Rauchtest godot-next | grün (0 Fehler) |
 | UI-Durchlauf | alle 11 Phasen gebaut, keine Laufzeitfehler |
 | Turm-Slice | echter Run bis zum Turm, Kampf über den Tisch: Einsturz, Wiederaufrichten, Siegelbruch, Phase 2, Turmtod, Omen-Beute |
+| Mond-Slice | echter Run bis zum Mond (Akt III): Fluch, Verhüllen (verdeckte Karten), Siegelbruch, Blutmond, Aussaugen, Mondtod, Omen-Beute |
 | Asset-Pipeline | künstliches Aseprite-Blatt → SpriteFrames → Darstellung spielt es |
 | Parität | **99 / 99 Fälle identisch**: 40 Seeds, 4 Deuter × 5, Schleier 1–8 × 3, Spirale × 6, Tageskarte × 2, Laufbahn 2 × 25 Runs mit Meta-Fortschritt, Speichern/Laden nach jedem Zug × 5 |
 
@@ -169,14 +173,22 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
   Pixel-Silhouette.
 - **Der Turm** (`ui/bosse/turm/`) ist aus `godot/` portiert; die Zeichnung ist
   unverändert. Die Klänge (`turm_audio.gd`) sind prozedurale Platzhalter.
-  Fertige Sprites oder WAVs gibt es **noch nicht**.
+- **Der Mond** (`ui/bosse/mond/`) ist nach demselben Muster gebaut: eine grinsende
+  Sichel mit Schlafmütze und Sternen an Fäden, in Phase 2 ein Blutmond.
+  Jede Absicht hat ihr eigenes Motiv (Aussaugen, Fluch aus Sternen, Wolken),
+  dazu Nebel beim Verhüllen. `mond_audio.gd` liefert Platzhalter mit
+  Theremin, Spieluhr und Rauschen. Die Bühne „Spiegelsee“ ist ein Nachthimmel
+  mit See. Aseprite-Vorlage `create_boss_mond.lua`, Spezifikationen unter
+  `assets/sprites/bosses/mond/` und `assets/audio/bosses/mond/`.
+- Fertige Sprites oder WAVs gibt es für keinen Boss.
 - **Asset-Pipeline**: Für die Aseprite-Vorlage `assets/source/aseprite/create_boss_turm.lua`
   ausführen und das Blatt mit JSON exportieren. Dann
   `tools/aseprite_import_cli.gd` aufrufen; es schreibt
   `boss_turm_frames.tres`, und die Turmfigur nutzt diese Datei automatisch.
   Klänge unter `assets/audio/bosses/turm/turm_<cue>.wav|ogg` ersetzen die
   Platzhalter ebenfalls ohne Codeänderung. Spezifikationen:
-  `assets/sprites/bosses/turm/ASSET_SPEC.md`, `assets/audio/bosses/turm/REAPER_CUES.md`.
+  `assets/sprites/bosses/<boss>/ASSET_SPEC.md`, `assets/audio/bosses/<boss>/REAPER_CUES.md`.
+  Fehlende Aseprite-Tags fallen zurück (`attack1` → `attack` → `idle`).
 - **Kampftisch** (`ui/kampf/`): Bühne (Jahrmarktzelt, in Phase 2 rot),
   Regelkarte mit Wachssiegel (splittert beim Siegelbruch, Text aus
   `ActiveRuleTexts`), drei Plätze mit Einsturz (Riss, Staub, Absacken;
@@ -184,9 +196,9 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
   Wertungskaskade aus `ScoreBreakdown.steps`. `CueBuilder` baut die Folge
   allein aus Kernfakten (Zustand vorher, `TurnResult`, Zustand nachher,
   `AnimationCues`).
-- **Vorführung**: Im Titel (nur Debug-Builds) startet „VORFÜHRUNG — XVI DER
-  TURM“ einen echten Run, den der Autopilot bis vor den Turm spielt. Nichts
-  wird gespeichert oder verbucht.
+- **Vorführung**: Im Titel (nur Debug-Builds) starten „VORFÜHRUNG — XVI DER
+  TURM“ und „— XVIII DER MOND“ einen echten Run, den der Autopilot bis vor
+  diesen Boss spielt. Nichts wird gespeichert oder verbucht.
 
 ## 8. Übergabe-Aussagen: bestätigt und widerlegt
 
@@ -210,7 +222,7 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 
 ## 9. Bekannte Lücken
 
-- Nur der Turm hat eine eigene Figur. Alle anderen Gegner zeigen die
+- Nur Turm und Mond haben eine eigene Figur. Alle anderen Gegner zeigen die
   allgemeine Pixel-Silhouette mit derselben Bewegung.
 - Keine fertigen Sprites oder Klänge; alles ist prozedural.
 - Kein Haptik-Feedback, keine Kamerastöße, kein „Reduced Motion“-Schalter.
@@ -230,9 +242,12 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 ## 10. Nächste Aufgabe
 
 1. Das Debug-APK auf einem Android-Gerät installieren
-   (`adb install -r Build/Android/TARTOT-godot-next-debug.apk`) und den
-   Turm-Slice spielen: Touch, Ziehen, Lesbarkeit bei 270 × 480, Ton.
-2. Der Mond nach demselben Muster: `ui/bosse/mond/mond_boss.gd`,
-   `mond_audio.gd`, Aseprite-Vorlage, `ASSET_SPEC.md`, `REAPER_CUES.md`,
-   Eintrag in `BossRegistry`; dazu Cues für verdeckte Karten und verborgene Absicht.
-3. Die Turm-Kunst: Aseprite-Blatt und REAPER-Cues nach Spezifikation.
+   (`adb install -r Build/Android/TARTOT-godot-next-debug.apk`) und Turm und
+   Mond über die Vorführung spielen: Touch, Ziehen, Lesbarkeit bei 270 × 480, Ton.
+2. Kunst für Turm und Mond nach Spezifikation: Aseprite-Blätter importieren
+   und REAPER-Cues rendern. Der Code muss dafür nicht geändert werden.
+3. Weitere Bosse nach demselben Muster (Tod, Rad, Teufel, Gehängter,
+   Mäßigkeit, Hierophant, Welt, Sonne). Jeder bekommt eine Darstellung unter
+   `ui/bosse/<name>/`, einen Eintrag in `BossRegistry`, eine eigene `*_slice.tscn`
+   mit Pflicht-Cues und seine Spezifikationen.
+4. Optional: Godot-Tests und `tools/paritaet.sh quick` in die CI aufnehmen.

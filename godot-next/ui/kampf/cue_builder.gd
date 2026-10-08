@@ -15,6 +15,7 @@ class_name CueBuilder
 ##   aufrichten {slot}           ein Platz ist wieder frei
 ##   spieler   {schaden, heilung, schild}
 ##   verlust   {text}            Der Tod nimmt eine Karte
+##   verhuellen {anzahl}         Der Mond: Handkarten verdeckt, Absicht verborgen
 
 ## vorher: {"blocked": int, "hp": int, "phase": int, "intent": int, "turn": int, "player_hp": int}
 static func vorher(game: GameController) -> Dictionary:
@@ -63,13 +64,18 @@ static func baue(v: Dictionary, turn: TurnResult, game: GameController) -> Array
 			"death":
 				cues.append({"typ": "boss", "cue": "death", "ton": "death"})
 			_:
-				cues.append({"typ": "boss", "cue": a, "ton": "attack" if a.begins_with("attack") else ""})
+				cues.append({"typ": "boss", "cue": a, "ton": _ton_fuer(a, combat.enemy.definition)})
 				var schaden := int(v["player_hp"]) - game.run.hp
 				if schaden != 0 or turn.shield_gained > 0:
 					cues.append({"typ": "spieler", "schaden": maxi(0, schaden), "heilung": maxi(0, -schaden), "schild": turn.shield_gained})
 
 	if turn.card_lost != "":
 		cues.append({"typ": "verlust", "text": "DER TOD NIMMT %s" % turn.card_lost.to_upper()})
+
+	# Der Mond verdeckt fuer den naechsten Zug (PrepareRules).
+	if not combat.veiled_cards.is_empty() or (combat.enemy.intent_hidden and not turn.victory):
+		cues.append({"typ": "boss", "cue": "veil", "ton": "veil"})
+		cues.append({"typ": "verhuellen", "anzahl": combat.veiled_cards.size()})
 
 	# Der Turm setzt den Platz fuer den naechsten Zug (PrepareRules).
 	if turn.tower_collapsed >= 0:
@@ -78,3 +84,12 @@ static func baue(v: Dictionary, turn: TurnResult, game: GameController) -> Array
 	elif int(v["blocked"]) >= 0 and combat.blocked_slot != int(v["blocked"]):
 		cues.append({"typ": "aufrichten", "slot": int(v["blocked"])})
 	return cues
+
+## Klang zu einer Gegneraktion. Der Mond hat eigene Klaenge je Absicht.
+static func _ton_fuer(aktion: String, d: EnemyDefinition) -> String:
+	if d.has_rule(Enums.BossRule.MOON):
+		match aktion:
+			"attack1": return "drain"
+			"attack3": return "hex"
+			"summon": return "veil"
+	return "attack" if aktion.begins_with("attack") else ""
