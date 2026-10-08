@@ -39,6 +39,14 @@ public static class Program
                 Snapshot.Write(arg.Substring("--snapshot=".Length));
                 return;
             }
+            else if (arg.StartsWith("--trace=", StringComparison.Ordinal))
+            {
+                // Paritaetsspur fuer den Godot-Port (tools/paritaet.sh).
+                Trace.Write(long.Parse(arg.Substring("--trace=".Length)), maxFights,
+                    new RunSetup { DeuterId = deuter, Veil = veil, IsDaily = ArgValue(args, "daily", 0) != 0 }, spiral,
+                    ArgValue(args, "laufbahn", 0), ArgValue(args, "roundtrip", 0) != 0);
+                return;
+            }
 
         if (ArgValue(args, "career", 0) != 0)
         {
