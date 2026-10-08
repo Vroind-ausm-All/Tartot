@@ -121,6 +121,9 @@ func show_current() -> void:
 	if game == null:
 		_show_title()
 		return
+	if Spiel.vorfuehrung and game.phase not in [P.COMBAT, P.BOSS_LOOT, P.GAME_OVER]:
+		_show_vorfuehrung_ende()
+		return
 	_update_audio(game.run.darkness)
 	match game.phase:
 		P.COMBAT: _show_combat()
@@ -167,6 +170,12 @@ func _show_title() -> void:
 		var id := title_deuter if meta.is_deuter_unlocked(title_deuter) else DeuterCatalog.DEFAULT_ID
 		Spiel.new_run(RunSetup.new(id, veil))
 		show_current(), true)
+
+	if OS.is_debug_build():
+		_button(box, "VORFÜHRUNG — XVI DER TURM\nder Bosskampf aus einem echten Run, ohne Speichern",
+			func():
+				if Spiel.starte_vorfuehrung("boss_turm") != null:
+					show_current())
 
 	var daily := RunSetup.daily()
 	var daily_done := meta.last_daily_seed == MetaProgress.daily_seed()
@@ -336,6 +345,14 @@ func _show_boss_loot() -> void:
 	var game := Spiel.game
 	var omen := game.omen_card()
 	var box := _page("DAS OMEN FÄLLT", game.message + "\nWas geschieht mit seiner Tinte?")
+	if omen != null:
+		var vorschau := CardInstance.new(omen)
+		vorschau.level = 2
+		vorschau.shimmer = Enums.Shimmer.BLOOD
+		vorschau.orientation = Enums.Orientation.REVERSED
+		var mitte := CenterContainer.new()
+		mitte.add_child(Kartenblatt.new(vorschau))
+		box.add_child(mitte)
 	var soak: Array[String] = []
 	for c in game.soak_targets():
 		soak.append(c.definition.name)
@@ -396,6 +413,14 @@ func _show_report() -> void:
 		Spiel.new_run(RunSetup.new(Spiel.setup.deuter_id, Spiel.setup.veil))
 		show_current(), true)
 	_button(box, "ANDERE FIGUR, ANDERER SCHLEIER", func(): Spiel.abandon_to_title(); show_current())
+
+func _show_vorfuehrung_ende() -> void:
+	var game := Spiel.game
+	var box := _page("ENDE DER VORFÜHRUNG", game.message)
+	_button(box, "NOCH EINMAL", func():
+		if Spiel.starte_vorfuehrung(Spiel.vorfuehrung_boss) != null:
+			show_current(), true)
+	_button(box, "ZUM TITEL", func(): Spiel.abandon_to_title(); show_current())
 
 func _update_audio(darkness: int) -> void:
 	if music != null:

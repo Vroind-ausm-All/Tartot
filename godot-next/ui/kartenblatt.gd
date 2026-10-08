@@ -10,6 +10,10 @@ var card: CardInstance
 var selected := false
 var veiled := false
 var death_mark := 0
+## Darf auf einen Platz gezogen werden (Hand im Kampf).
+var ziehbar := false
+## Hebt sich, wenn gewaehlt (0..1, getweent).
+var _hub := 0.0
 
 func _init(p_card: CardInstance, p_veiled := false, p_death_mark := 0) -> void:
 	card = p_card
@@ -25,7 +29,26 @@ func _gui_input(event: InputEvent) -> void:
 		chosen.emit(card)
 		accept_event()
 
+func _process(_delta: float) -> void:
+	var ziel := 1.0 if selected else 0.0
+	if absf(_hub - ziel) > 0.01:
+		_hub = lerpf(_hub, ziel, 0.35)
+		queue_redraw()
+
+func _get_drag_data(_pos: Vector2) -> Variant:
+	if not ziehbar or card == null:
+		return null
+	var vorschau := Kartenblatt.new(card, veiled, death_mark)
+	vorschau.size = custom_minimum_size
+	vorschau.position = -custom_minimum_size * 0.5
+	vorschau.rotation = 0.06
+	var halter := Control.new()
+	halter.add_child(vorschau)
+	set_drag_preview(halter)
+	return {"karte": card}
+
 func _draw() -> void:
+	draw_set_transform(Vector2(0, -6.0 * _hub), 0.0, Vector2.ONE)
 	var fill := Thema.PAPER_DARK
 	var border := Thema.INK
 	var S := Enums.Shimmer

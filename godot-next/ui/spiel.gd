@@ -15,6 +15,10 @@ var setup: RunSetup = RunSetup.new()
 var report: RunReport = null
 ## Schon angekuendigte Prophezeiungen dieses Runs.
 var _announced: Dictionary = {}
+## Vorfuehrung (Turm-Slice): kein Speichern, keine Meta-Verbuchung.
+var vorfuehrung := false
+## Welcher Boss in der Vorfuehrung gezeigt wird.
+var vorfuehrung_boss := ""
 
 func _ready() -> void:
 	meta = _load_meta()
@@ -33,6 +37,7 @@ func use_test_storage() -> void:
 # ------------------------------------------------------------ Run
 ## Neuer Run. seed = 0: Tageskarte -> Tagesseed, sonst ein frischer Seed.
 func new_run(p_setup: RunSetup, seed := 0) -> GameController:
+	vorfuehrung = false
 	setup = p_setup if p_setup != null else RunSetup.new()
 	if seed == 0:
 		seed = MetaProgress.daily_seed() if setup.is_daily else fresh_seed()
@@ -43,6 +48,33 @@ func new_run(p_setup: RunSetup, seed := 0) -> GameController:
 	_announced.clear()
 	save_run()
 	return game
+
+## Vorfuehrung eines Bosskampfs (Vertical Slice, docs/VERTICAL_SLICE.md):
+## ein echter Run, dessen Akt-I- bzw. Aktboss boss_id ist, vom Autopiloten
+## bis vor den Bosskampf gespielt. Nichts wird gespeichert oder verbucht.
+## Liefert null, wenn kein passender Seed gefunden wurde.
+func starte_vorfuehrung(boss_id: String, max_seeds := 400) -> GameController:
+	var pilot := Autopilot.new()
+	for seed in range(1, max_seeds + 1):
+		var g := GameController.new(seed)
+		var akt := g.run.act_bosses.find(boss_id) + 1
+		if akt <= 0 or akt > ActCatalog.ACT_COUNT:
+			continue
+		var ziel := akt * ActCatalog.FIGHTS_PER_ACT - 1
+		var guard := 0
+		while g.phase != Enums.GamePhase.GAME_OVER and guard < 4000:
+			guard += 1
+			if g.phase == Enums.GamePhase.COMBAT and g.run.fight_index == ziel:
+				break
+			pilot.step(g)
+		if g.phase == Enums.GamePhase.COMBAT and g.combat.enemy.definition.id == boss_id:
+			game = g
+			report = null
+			_announced.clear()
+			vorfuehrung = true
+			vorfuehrung_boss = boss_id
+			return g
+	return null
 
 ## Ein Seed, der sicher in JSON-Zahlen passt (unter 2^53).
 static func fresh_seed() -> int:
@@ -57,6 +89,8 @@ func after_turn(turn: TurnResult) -> String:
 	var lines: Array[String] = []
 	if game == null:
 		return ""
+	if vorfuehrung:
+		return "DER TURM IST GEFALLEN" if turn != null and turn.victory else ""
 	for p in meta.pending_fulfilled(game.run):
 		if not _announced.has(p.id):
 			_announced[p.id] = true
@@ -83,6 +117,10 @@ func after_turn(turn: TurnResult) -> String:
 func complete_run_once() -> RunReport:
 	if report != null or game == null:
 		return report
+	if vorfuehrung:
+		report = RunReport.new()
+		report.headline = "DER VORHANG FÄLLT"
+		return report
 	var killed_by := ""
 	if not game.run.won and game.combat != null:
 		killed_by = game.combat.enemy.definition.name
@@ -94,10 +132,11 @@ func complete_run_once() -> RunReport:
 func abandon_to_title() -> void:
 	game = null
 	report = null
+	vorfuehrung = false
 
 # ---------------------------------------------------------- Speichern
 func save_run() -> void:
-	if game == null:
+	if game == null or vorfuehrung:
 		return
 	if game.phase == Enums.GamePhase.GAME_OVER:
 		_clear_run_file()

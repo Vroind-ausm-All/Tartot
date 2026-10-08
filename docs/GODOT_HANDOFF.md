@@ -46,10 +46,17 @@ godot-next/                 Hauptprojekt Godot 4.7
     progression/            ProgressionSystem, Prophezeiungen, MetaProgress, Run-Bericht
     simulation/             Autopilot
     game_controller.gd      Ablauf eines Runs
+    combat/animation_cues.gd  welche Bossanimation ein Zug auslöst (Port von AnimationCues.cs)
   ui/                       Oberfläche (Autoload Spiel = ui/spiel.gd)
+    kampf/                  Kampftisch: Kampfschirm, CueBuilder, Bühne, Regelkarte, Schicksalsplatz
+    bosse/                  BossDarstellung (Basis), BossRegistry, allgemeine Figur, turm/
+  assets/                   Spezifikationen und (später) Sprites/Klänge, z. B. sprites/bosses/turm/
   tests/smoke.gd            Rauchtest Kern
   tests/ui_walk.tscn        Laufzeittest aller Seiten mit echtem Spielzustand
+  tests/turm_slice.tscn     Laufzeittest des Turm-Slices (optional mit Bildschirmabzügen)
+  tests/asset_pipeline.gd   Aseprite-Blatt → SpriteFrames → Bossdarstellung
   tools/trace.gd            Paritätsspur
+  tools/aseprite_import*.gd Asset-Pipeline: Aseprite-JSON → SpriteFrames
 godot/                      HISTORISCH: Prototyp Godot 4.4 (70/100/200, Schicksalsfäden).
                             Enthält die Turm-Darstellung (turm_boss.gd, turm_audio.gd) und
                             die Turm-Asset-Spezifikation, die noch zu portieren sind.
@@ -105,6 +112,8 @@ dotnet test src/Tartot.Tests                                      # 281 C#-Tests
 godot --headless --path godot-next --editor --quit                # Import/Parser
 godot --headless --path godot-next --script res://tests/smoke.gd  # Rauchtest, Exit 1 bei Fehler
 godot --headless --path godot-next res://tests/ui_walk.tscn       # alle Seiten zur Laufzeit
+godot --headless --path godot-next res://tests/turm_slice.tscn    # Turm-Slice
+godot --headless --path godot-next --script res://tests/asset_pipeline.gd
 tools/paritaet.sh                                                 # C# gegen Godot, Zeile für Zeile
 ```
 
@@ -115,12 +124,15 @@ Stand 2026-10-08 (Godot 4.7.2, .NET 8):
 | C#-Tests | 281 / 281 grün |
 | Rauchtest godot-next | grün (0 Fehler) |
 | UI-Durchlauf | alle 11 Phasen gebaut, keine Laufzeitfehler |
+| Turm-Slice | echter Run bis zum Turm, Kampf über den Tisch: Einsturz, Wiederaufrichten, Siegelbruch, Phase 2, Turmtod, Omen-Beute |
+| Asset-Pipeline | künstliches Aseprite-Blatt → SpriteFrames → Darstellung spielt es |
 | Parität | **99 / 99 Fälle identisch**: 40 Seeds, 4 Deuter × 5, Schleier 1–8 × 3, Spirale × 6, Tageskarte × 2, Laufbahn 2 × 25 Runs mit Meta-Fortschritt, Speichern/Laden nach jedem Zug × 5 |
 
 Die Spur enthält je Kampfzug Legung, Wertung (floats als Bitmuster), Gegner,
 Hand, die Zahl der Zufallszüge je Strom und den Protokolltext, je Schritt den
 ganzen Run (Deck, Charms, Items, Belohnungen, Händler, Nachricht) und am Ende
-den Speicherstand. Abgedeckt sind alle 10 Bosse samt Finale und alle 18 Ereignisse.
+den Speicherstand, dazu die Animations-Cues jedes Zugs. Abgedeckt sind alle
+10 Bosse samt Finale und alle 18 Ereignisse.
 
 Warum der Port so genau ist: Der C#-Kern rechnet mit `float` (32 Bit) und
 `Math.Round` (Banker's Rounding). GDScript rechnet mit 64 Bit und rundet x,5
@@ -136,19 +148,36 @@ weg von der Null. Jede float-Rechnung des Ports läuft deshalb durch `Num.f`
 - **Noch kein APK gebaut.** Dazu fehlen im Container Android-SDK,
   Export-Templates 4.7.2 und ein Debug-Keystore. Das ist der nächste Schritt.
 
-## 7. Assets
+## 7. Assets und Darstellung
 
-- Die Oberfläche in `godot-next/ui` zeichnet alles prozedural (Palette siehe
-  `ui/thema.gd`: #1A1412 #EFE3C8 #C9B48E #8F7A5A #4E4032 #E3A83B #B3262B #3B4A8C).
-  Die Klänge erzeugt `ui/audio_bank.gd` synthetisch.
-- Turm-Referenzboss in `godot/`:
-  - `assets/sprites/bosses/turm/ASSET_SPEC.md`: 128 × 160 px, 12 fps, Tags und Layer.
-  - `assets/source/aseprite/create_boss_turm.lua`: legt die Aseprite-Datei an.
-  - `assets/audio/turm/REAPER_CUES.md`: sieben Cues.
-  - **Es gibt noch keine fertigen Sprites oder WAVs.** `turm_boss.gd` und
-    `turm_audio.gd` sind prozedurale Platzhalter mit festen State-Namen.
-  - Kleine Unstimmigkeit: REAPER_CUES nennt `res://assets/audio/bosses/turm/`,
-    der Ordner heißt `assets/audio/turm/`.
+- Die Oberfläche zeichnet prozedural (Palette in `ui/thema.gd`: #1A1412 #EFE3C8
+  #C9B48E #8F7A5A #4E4032 #E3A83B #B3262B #3B4A8C). Allgemeine Klänge erzeugt
+  `ui/audio_bank.gd`.
+- **Bossdarstellungen**: `ui/bosse/boss_darstellung.gd` ist die Basis mit den
+  Zuständen intro, idle, attack, hit, collapse, phase2, death. Bewegung,
+  Blitz und Wackeln kommen von dort. `ui/bosse/boss_registry.gd` ordnet einem
+  Gegner Figur und Klänge zu; ohne Eintrag zeigt `AllgemeinDarstellung` die
+  Pixel-Silhouette.
+- **Der Turm** (`ui/bosse/turm/`) ist aus `godot/` portiert; die Zeichnung ist
+  unverändert. Die Klänge (`turm_audio.gd`) sind prozedurale Platzhalter.
+  Fertige Sprites oder WAVs gibt es **noch nicht**.
+- **Asset-Pipeline**: Für die Aseprite-Vorlage `assets/source/aseprite/create_boss_turm.lua`
+  ausführen und das Blatt mit JSON exportieren. Dann
+  `tools/aseprite_import_cli.gd` aufrufen; es schreibt
+  `boss_turm_frames.tres`, und die Turmfigur nutzt diese Datei automatisch.
+  Klänge unter `assets/audio/bosses/turm/turm_<cue>.wav|ogg` ersetzen die
+  Platzhalter ebenfalls ohne Codeänderung. Spezifikationen:
+  `assets/sprites/bosses/turm/ASSET_SPEC.md`, `assets/audio/bosses/turm/REAPER_CUES.md`.
+- **Kampftisch** (`ui/kampf/`): Bühne (Jahrmarktzelt, in Phase 2 rot),
+  Regelkarte mit Wachssiegel (splittert beim Siegelbruch, Text aus
+  `ActiveRuleTexts`), drei Plätze mit Einsturz (Riss, Staub, Absacken;
+  der Zustand kommt nur aus `CombatState.blocked_slot`), Tippen und Ziehen,
+  Wertungskaskade aus `ScoreBreakdown.steps`. `CueBuilder` baut die Folge
+  allein aus Kernfakten (Zustand vorher, `TurnResult`, Zustand nachher,
+  `AnimationCues`).
+- **Vorführung**: Im Titel (nur Debug-Builds) startet „VORFÜHRUNG — XVI DER
+  TURM“ einen echten Run, den der Autopilot bis vor den Turm spielt. Nichts
+  wird gespeichert oder verbucht.
 
 ## 8. Übergabe-Aussagen: bestätigt und widerlegt
 
@@ -172,26 +201,28 @@ Widersprüche zwischen Prompts und Code (es gilt der Code):
 
 ## 9. Bekannte Lücken
 
-- Kampfdarstellung ist funktional, nicht final: keine Bühne, keine
-  Wertungskaskade, kein Drag-and-drop (nur Tippen), keine Boss-Animationen.
-- Turm-Präsentation aus `godot/` ist noch nicht portiert.
-- Items: im Kampf benutzbar (Zielkarten-Items wirken auf die gewählte
-  Handkarte). Das Unity-Frontend bietet Items gar nicht an.
+- Nur der Turm hat eine eigene Figur. Alle anderen Gegner zeigen die
+  allgemeine Pixel-Silhouette mit derselben Bewegung.
+- Keine fertigen Sprites oder Klänge; alles ist prozedural.
+- Kein Haptik-Feedback, keine Kamerastöße, kein „Reduced Motion“-Schalter.
+  Das Intro lässt sich noch nicht beschleunigen.
+- Ziehen nutzt Godots eingebautes Drag-and-drop (Vorschau ohne Feder).
+- Items sind im Kampf benutzbar; Zielkarten-Items wirken auf die gewählte
+  Handkarte. Das Unity-Frontend bietet Items gar nicht an.
 - Lesarten wachsen wie im Unity-Frontend nach jedem gewonnenen Kampf
-  (`ui/spiel.gd: after_turn`); diese Regel liegt in der Oberfläche, nicht im Kern.
-- Kein APK, kein iOS-Export, keine Haptik.
-- Godot-JSON liest Zahlen als double: Seeds über 2^53 verlieren Stellen. Der
-  Port erzeugt Seeds unter 2^53 (`Spiel.fresh_seed`); C#-Speicherstände mit
-  Tick-Seeds (Unity) laden, aber der Seed wird ungenau angezeigt.
+  (`ui/spiel.gd: after_turn`). Diese Regel liegt in der Oberfläche, nicht im Kern.
+- Kein APK, kein iOS-Export.
+- Godot-JSON liest Zahlen als double, deshalb verlieren Seeds über 2^53
+  Stellen. Der Port erzeugt Seeds unter 2^53 (`Spiel.fresh_seed`).
+  C#-Speicherstände mit Tick-Seeds laden zwar, aber der Seed wird ungenau angezeigt.
 - Beim Beenden meldet Godot einige verwaiste Objekte (statische Kataloge mit
-  Lambdas). Ohne Folgen; aufräumen, wenn es stört.
+  Lambdas). Das hat keine Folgen.
 
 ## 10. Nächste Aufgabe
 
-1. Turm als Vertical Slice in godot-next: `turm_boss.gd`/`turm_audio.gd` aus
-   `godot/` portieren, an `GameController`-Zustand und `TurnResult`
-   anschließen (eingestürzter Platz, Siegelbruch, Phase 2, Tod), Bühne und
-   Wertungskaskade nach `docs/VERTICAL_SLICE.md`.
-2. Android-Debug-APK bauen (SDK, Export-Templates 4.7.2, Debug-Keystore).
-3. Danach der Mond nach demselben Muster: `mond_boss.gd`, `mond_audio.gd`,
-   Aseprite-Vorlage, ASSET_SPEC, REAPER-Cues, Registry für Bossdarstellungen.
+1. Android-Debug-APK bauen (SDK, Export-Templates 4.7.2, Debug-Keystore) und
+   den Turm-Slice auf einem Gerät spielen.
+2. Der Mond nach demselben Muster: `ui/bosse/mond/mond_boss.gd`,
+   `mond_audio.gd`, Aseprite-Vorlage, `ASSET_SPEC.md`, `REAPER_CUES.md`,
+   Eintrag in `BossRegistry`; dazu Cues für verdeckte Karten und verborgene Absicht.
+3. Die Turm-Kunst: Aseprite-Blatt und REAPER-Cues nach Spezifikation.
