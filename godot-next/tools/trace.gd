@@ -62,8 +62,12 @@ static func _play_traced(seed: int, max_fights: int, setup: RunSetup, spiral: bo
 				if not pilot.arrange(game):
 					break
 				var layout := _layout(game)
+				var enemy_before := game.combat.enemy
+				var intent_before := enemy_before.intent
+				var round_before := game.combat.turn
 				var result := game.resolve_turn()
-				out.append(_turn_line(game, result, layout))
+				var cues := "+".join(AnimationCues.for_turn(result, enemy_before, intent_before, round_before))
+				out.append(_turn_line(game, result, layout) + " cues=" + cues)
 				if roundtrip:
 					game = _round_trip(game)
 			out.append(_step_line(game, "combat"))

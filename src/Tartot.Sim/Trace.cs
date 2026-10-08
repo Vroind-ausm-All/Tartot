@@ -64,8 +64,12 @@ public static class Trace
                     turns++;
                     if (!pilot.Arrange(game)) break;
                     var layout = Layout(game);
+                    var enemyBefore = game.Combat.Enemy;
+                    var intentBefore = enemyBefore.Intent;
+                    var roundBefore = game.Combat.Turn;
                     var result = game.ResolveTurn();
-                    output.Append(TurnLine(game, result, layout)).Append('\n');
+                    var cues = string.Join("+", AnimationCues.ForTurn(result, enemyBefore, intentBefore, roundBefore));
+                    output.Append(TurnLine(game, result, layout)).Append(" cues=").Append(cues).Append('\n');
                     if (roundtrip) game = RoundTrip(game);
                 }
                 output.Append(StepLine(game, "combat")).Append('\n');
