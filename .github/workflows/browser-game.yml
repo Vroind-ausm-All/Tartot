@@ -1,0 +1,80 @@
+name: TARTOT Browser Playtest
+
+on:
+  push:
+    branches:
+      - feature/browser-playtest
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tartot-browser-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Export Godot Web Game
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2 and export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: "4.7.2"
+          use-dotnet: false
+          include-templates: true
+
+      - name: Import resources and parse scripts
+        run: godot --headless --path godot-next --editor --quit
+
+      - name: Run gameplay smoke test
+        run: godot --headless --path godot-next --script res://tests/smoke.gd
+
+      - name: Export browser build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          godot --headless --path godot-next --export-release "Web Browser" "$GITHUB_WORKSPACE/build/web/index.html"
+          test -s build/web/index.html
+          test -s build/web/index.js
+          test -s build/web/index.wasm
+          test -s build/web/index.pck
+          touch build/web/.nojekyll
+          echo "Web build files:"
+          du -h build/web/*
+
+      - name: Upload downloadable browser build
+        uses: actions/upload-artifact@v4
+        with:
+          name: tartot-browser-playtest
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload GitHub Pages bundle
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/web
+
+  deploy:
+    name: Publish Browser Playtest
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

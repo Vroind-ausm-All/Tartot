@@ -184,7 +184,7 @@ func _show_title() -> void:
 		Spiel.new_run(RunSetup.new(id, veil))
 		show_current(), true)
 
-	if OS.is_debug_build():
+	if OS.is_debug_build() or OS.get_name() == "Web":
 		for vorf in [["boss_turm", "XVI DER TURM"], ["boss_tod", "XIII DER TOD"], ["boss_mond", "XVIII DER MOND"]]:
 			var boss_id: String = vorf[0]
 			_button(box, "VORFÜHRUNG — %s\nder Bosskampf aus einem echten Run, ohne Speichern" % vorf[1],
