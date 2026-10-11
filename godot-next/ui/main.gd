@@ -26,6 +26,9 @@ var event_beat := 0
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Keine Vollbild-GUI-Flaeche darf Kartenklicks vor _unhandled_input
+	# verschlucken. Echte Buttons und Scroll-Controls empfangen weiter GUI-Input.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_setup_audio()
 	title_deuter = Spiel.setup.deuter_id
 	title_veil = Spiel.setup.veil

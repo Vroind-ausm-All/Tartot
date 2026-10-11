@@ -35,6 +35,9 @@ jobs:
       - name: Run gameplay smoke test
         run: godot --headless --path godot-next --script res://tests/smoke.gd
 
+      - name: Test actual card pointer input
+        run: godot --headless --path godot-next res://tests/browser_input.tscn
+
       - name: Export browser build
         shell: bash
         run: |

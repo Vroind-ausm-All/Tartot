@@ -41,6 +41,17 @@ python3 -m http.server 8000 --directory build/web
 
 Godot 4.7.2 benötigt installierte Standard-Exporttemplates für Web.
 
+## Bedienbarkeit
+
+Nach **RUN BEGINNEN** lassen sich Handkarten anklicken, anheben und auf
+Vergangenheit/Gegenwart/Zukunft ziehen. Die Eingaben laufen über
+`KartenTisch._unhandled_input`; der Hauptbildschirm lässt deshalb
+nicht-behandelte Mausereignisse an den Kartentisch durch.
+Der CI-Test `tests/browser_input.tscn` prüft echte Maus-Drücken-/Loslassen-Events.
+
+Auf dem Titelbildschirm sind weitere **Deuter** und **Schleier** erst nach
+entsprechendem Spielfortschritt verfügbar (absichtlich deaktiviert).
+
 ## Browser-Bedienung und Technik
 
 - Maus entspricht Touch; Karten ziehen, Plätze belegen und SCHICKSAL AUSFÜHREN.
