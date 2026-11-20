@@ -79,7 +79,7 @@ namespace Tartot.Core
 
             var desc = new[]
             {
-                "Ziehe zusätzliche Karten; umgekehrt riskanter, aber mit Luck.",
+                "Zählt als 1 bis 4, wenn das DIE WELT schließt. Zieht Karten nach; umgekehrt mehr, mit Luck.",
                 "Wiederholt die letzte Karte oder erzeugt eine temporäre Kopie.",
                 "Ordnet kommende Karten und enthüllt Gegnerabsichten.",
                 "Heilt und verstärkt die nächsten Karten; umgekehrt gegen Lebensopfer.",

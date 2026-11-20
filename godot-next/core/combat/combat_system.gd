@@ -21,6 +21,8 @@ const INTERPRETATION_POWER_PER_READING := 0.10
 ## Musterkette: Multiplikator je Glied, hoechstens 5 Glieder.
 const CHAIN_BONUS_PER_LINK := 0.10
 const MAX_CHAIN_LINKS := 5
+## Wie weit Der Narr springt: hoechstens so viele Schritte bis 21.
+const FOOL_MAX_STEP := 4
 ## Der Buchhalter behaelt so viel Schild zwischen den Runden.
 const BOOKKEEPER_SHIELD_KEPT := 0.15
 
@@ -384,11 +386,24 @@ func _calculate_score(run: RunState, combat: CombatState, commit: bool) -> Score
 	var values: Array[int] = []
 	var suit_set := {}
 	var major_count := 0
+	var fool_index := -1
 	for c in cards:
+		if fool_index < 0 and c.definition.major == Enums.MajorArcana.FOOL:
+			fool_index = values.size()
 		values.append(c.definition.rank)
 		suit_set[c.definition.suit] = true
 		if c.definition.is_major():
 			major_count += 1
+	# Die Reise des Narren: Der Narr zaehlt als 1 bis 4, je nachdem, was
+	# die Summe 21 schliesst (siehe fool_wild_value). Chips bleiben Rang 1.
+	if fool_index >= 0 and cards.size() >= 2:
+		var others: Array[int] = []
+		for i in values.size():
+			if i != fool_index:
+				others.append(values[i])
+		values[fool_index] = fool_wild_value(others)
+		if values[fool_index] != 1:
+			score.notes.append("Der Narr zählt als %d." % values[fool_index])
 	values.sort()
 	var sum := 0
 	for v in values:
@@ -528,6 +543,15 @@ func _calculate_score(run: RunState, combat: CombatState, commit: bool) -> Score
 	score.fate_damage = maxi(1, Num.rnd(raw))
 	return score
 
+## Die Reise des Narren: der Wert, als den Der Narr neben den anderen Karten
+## der Legung zaehlt. Fehlen bis zur Summe 21 hoechstens FOOL_MAX_STEP
+## Schritte, macht er sie - die 0 vollendet DIE WELT. Sonst bleibt er 1.
+static func fool_wild_value(other_ranks: Array[int]) -> int:
+	var need := 21
+	for r in other_ranks:
+		need -= r
+	return need if need >= 1 and need <= FOOL_MAX_STEP else 1
+
 ## Beinahe-Treffer fuer die Vorschau: "die 7 der Kelche vollendet DIE WELT".
 static func _add_hints(combat: CombatState, entries: Array, score: ScoreBreakdown) -> void:
 	if score.veiled:
@@ -551,6 +575,11 @@ static func _add_hints(combat: CombatState, entries: Array, score: ScoreBreakdow
 			if c.definition.rank == need:
 				completer = c
 				break
+		if completer == null and need >= 1 and need <= FOOL_MAX_STEP:
+			for c in hand:
+				if c.definition.major == Enums.MajorArcana.FOOL:
+					completer = c
+					break
 		if completer != null:
 			score.hints.append("%s vollendet DIE WELT (21)." % completer.definition.name)
 		elif need >= 1 and need <= 14:
